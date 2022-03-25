@@ -1,0 +1,65 @@
+kick-premium-error-throttled: "The Mojang API is rate limiting our server, please try joining again in a while!"
+kick-premium-error-undefined: "There was some issue while communicating with Mojang, if the problem persists, contact the server administrators"
+kick-premium-info-enabled: "Autologin enabled!"
+kick-premium-info-disabled: "Autologin disabled!"
+
+kick-invalid-case-username: "Please, change your username to &c%username%"
+kick-illegal-username: "You have illegal characters in your username or/and your username is longer than 16 characters!"
+
+kick-name-mismatch: "Oh no! It looks like an premium user with activated auto login changed their nickname to %nickname%, therefore there are 2 colliding accounts. Please contact support immediately."
+
+kick-no-server: "Unable to find a suitable server"
+
+error-already-authorized: "You are already authorized!"
+error-password-wrong: "Wrong password!"
+error-password-not-match: "Passwords do not match!"
+error-already-registered: "You are already registered!"
+error-not-registered: "You are not registered!"
+error-not-authorized: "Please authorize first!"
+error-not-paid: "This account does not exist in the Mojang database!"
+error-premium-throttled: "The Mojang API is rate limiting our server, please try the command again in a while!"
+error-premium-unknown: "There was an unknown error while communicating with the mojang API, please check console for further details!"
+error-not-premium: "You do not have autologin enabled, enable it using /premium password"
+error-not-cracked: "You have autologin enabled, disable it using /cracked"
+
+error-throttle: "You are sending commands too fast! Please wait a bit"
+
+error-no-confirm: "Please use /premium password first!"
+
+error-not-option: "This option does not exist!"
+
+error-corrupted-messages: "Messages are corrupted, old ones are going to be kept. Cause: %cause%"
+error-corrupted-configuration: "Configuration is corrupted, old one is going to be kept. Cause: %cause%"
+
+error-unknown: "An unknown exception has occurred while performing this action, check console for further detail"
+
+error-unknown-user: "This user does not exist!"
+error-occupied-user: "User %name% already exists!"
+
+error-player-online: "The target player is online!"
+
+error-no-permission: "I'm sorry, but you do not have permission to perform this command."
+error-invalid-syntax: "Usage: <c2>{command}</c2> <c3>{syntax}</c3>"
+error-unknown-command: "Unknown Command, please type <c2>/help</c2>"
+
+info-logging-in: "Logging in..."
+info-logged-in: "Successfully logged in!"
+info-registering: "Registering..."
+info-registered: "Successfully registered!"
+
+info-enabling: "Enabling..."
+info-disabling: "Disabling..."
+info-editing: "Editing..."
+info-edited: "Edited"
+info-reloading: "Reloading..."
+info-reloaded: "Reloaded!"
+
+info-user: |-
+  "UUID: %uuid%"
+  "Premium UUID: %premium_uuid%"
+  "Last Seen: %last_seen%"
+  "Joined: %joined%"
+prompt-register: "Please register using: /register password passwordRepeat"
+prompt-login: "Please login using: /login password"
+prompt-confirm: "You are about to enable premium autologin, please take note, that you &4WILL NOT&r be able to connect to your account from cracked client. You can turn this off later by using /cracked. To confirm this action, you have 5 minutes to run /confirmpremium"
+

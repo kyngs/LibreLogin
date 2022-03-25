@@ -1,0 +1,25 @@
+allowed-commands-while-unauthorized:
+  - "login"
+  - "register"
+database:
+  host: ""
+  port: 3306
+  username: ""
+  password: ""
+  database: ""
+limbo: "limbo_server_name"
+pass_through:
+  - "lobby0"
+  - "lobby1"
+default-crypto-provider: "SHA-256"
+kick-on-wrong-password: false
+migration:
+  on-next-startup: false
+  type: ""
+  old-database:
+    host: ""
+    port: 3306
+    username: ""
+    password: ""
+    database: ""
+    table: ""

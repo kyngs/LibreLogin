@@ -1,0 +1,3 @@
+rootProject.name = 'LibrePremium'
+include 'Plugin'
+

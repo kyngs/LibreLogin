@@ -1,0 +1,271 @@
+package xyz.kyngs.librepremium.common;
+
+import co.aikar.commands.CommandIssuer;
+import co.aikar.commands.CommandManager;
+import com.google.gson.Gson;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import xyz.kyngs.easydb.EasyDB;
+import xyz.kyngs.easydb.EasyDBConfig;
+import xyz.kyngs.easydb.provider.mysql.MySQL;
+import xyz.kyngs.easydb.provider.mysql.MySQLConfig;
+import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
+import xyz.kyngs.librepremium.api.Logger;
+import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
+import xyz.kyngs.librepremium.api.configuration.Messages;
+import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
+import xyz.kyngs.librepremium.api.crypto.CryptoProvider;
+import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
+import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
+import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
+import xyz.kyngs.librepremium.common.command.CommandProvider;
+import xyz.kyngs.librepremium.common.config.YamlMessages;
+import xyz.kyngs.librepremium.common.config.YamlPluginConfiguration;
+import xyz.kyngs.librepremium.common.crypto.SHA256CryptoProvider;
+import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
+import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
+import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
+import xyz.kyngs.librepremium.common.util.GeneralUtil;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
+
+    public static final Gson GSON = new Gson();
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+
+    private final MojangPremiumProvider premiumProvider;
+    private final Map<String, CryptoProvider> cryptoProviders;
+    private final Map<String, ReadDatabaseProvider> readProviders;
+    private Logger logger;
+    private YamlPluginConfiguration configuration;
+    private YamlMessages messages;
+    private AuthenticAuthorizationProvider authorizationProvider;
+    private MySQLDatabaseProvider databaseProvider;
+    private CommandProvider commandProvider;
+
+    protected AuthenticLibrePremium() {
+        premiumProvider = new MojangPremiumProvider();
+        cryptoProviders = new HashMap<>();
+        readProviders = new HashMap<>();
+
+        registerCryptoProvider(new SHA256CryptoProvider());
+    }
+
+    @Override
+    public Collection<ReadDatabaseProvider> getReadProviders() {
+        return readProviders.values();
+    }
+
+    @Override
+    public void registerReadProvider(ReadDatabaseProvider provider, String id) {
+        readProviders.put(id, provider);
+    }
+
+    public CommandProvider getCommandProvider() {
+        return commandProvider;
+    }
+
+    @Override
+    public MySQLDatabaseProvider getDatabaseProvider() {
+        return databaseProvider;
+    }
+
+    @Override
+    public MojangPremiumProvider getPremiumProvider() {
+        return premiumProvider;
+    }
+
+    protected void enable() {
+        logger = provideLogger();
+
+        logger.info("Loading configuration...");
+
+        checkDataFolder();
+
+        configuration = new YamlPluginConfiguration();
+
+        try {
+            configuration.reload(this);
+            validateConfiguration(configuration);
+        } catch (IOException e) {
+            logger.info("An unknown exception occurred while attempting to load the configuration, this most likely isn't your fault");
+            throw new RuntimeException(e);
+        } catch (CorruptedConfigurationException e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            throw new RuntimeException(cause);
+        }
+
+        logger.info("Configuration loaded");
+
+        logger.info("Loading messages...");
+
+        messages = new YamlMessages();
+
+        try {
+            messages.reload(this);
+        } catch (IOException e) {
+            logger.info("An unknown exception occurred while attempting to load the messages, this most likely isn't your fault");
+            throw new RuntimeException(e);
+        } catch (CorruptedConfigurationException e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            throw new RuntimeException(cause);
+        }
+
+        logger.info("Messages loaded");
+
+        logger.info("Connecting to the database...");
+
+        try {
+            databaseProvider = new MySQLDatabaseProvider(configuration, logger);
+        } catch (Exception e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("Failed to connect to the database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            throw new RuntimeException(cause);
+        }
+
+        logger.info("Successfully connected to the database");
+
+        checkAndMigrate();
+
+        authorizationProvider = new AuthenticAuthorizationProvider(this);
+        commandProvider = new CommandProvider(this);
+    }
+
+    private void checkAndMigrate() {
+        if (configuration.migrateOnNextStartup()) {
+            logger.info("Performing migration...");
+
+            try {
+                logger.info("Connecting to the OLD database...");
+
+                EasyDB<MySQL, Connection, SQLException> easyDB;
+
+                try {
+                    easyDB = new EasyDB<>(
+                            new EasyDBConfig<>(
+                                    new MySQL(
+                                            new MySQLConfig()
+                                                    .setUsername(configuration.getOldDatabaseUsername())
+                                                    .setPassword(configuration.getOldDatabasePassword())
+                                                    .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getOldDatabaseHost(), configuration.getOldDatabasePort(), configuration.getOldDatabase()))
+                                    )
+                            )
+                                    .useGlobalExecutor(true)
+                    );
+
+                    logger.info("Connected to the OLD database");
+
+                } catch (Exception e) {
+                    var cause = GeneralUtil.getFurthestCause(e);
+                    logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+                    logger.error("Failed to connect to the OLD database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+                    logger.error("Aborting migration");
+
+                    return;
+                }
+
+                try {
+                    var localProviders = new HashMap<String, ReadDatabaseProvider>();
+
+                    localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getOldTable(), logger));
+
+                    var provider = localProviders.get(configuration.getMigrator());
+
+                    if (provider == null) {
+                        logger.error("Unknown migrator %s, aborting migration".formatted(configuration.getMigrator()));
+                        return;
+                    }
+
+                    logger.info("Starting data conversion... This may take a while!");
+
+                    migrate(provider, databaseProvider);
+
+                    logger.info("Migration complete, cleaning up!");
+
+                } finally {
+                    easyDB.stop();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("An unexpected exception occurred while performing database migration, aborting migration");
+            }
+
+        }
+    }
+
+    protected void disable() {
+        databaseProvider.disable();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+    @Override
+    public PluginConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    @Override
+    public Messages getMessages() {
+        return messages;
+    }
+
+    @Override
+    public void checkDataFolder() {
+        var folder = getDataFolder();
+
+        if (!folder.exists()) if (!folder.mkdir()) throw new RuntimeException("Failed to create datafolder");
+    }
+
+    protected abstract Logger provideLogger();
+
+    public abstract CommandManager<?, ?, ?, ?, ?, ?> provideManager();
+
+    public abstract Audience getFromIssuer(CommandIssuer issuer);
+
+    public abstract void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException;
+
+    public abstract void authorize(UUID uuid);
+
+    public abstract void kick(UUID uuid, Component reason);
+
+    public abstract String chooseLobby() throws NoSuchElementException;
+
+    @Override
+    public AuthenticAuthorizationProvider getAuthorizationProvider() {
+        return authorizationProvider;
+    }
+
+    @Override
+    public CryptoProvider getCryptoProvider(String id) {
+        return cryptoProviders.get(id);
+    }
+
+    @Override
+    public void registerCryptoProvider(CryptoProvider provider) {
+        cryptoProviders.put(provider.getIdentifier(), provider);
+    }
+
+    @Override
+    public CryptoProvider getDefaultCryptoProvider() {
+        return getCryptoProvider(configuration.getDefaultCryptoProvider());
+    }
+
+    @Override
+    public void migrate(ReadDatabaseProvider from, WriteDatabaseProvider to) {
+        to.saveUsers(from.getAllUsers());
+    }
+}

@@ -1,0 +1,13 @@
+subprojects {
+    group = 'xyz.kyngs.librepremium'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven {
+            url 'https://jitpack.io'
+        }
+    }
+
+}
