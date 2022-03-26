@@ -9,6 +9,7 @@ version '0.1.0'
 repositories {
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     maven { url = "https://repo.opencollab.dev/maven-snapshots/" }
+    maven { url = "https://nexus.velocitypowered.com/repository/maven-public/" }
 }
 
 blossom {
