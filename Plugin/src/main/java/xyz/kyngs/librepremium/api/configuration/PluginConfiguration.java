@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public interface PluginConfiguration {
 
-    void reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException;
+    boolean reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException;
 
     Collection<String> getAllowedCommandsWhileUnauthorized();
 

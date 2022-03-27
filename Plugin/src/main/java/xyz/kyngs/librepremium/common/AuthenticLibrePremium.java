@@ -90,16 +90,21 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         configuration = new YamlPluginConfiguration();
 
         try {
-            configuration.reload(this);
+            if (configuration.reload(this)) {
+                logger.warn("!! A new configuration was generated, please fill it out, if in doubt, see the wiki !!");
+                System.exit(0);
+            }
+            ;
             validateConfiguration(configuration);
         } catch (IOException e) {
+            e.printStackTrace();
             logger.info("An unknown exception occurred while attempting to load the configuration, this most likely isn't your fault");
-            throw new RuntimeException(e);
+            System.exit(1);
         } catch (CorruptedConfigurationException e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
             logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            throw new RuntimeException(cause);
+            System.exit(1);
         }
 
         logger.info("Configuration loaded");
@@ -115,9 +120,9 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
             throw new RuntimeException(e);
         } catch (CorruptedConfigurationException e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
             logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            throw new RuntimeException(cause);
+            System.exit(1);
         }
 
         logger.info("Messages loaded");
@@ -130,7 +135,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
             var cause = GeneralUtil.getFurthestCause(e);
             logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
             logger.error("Failed to connect to the database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            throw new RuntimeException(cause);
+            System.exit(1);
         }
 
         logger.info("Successfully connected to the database");

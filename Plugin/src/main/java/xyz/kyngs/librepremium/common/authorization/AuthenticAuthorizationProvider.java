@@ -32,7 +32,6 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
     }
 
     public void startTracking(UUID uuid, Audience audience) {
-
         unAuthorized.add(uuid);
 
         sendInfoMessage(plugin.getDatabaseProvider().getByUUID(uuid), audience);

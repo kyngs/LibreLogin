@@ -49,6 +49,6 @@ public class YamlMessages implements Messages {
         var file = new File(plugin.getDataFolder(), "messages.yml");
         var original = plugin.getResourceAsStream("messages.yml");
 
-        YamlPluginConfiguration.loadAndVerifyConf(file, original).getValues(true).forEach((key, value) -> messages.put(key, SERIALIZER.deserialize(value.toString())));
+        YamlPluginConfiguration.loadAndVerifyConf(file, original).key().getValues(true).forEach((key, value) -> messages.put(key, SERIALIZER.deserialize(value.toString())));
     }
 }
