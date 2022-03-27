@@ -10,6 +10,7 @@ repositories {
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     maven { url = "https://repo.opencollab.dev/maven-snapshots/" }
     maven { url = "https://nexus.velocitypowered.com/repository/maven-public/" }
+    maven { url = "https://hub.spigotmc.org/nexus/" }
 }
 
 blossom {
@@ -38,6 +39,7 @@ dependencies {
 
     //ACF
     implementation 'co.aikar:acf-velocity:0.5.1-SNAPSHOT'
+    implementation 'co.aikar:acf-bungee:0.5.1-SNAPSHOT'
 
     //Utils
     implementation 'com.github.ben-manes.caffeine:caffeine:3.0.5'
@@ -45,4 +47,8 @@ dependencies {
 
     //Geyser
     //compileOnly 'org.geysermc.floodgate:api:2.0'
+
+    //Bungeecord
+    compileOnly 'net.md-5:bungeecord-api:1.18-R0.1-SNAPSHOT'
+    implementation 'net.kyori:adventure-platform-bungeecord:4.1.0'
 }
