@@ -22,7 +22,7 @@ Like JPremium, but free, open-source and multiplatform
 ## Platforms
 
 - [x] Velocity
-- [ ] BungeeCord
+- [x] BungeeCord
 
 ## Wiki
 
