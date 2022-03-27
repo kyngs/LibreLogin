@@ -60,7 +60,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> 
         try {
             event.setInitialServer(plugin.getServer()
                     .getServer(
-                            chooseServer(event.getPlayer().getUniqueId())
+                            chooseServer(event.getPlayer().getUniqueId(), event.getPlayer())
                     )
                     .orElseThrow()
             );

@@ -3,9 +3,11 @@ package xyz.kyngs.librepremium.common.command.commands;
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.event.events.PasswordChangeEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.Command;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
+import xyz.kyngs.librepremium.common.event.events.AuthenticPasswordChangeEvent;
 
 import java.util.UUID;
 
@@ -37,6 +39,8 @@ public class ChangePasswordCommand extends Command {
         getDatabaseProvider().saveUser(user);
 
         sender.sendMessage(getMessage("info-edited"));
+
+        plugin.getEventProvider().fire(PasswordChangeEvent.class, new AuthenticPasswordChangeEvent(user, sender, hashed));
     }
 
 }

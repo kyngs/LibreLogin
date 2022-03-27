@@ -7,6 +7,7 @@ import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.crypto.CryptoProvider;
 import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
 import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
+import xyz.kyngs.librepremium.api.event.EventProvider;
 import xyz.kyngs.librepremium.api.premium.PremiumProvider;
 
 import java.io.File;
@@ -25,6 +26,8 @@ public interface LibrePremiumPlugin {
     PluginConfiguration getConfiguration();
 
     AuthorizationProvider getAuthorizationProvider();
+
+    EventProvider getEventProvider();
 
     Messages getMessages();
 

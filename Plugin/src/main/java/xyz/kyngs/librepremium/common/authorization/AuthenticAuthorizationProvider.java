@@ -3,7 +3,9 @@ package xyz.kyngs.librepremium.common.authorization;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
+import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,10 +27,12 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
     }
 
     @Override
-    public void authorize(UUID uuid) {
+    public void authorize(UUID uuid, User user, Audience audience) {
         stopTracking(uuid);
 
-        plugin.authorize(uuid);
+        plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent(user, audience));
+
+        plugin.authorize(uuid, user, audience);
     }
 
     public void startTracking(UUID uuid, Audience audience) {

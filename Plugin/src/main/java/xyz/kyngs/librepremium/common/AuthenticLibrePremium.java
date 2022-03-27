@@ -16,13 +16,19 @@ import xyz.kyngs.librepremium.api.configuration.Messages;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.crypto.CryptoProvider;
 import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
+import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
+import xyz.kyngs.librepremium.api.event.events.LimboServerChooseEvent;
+import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librepremium.common.command.CommandProvider;
 import xyz.kyngs.librepremium.common.config.YamlMessages;
 import xyz.kyngs.librepremium.common.config.YamlPluginConfiguration;
 import xyz.kyngs.librepremium.common.crypto.SHA256CryptoProvider;
 import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
+import xyz.kyngs.librepremium.common.event.AuthenticEventProvider;
+import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEvent;
+import xyz.kyngs.librepremium.common.event.events.AuthenticLobbyServerChooseEvent;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
@@ -41,6 +47,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     private final MojangPremiumProvider premiumProvider;
     private final Map<String, CryptoProvider> cryptoProviders;
     private final Map<String, ReadDatabaseProvider> readProviders;
+    private final AuthenticEventProvider eventProvider;
     private Logger logger;
     private YamlPluginConfiguration configuration;
     private YamlMessages messages;
@@ -52,6 +59,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         premiumProvider = new MojangPremiumProvider();
         cryptoProviders = new HashMap<>();
         readProviders = new HashMap<>();
+        eventProvider = new AuthenticEventProvider(this);
 
         registerCryptoProvider(new SHA256CryptoProvider());
     }
@@ -243,11 +251,19 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public abstract void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException;
 
-    public abstract void authorize(UUID uuid);
+    public abstract void authorize(UUID uuid, User user, Audience audience);
 
     public abstract void kick(UUID uuid, Component reason);
 
-    public abstract String chooseLobby() throws NoSuchElementException;
+    public String chooseLobby(User user, Audience audience) throws NoSuchElementException {
+        var event = new AuthenticLobbyServerChooseEvent(user, audience);
+
+        getEventProvider().fire(LobbyServerChooseEvent.class, event);
+
+        return event.getServer() != null ? event.getServer() : chooseLobbyDefault();
+    }
+
+    public abstract String chooseLobbyDefault();
 
     @Override
     public AuthenticAuthorizationProvider getAuthorizationProvider() {
@@ -272,5 +288,18 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     @Override
     public void migrate(ReadDatabaseProvider from, WriteDatabaseProvider to) {
         to.saveUsers(from.getAllUsers());
+    }
+
+    @Override
+    public AuthenticEventProvider getEventProvider() {
+        return eventProvider;
+    }
+
+    public String getLimboServer(Audience audience, User user) {
+        var event = new AuthenticLimboServerChooseEvent(user, audience);
+
+        getEventProvider().fire(LimboServerChooseEvent.class, event);
+
+        return event.getServer() != null ? event.getServer() : getConfiguration().getLimboServer();
     }
 }

@@ -35,7 +35,7 @@ public class LoginCommand extends AuthorizationCommand {
         }
 
         sender.sendMessage(getMessage("info-logged-in"));
-        getAuthorizationProvider().authorize(uuid);
+        getAuthorizationProvider().authorize(uuid, user, sender);
     }
 
 }

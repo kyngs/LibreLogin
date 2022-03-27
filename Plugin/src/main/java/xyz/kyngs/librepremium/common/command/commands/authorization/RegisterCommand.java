@@ -34,7 +34,7 @@ public class RegisterCommand extends AuthorizationCommand {
 
         sender.sendMessage(getMessage("info-registered"));
 
-        getAuthorizationProvider().authorize(uuid);
+        getAuthorizationProvider().authorize(uuid, user, sender);
 
 
     }

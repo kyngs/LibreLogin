@@ -2,10 +2,14 @@ package xyz.kyngs.librepremium.common.listener;
 
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.api.premium.PremiumUser;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
+import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
+import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -25,7 +29,10 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
     }
 
     protected void onPostLogin(UUID uuid, Audience audience) {
-        if (plugin.getDatabaseProvider().getByUUID(uuid).autoLoginEnabled()) return;
+        if (plugin.getDatabaseProvider().getByUUID(uuid).autoLoginEnabled()) {
+            plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent(plugin.getDatabaseProvider().getByUUID(uuid), audience));
+            return;
+        }
         plugin.getAuthorizationProvider().startTracking(uuid, audience);
     }
 
@@ -64,7 +71,10 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
             }
 
             //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
-            user.setPremiumUUID(null);
+            if (user.getPremiumUUID() != null) {
+                user.setPremiumUUID(null);
+                plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, Audience.empty()));
+            }
 
             plugin.getDatabaseProvider().saveUser(user);
         } else {
@@ -131,11 +141,12 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
         return user;
     }
 
-    protected String chooseServer(UUID playerUUID) throws NoSuchElementException {
+    protected String chooseServer(UUID playerUUID, Audience audience) throws NoSuchElementException {
+        var user = plugin.getDatabaseProvider().getByUUID(playerUUID);
         if (plugin.getDatabaseProvider().getByUUID(playerUUID).autoLoginEnabled()) {
-            return plugin.chooseLobby();
+            return plugin.chooseLobby(user, audience);
         } else {
-            return plugin.getConfiguration().getLimboServer();
+            return plugin.getLimboServer(audience, user);
         }
     }
 }

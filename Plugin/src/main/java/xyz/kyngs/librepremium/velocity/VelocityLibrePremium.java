@@ -13,6 +13,7 @@ import net.kyori.adventure.text.Component;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
+import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.SL4JLogger;
 
@@ -89,14 +90,14 @@ public class VelocityLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public void authorize(UUID uuid) {
+    public void authorize(UUID uuid, User user, Audience audience) {
         var player = server.getPlayer(uuid)
                 .orElseThrow();
 
         try {
             player
                     .createConnectionRequest(
-                            server.getServer(chooseLobby())
+                            server.getServer(chooseLobby(user, player))
                                     .orElseThrow()
                     )
                     .connect()
@@ -115,7 +116,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public String chooseLobby() throws NoSuchElementException {
+    public String chooseLobbyDefault() throws NoSuchElementException {
         var passThroughServers = getConfiguration().getPassThroughServers();
         return server.getAllServers().stream()
                 .filter(server -> passThroughServers.contains(server.getServerInfo().getName()))

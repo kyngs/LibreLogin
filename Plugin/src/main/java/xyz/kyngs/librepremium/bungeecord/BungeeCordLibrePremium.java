@@ -8,6 +8,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
+import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 
 import java.io.File;
@@ -110,10 +111,10 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public void authorize(UUID uuid) {
+    public void authorize(UUID uuid, User user, Audience audience) {
         var player = plugin.getProxy().getPlayer(uuid);
 
-        ServerInfo serverInfo = plugin.getProxy().getServerInfo(chooseLobby());
+        ServerInfo serverInfo = plugin.getProxy().getServerInfo(chooseLobby(user, audience));
 
         if (serverInfo == null) {
             player.disconnect(plugin.getSerializer().serialize(getMessages().getMessage("kick-no-server")));
@@ -129,7 +130,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public String chooseLobby() throws NoSuchElementException {
+    public String chooseLobbyDefault() throws NoSuchElementException {
         var passThroughServers = getConfiguration().getPassThroughServers();
 
         return plugin.getProxy().getServers().values().stream()

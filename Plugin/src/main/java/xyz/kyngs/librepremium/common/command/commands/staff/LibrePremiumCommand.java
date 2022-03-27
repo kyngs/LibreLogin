@@ -6,8 +6,10 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
+import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
+import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import javax.annotation.Syntax;
@@ -99,7 +101,10 @@ public class LibrePremiumCommand extends StaffCommand {
         audience.sendMessage(getMessage("info-editing"));
 
         user.setLastNickname(newName);
-        user.setPremiumUUID(null);
+        if (user.getPremiumUUID() != null) {
+            user.setPremiumUUID(null);
+            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
+        }
         getDatabaseProvider().saveUser(user);
 
         audience.sendMessage(getMessage("info-edited"));
