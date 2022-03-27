@@ -6,7 +6,6 @@ import xyz.kyngs.librepremium.api.BiHolder;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
-import xyz.kyngs.librepremium.api.configuration.VirginConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +18,7 @@ public class YamlPluginConfiguration implements PluginConfiguration {
 
     private YamlConfiguration configuration;
 
-    static BiHolder<YamlConfiguration, Boolean> loadAndVerifyConf(File file, InputStream original) throws IOException, CorruptedConfigurationException, VirginConfigurationException {
+    static BiHolder<YamlConfiguration, Boolean> loadAndVerifyConf(File file, InputStream original) throws IOException, CorruptedConfigurationException {
         var virgin = false;
         if (!file.exists()) {
             Files.copy(original, file.toPath());
@@ -40,7 +39,7 @@ public class YamlPluginConfiguration implements PluginConfiguration {
     }
 
     @Override
-    public boolean reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException, VirginConfigurationException {
+    public boolean reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException {
         var file = new File(plugin.getDataFolder(), "config.yml");
         var original = plugin.getResourceAsStream("config.yml");
 
