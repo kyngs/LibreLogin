@@ -6,10 +6,11 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 
 import java.util.concurrent.TimeUnit;
 
-public class BungeeCordPlugin extends Plugin {
+public class BungeeCordPlugin extends Plugin implements LibrePremiumProvider {
 
     private BungeeAudiences adventure;
     private BungeeComponentSerializer serializer;
@@ -53,6 +54,7 @@ public class BungeeCordPlugin extends Plugin {
         }
     }
 
+    @Override
     public BungeeCordLibrePremium getLibrePremium() {
         return librePremium;
     }

@@ -10,10 +10,12 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.SL4JLogger;
 
@@ -31,7 +33,7 @@ import java.util.concurrent.TimeUnit;
         version = "@version@",
         authors = "kyngs"
 )
-public class VelocityLibrePremium extends AuthenticLibrePremium {
+public class VelocityLibrePremium extends AuthenticLibrePremium implements LibrePremiumProvider {
 
     @Inject
     private org.slf4j.Logger logger;
@@ -154,5 +156,10 @@ public class VelocityLibrePremium extends AuthenticLibrePremium {
     @Override
     public File getDataFolder() {
         return dataDir.toFile();
+    }
+
+    @Override
+    public LibrePremiumPlugin getLibrePremium() {
+        return this;
     }
 }
