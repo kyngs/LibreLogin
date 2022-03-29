@@ -13,36 +13,36 @@ public interface PluginConfiguration {
 
     String getDatabasePassword();
 
-    String getDatabaseUsername();
+    String getDatabaseUser();
 
-    String getHost();
+    String getDatabaseHost();
 
-    String getDatabase();
+    String getDatabaseName();
 
-    Collection<String> getPassThroughServers();
+    Collection<String> getPassThrough();
 
-    String getLimboServer();
+    String getLimbo();
 
-    int getPort();
+    int getDatabasePort();
 
     String getDefaultCryptoProvider();
 
     boolean kickOnWrongPassword();
 
-    boolean migrateOnNextStartup();
+    boolean migrationOnNextStartup();
 
-    String getMigrator();
+    String getMigrationType();
 
-    String getOldDatabaseHost();
+    String getMigrationOldDatabaseHost();
 
-    int getOldDatabasePort();
+    int getMigrationOldDatabasePort();
 
-    String getOldDatabaseUsername();
+    String getMigrationOldDatabaseUser();
 
-    String getOldDatabasePassword();
+    String getMigrationOldDatabasePassword();
 
-    String getOldDatabase();
+    String getMigrationOldDatabaseName();
 
-    String getOldTable();
+    String getMigrationOldDatabaseTable();
 
 }

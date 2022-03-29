@@ -81,11 +81,11 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
 
     @Override
     public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
-        if (server.getServer(configuration.getLimboServer()).isEmpty())
+        if (server.getServer(configuration.getLimbo()).isEmpty())
             throw new CorruptedConfigurationException("Invalid limbo");
-        if (configuration.getPassThroughServers().isEmpty())
+        if (configuration.getPassThrough().isEmpty())
             throw new CorruptedConfigurationException("No pass-through servers defined!");
-        for (String server : configuration.getPassThroughServers()) {
+        for (String server : configuration.getPassThrough()) {
             if (this.server.getServer(server).isEmpty())
                 throw new CorruptedConfigurationException("Pass-through server %s not configured!".formatted(server));
         }
@@ -119,7 +119,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
 
     @Override
     public String chooseLobbyDefault() throws NoSuchElementException {
-        var passThroughServers = getConfiguration().getPassThroughServers();
+        var passThroughServers = getConfiguration().getPassThrough();
         return server.getAllServers().stream()
                 .filter(server -> passThroughServers.contains(server.getServerInfo().getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))

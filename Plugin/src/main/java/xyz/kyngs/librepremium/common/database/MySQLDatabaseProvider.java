@@ -36,9 +36,9 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                 new EasyDBConfig<>(
                         new MySQL(
                                 new MySQLConfig()
-                                        .setUsername(configuration.getDatabaseUsername())
+                                        .setUsername(configuration.getDatabaseUser())
                                         .setPassword(configuration.getDatabasePassword())
-                                        .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getHost(), configuration.getPort(), configuration.getDatabase()))
+                                        .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getDatabaseHost(), configuration.getDatabasePort(), configuration.getDatabaseName()))
                         )
                 )
                         .setExceptionHandler(this::handleException)

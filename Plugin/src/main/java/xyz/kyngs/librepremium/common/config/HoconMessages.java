@@ -7,18 +7,19 @@ import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.Messages;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class YamlMessages implements Messages {
+import static xyz.kyngs.librepremium.common.config.DefaultMessages.DEFAULT_MESSAGES;
+
+public class HoconMessages implements Messages {
 
     private final static LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
 
     private final Map<String, TextComponent> messages;
 
-    public YamlMessages() {
+    public HoconMessages() {
         messages = new HashMap<>();
     }
 
@@ -46,9 +47,23 @@ public class YamlMessages implements Messages {
 
     @Override
     public void reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException {
-        var file = new File(plugin.getDataFolder(), "messages.yml");
-        var original = plugin.getResourceAsStream("messages.yml");
+        var adept = new ConfigurateConfiguration(
+                plugin.getDataFolder(),
+                "messages.conf",
+                DEFAULT_MESSAGES
+        );
 
-        YamlPluginConfiguration.loadAndVerifyConf(file, original).key().getValues(true).forEach((key, value) -> messages.put(key, SERIALIZER.deserialize(value.toString())));
+        var node = adept.getHelper().configuration();
+
+        node.childrenMap().forEach((key, value) -> {
+                    if (!(key instanceof String str)) return;
+                    var string = value.getString();
+
+                    if (string == null) return;
+
+                    messages.put(str, SERIALIZER.deserialize(string));
+                }
+        );
+        return;
     }
 }

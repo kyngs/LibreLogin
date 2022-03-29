@@ -43,7 +43,7 @@ dependencies {
 
     //Utils
     implementation 'com.github.ben-manes.caffeine:caffeine:3.0.6'
-    implementation 'com.github.Carleslc:Simple-YAML:1.7.2'
+    implementation 'org.spongepowered:configurate-hocon:4.1.2'
 
     //Geyser
     //compileOnly 'org.geysermc.floodgate:api:2.0'

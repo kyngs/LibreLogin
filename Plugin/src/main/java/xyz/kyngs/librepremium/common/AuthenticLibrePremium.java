@@ -22,8 +22,8 @@ import xyz.kyngs.librepremium.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librepremium.common.command.CommandProvider;
-import xyz.kyngs.librepremium.common.config.YamlMessages;
-import xyz.kyngs.librepremium.common.config.YamlPluginConfiguration;
+import xyz.kyngs.librepremium.common.config.HoconMessages;
+import xyz.kyngs.librepremium.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librepremium.common.crypto.SHA256CryptoProvider;
 import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
 import xyz.kyngs.librepremium.common.event.AuthenticEventProvider;
@@ -49,8 +49,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     private final Map<String, ReadDatabaseProvider> readProviders;
     private final AuthenticEventProvider eventProvider;
     private Logger logger;
-    private YamlPluginConfiguration configuration;
-    private YamlMessages messages;
+    private HoconPluginConfiguration configuration;
+    private HoconMessages messages;
     private AuthenticAuthorizationProvider authorizationProvider;
     private MySQLDatabaseProvider databaseProvider;
     private CommandProvider commandProvider;
@@ -95,7 +95,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
         checkDataFolder();
 
-        configuration = new YamlPluginConfiguration();
+        configuration = new HoconPluginConfiguration();
 
         try {
             if (configuration.reload(this)) {
@@ -119,7 +119,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
         logger.info("Loading messages...");
 
-        messages = new YamlMessages();
+        messages = new HoconMessages();
 
         try {
             messages.reload(this);
@@ -155,7 +155,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     }
 
     private void checkAndMigrate() {
-        if (configuration.migrateOnNextStartup()) {
+        if (configuration.migrationOnNextStartup()) {
             logger.info("Performing migration...");
 
             try {
@@ -168,9 +168,9 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
                             new EasyDBConfig<>(
                                     new MySQL(
                                             new MySQLConfig()
-                                                    .setUsername(configuration.getOldDatabaseUsername())
-                                                    .setPassword(configuration.getOldDatabasePassword())
-                                                    .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getOldDatabaseHost(), configuration.getOldDatabasePort(), configuration.getOldDatabase()))
+                                                    .setUsername(configuration.getMigrationOldDatabaseUser())
+                                                    .setPassword(configuration.getMigrationOldDatabasePassword())
+                                                    .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getMigrationOldDatabaseHost(), configuration.getMigrationOldDatabasePort(), configuration.getMigrationOldDatabaseName()))
                                     )
                             )
                                     .useGlobalExecutor(true)
@@ -190,12 +190,12 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
                 try {
                     var localProviders = new HashMap<String, ReadDatabaseProvider>();
 
-                    localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getOldTable(), logger));
+                    localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
 
-                    var provider = localProviders.get(configuration.getMigrator());
+                    var provider = localProviders.get(configuration.getMigrationType());
 
                     if (provider == null) {
-                        logger.error("Unknown migrator %s, aborting migration".formatted(configuration.getMigrator()));
+                        logger.error("Unknown migrator %s, aborting migration".formatted(configuration.getMigrationType()));
                         return;
                     }
 
@@ -300,6 +300,6 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
         getEventProvider().fire(LimboServerChooseEvent.class, event);
 
-        return event.getServer() != null ? event.getServer() : getConfiguration().getLimboServer();
+        return event.getServer() != null ? event.getServer() : getConfiguration().getLimbo();
     }
 }
