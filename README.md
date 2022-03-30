@@ -5,6 +5,8 @@ to use this plugin.*
 
 Like JPremium, but free, open-source and multiplatform
 
+**While the plugin is still in a pretty early stage, it should be stable. Most likely you are going to miss some features, if yes, please open up an issue**
+
 # Quick information
 
 ## Basic set of features
