@@ -5,6 +5,7 @@ import co.aikar.commands.CommandManager;
 import com.google.gson.Gson;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import org.bstats.charts.CustomChart;
 import xyz.kyngs.easydb.EasyDB;
 import xyz.kyngs.easydb.EasyDBConfig;
 import xyz.kyngs.easydb.provider.mysql.MySQL;
@@ -152,6 +153,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
         authorizationProvider = new AuthenticAuthorizationProvider(this);
         commandProvider = new CommandProvider(this);
+
+        initMetrics();
     }
 
     private void checkAndMigrate() {
@@ -262,6 +265,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
         return event.getServer() != null ? event.getServer() : chooseLobbyDefault();
     }
+
+    protected abstract void initMetrics(CustomChart... charts);
 
     public abstract String chooseLobbyDefault();
 

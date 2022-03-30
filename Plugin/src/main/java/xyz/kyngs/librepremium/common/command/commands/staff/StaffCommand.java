@@ -20,4 +20,9 @@ public class StaffCommand extends Command {
         return user;
     }
 
+    protected void requireOffline(User user) {
+        if (plugin.getAudienceForID(user.getUuid()) != null)
+            throw new InvalidCommandArgument(getMessage("error-player-online"));
+    }
+
 }

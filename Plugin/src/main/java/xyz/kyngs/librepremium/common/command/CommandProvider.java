@@ -7,8 +7,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.kyngs.librepremium.api.database.User;
-import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
-import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.commands.ChangePasswordCommand;
 import xyz.kyngs.librepremium.common.command.commands.authorization.LoginCommand;
@@ -17,7 +15,6 @@ import xyz.kyngs.librepremium.common.command.commands.premium.PremiumConfirmComm
 import xyz.kyngs.librepremium.common.command.commands.premium.PremiumDisableCommand;
 import xyz.kyngs.librepremium.common.command.commands.premium.PremiumEnableCommand;
 import xyz.kyngs.librepremium.common.command.commands.staff.LibrePremiumCommand;
-import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.util.RateLimiter;
 
 import java.util.HashMap;
@@ -101,22 +98,7 @@ public class CommandProvider {
 
         audience.sendMessage(plugin.getMessages().getMessage("info-enabling"));
 
-        try {
-            var id = plugin.getPremiumProvider().getUserForName(user.getLastNickname());
-
-            if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
-
-            user.setPremiumUUID(id.uuid());
-
-            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
-        } catch (PremiumException e) {
-            throw new InvalidCommandArgument(plugin.getMessages().getMessage(
-                    switch (e.getIssue()) {
-                        case THROTTLED -> "error-premium-throttled";
-                        default -> "error-premium-unknown";
-                    }
-            ));
-        }
+        LibrePremiumCommand.enablePremium(audience, user, plugin);
 
         plugin.getDatabaseProvider().saveUser(user);
 

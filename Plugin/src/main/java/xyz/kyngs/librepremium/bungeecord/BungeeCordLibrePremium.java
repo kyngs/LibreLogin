@@ -5,6 +5,9 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import org.bstats.bungeecord.Metrics;
+import org.bstats.charts.CustomChart;
+import org.bstats.charts.SimplePie;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
@@ -127,6 +130,19 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     @Override
     public void kick(UUID uuid, Component reason) {
         plugin.getProxy().getPlayer(uuid).disconnect(plugin.getSerializer().serialize(reason));
+    }
+
+    @Override
+    protected void initMetrics(CustomChart... charts) {
+        var metrics = new Metrics(plugin, 14805);
+
+        for (CustomChart chart : charts) {
+            metrics.addCustomChart(chart);
+        }
+
+        var isVelocity = new SimplePie("using_velocity", () -> "No");
+
+        metrics.addCustomChart(isVelocity);
     }
 
     @Override

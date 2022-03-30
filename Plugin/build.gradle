@@ -19,6 +19,24 @@ blossom {
 
 shadowJar {
     archiveFileName = "LibrePremium.jar"
+
+    dependencies {
+        exclude(dependency('org.slf4j:.*:.*'))
+        exclude(dependency('org.checkerframework:.*:.*'))
+        exclude(dependency('com.google.errorprone:.*:.*'))
+        exclude(dependency('com.google.protobuf:.*:.*'))
+    }
+
+    relocate 'co.aikar', 'xyz.librepremium.lib.acf'
+    relocate 'com.github.benmanes.caffeine', 'xyz.librepremium.lib.caffeine'
+    relocate 'com.typesafe.config', 'xyz.librepremium.lib.hocon'
+    relocate 'com.zaxxer.hikari', 'xyz.librepremium.lib.hikari'
+    relocate 'com.mysql', 'xyz.librepremium.lib.mysql'
+    relocate 'org.bstats', 'xyz.librepremium.lib.metrics'
+    relocate 'org.intellij', 'xyz.librepremium.lib.intellij'
+    relocate 'org.jetbrains', 'xyz.librepremium.lib.jetbrains'
+    relocate 'io.leangen.geantyref', 'xyz.librepremium.lib.reflect'
+    relocate 'org.spongepowered.configurate', 'xyz.librepremium.lib.configurate'
 }
 
 java {
@@ -51,4 +69,8 @@ dependencies {
     //Bungeecord
     compileOnly 'net.md-5:bungeecord-api:1.18-R0.1-SNAPSHOT'
     implementation 'net.kyori:adventure-platform-bungeecord:4.1.0'
+
+    //BStats
+    implementation 'org.bstats:bstats-velocity:3.0.0'
+    implementation 'org.bstats:bstats-bungeecord:3.0.0'
 }

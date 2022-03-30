@@ -6,7 +6,9 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
+import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
+import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
@@ -14,6 +16,9 @@ import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import javax.annotation.Syntax;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static xyz.kyngs.librepremium.common.AuthenticLibrePremium.DATE_TIME_FORMATTER;
 
@@ -83,6 +88,25 @@ public class LibrePremiumCommand extends StaffCommand {
         ));
     }
 
+    public static void enablePremium(Audience audience, User user, AuthenticLibrePremium plugin) {
+        try {
+            var id = plugin.getPremiumProvider().getUserForName(user.getLastNickname());
+
+            if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+
+            user.setPremiumUUID(id.uuid());
+
+            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
+        } catch (PremiumException e) {
+            throw new InvalidCommandArgument(plugin.getMessages().getMessage(
+                    switch (e.getIssue()) {
+                        case THROTTLED -> "error-premium-throttled";
+                        default -> "error-premium-unknown";
+                    }
+            ));
+        }
+    }
+
     @Subcommand("user migrate")
     @CommandPermission("librepremium.user.migrate")
     @Syntax("<name> <newName>")
@@ -95,8 +119,7 @@ public class LibrePremiumCommand extends StaffCommand {
                     "%name%", newName
             ));
 
-        if (plugin.getAudienceForID(user.getUuid()) != null)
-            throw new InvalidCommandArgument(getMessage("error-player-online"));
+        requireOffline(user);
 
         audience.sendMessage(getMessage("info-editing"));
 
@@ -117,8 +140,7 @@ public class LibrePremiumCommand extends StaffCommand {
     public void onUserUnregister(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
-        if (plugin.getAudienceForID(user.getUuid()) != null)
-            throw new InvalidCommandArgument(getMessage("error-player-online"));
+        requireOffline(user);
 
         audience.sendMessage(getMessage("info-editing"));
 
@@ -135,14 +157,75 @@ public class LibrePremiumCommand extends StaffCommand {
     public void onUserDelete(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
-        if (plugin.getAudienceForID(user.getUuid()) != null)
-            throw new InvalidCommandArgument(getMessage("error-player-online"));
+        requireOffline(user);
 
         audience.sendMessage(getMessage("info-deleting"));
 
         getDatabaseProvider().deleteUser(user);
 
         audience.sendMessage(getMessage("info-deleted"));
+    }
+
+    @Subcommand("user premium")
+    @CommandPermission("librepremium.user.premium")
+    @Syntax("<name>")
+    @CommandCompletion("@players")
+    public void onUserPremium(Audience audience, String name) {
+        var user = getUserOtherWiseInform(name);
+
+        requireOffline(user);
+
+        audience.sendMessage(getMessage("info-editing"));
+
+        enablePremium(audience, user, plugin);
+
+        getDatabaseProvider().saveUser(user);
+
+        audience.sendMessage(getMessage("info-edited"));
+    }
+
+    @Subcommand("user cracked")
+    @CommandPermission("librepremium.user.cracked")
+    @Syntax("<name>")
+    @CommandCompletion("@players")
+    public void onUserCracked(Audience audience, String name) {
+        var user = getUserOtherWiseInform(name);
+
+        requireOffline(user);
+
+        audience.sendMessage(getMessage("info-editing"));
+
+        user.setPremiumUUID(null);
+        getDatabaseProvider().saveUser(user);
+
+        audience.sendMessage(getMessage("info-edited"));
+    }
+
+    @Subcommand("user register")
+    @CommandPermission("librepremium.user.register")
+    @Syntax("<name> <password>")
+    @CommandCompletion("@players password")
+    public void onUserRegister(Audience audience, String name, String password) {
+        audience.sendMessage(getMessage("info-registering"));
+
+        var user = getDatabaseProvider().getByName(name);
+
+        if (user != null) {
+            throw new InvalidCommandArgument(getMessage("error-occupied-user"));
+        }
+
+        user = new User(
+                UUID.randomUUID(),
+                null,
+                plugin.getDefaultCryptoProvider().createHash(password),
+                name,
+                Timestamp.valueOf(LocalDateTime.now()),
+                Timestamp.valueOf(LocalDateTime.now())
+        );
+
+        getDatabaseProvider().saveUser(user);
+
+        audience.sendMessage(getMessage("info-registered"));
     }
 
 }

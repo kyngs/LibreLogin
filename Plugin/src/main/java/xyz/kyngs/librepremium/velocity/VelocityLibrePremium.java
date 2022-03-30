@@ -10,6 +10,9 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import org.bstats.charts.CustomChart;
+import org.bstats.charts.SimplePie;
+import org.bstats.velocity.Metrics;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
@@ -42,6 +45,8 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     private Path dataDir;
     @Inject
     private ProxyServer server;
+    @Inject
+    private Metrics.Factory factory;
 
     public ProxyServer getServer() {
         return server;
@@ -115,6 +120,19 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     @Override
     public void kick(UUID uuid, Component reason) {
         server.getPlayer(uuid).ifPresent(player -> player.disconnect(reason));
+    }
+
+    @Override
+    protected void initMetrics(CustomChart... charts) {
+        var metrics = factory.make(this, 14805);
+
+        for (CustomChart chart : charts) {
+            metrics.addCustomChart(chart);
+        }
+
+        var isVelocity = new SimplePie("using_velocity", () -> "Yes");
+
+        metrics.addCustomChart(isVelocity);
     }
 
     @Override
