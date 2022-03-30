@@ -316,6 +316,20 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> INFO_DELETING = new ConfigurationKey<>(
+            "info-deleting",
+            "Deleting...",
+            "This message is displayed when something is being deleted.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_DELETED = new ConfigurationKey<>(
+            "info-deleted",
+            "Deleted!",
+            "This message is displayed when something has been deleted.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> INFO_RELOADING = new ConfigurationKey<>(
             "info-reloading",
             "Reloading...",
@@ -427,6 +441,8 @@ public class DefaultMessages {
         helper.setDefault(INFO_DISABLING);
         helper.setDefault(INFO_EDITING);
         helper.setDefault(INFO_EDITED);
+        helper.setDefault(INFO_DELETING);
+        helper.setDefault(INFO_DELETED);
         helper.setDefault(INFO_RELOADING);
         helper.setDefault(INFO_RELOADED);
         helper.setDefault(INFO_USER);

@@ -246,6 +246,19 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
         });
     }
 
+    @Override
+    public void deleteUser(User user) {
+        easyDB.runTaskSync(connection -> {
+            var ps = connection.prepareStatement("DELETE FROM librepremium_data WHERE uuid=?");
+
+            ps.setString(1, user.getUuid().toString());
+
+            ps.executeUpdate();
+        });
+
+        userCache.invalidate(user.getUuid());
+    }
+
     public void disable() {
         easyDB.stop();
     }

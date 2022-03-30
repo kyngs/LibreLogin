@@ -110,4 +110,39 @@ public class LibrePremiumCommand extends StaffCommand {
         audience.sendMessage(getMessage("info-edited"));
     }
 
+    @Subcommand("user unregister")
+    @CommandPermission("librepremium.user.unregister")
+    @Syntax("<name>")
+    @CommandCompletion("@players")
+    public void onUserUnregister(Audience audience, String name) {
+        var user = getUserOtherWiseInform(name);
+
+        if (plugin.getAudienceForID(user.getUuid()) != null)
+            throw new InvalidCommandArgument(getMessage("error-player-online"));
+
+        audience.sendMessage(getMessage("info-editing"));
+
+        user.setHashedPassword(null);
+        getDatabaseProvider().saveUser(user);
+
+        audience.sendMessage(getMessage("info-edited"));
+    }
+
+    @Subcommand("user delete")
+    @CommandPermission("librepremium.user.delete")
+    @Syntax("<name>")
+    @CommandCompletion("@players")
+    public void onUserDelete(Audience audience, String name) {
+        var user = getUserOtherWiseInform(name);
+
+        if (plugin.getAudienceForID(user.getUuid()) != null)
+            throw new InvalidCommandArgument(getMessage("error-player-online"));
+
+        audience.sendMessage(getMessage("info-deleting"));
+
+        getDatabaseProvider().deleteUser(user);
+
+        audience.sendMessage(getMessage("info-deleted"));
+    }
+
 }

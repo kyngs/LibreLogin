@@ -8,4 +8,6 @@ public interface WriteDatabaseProvider {
 
     void saveUsers(Collection<User> users);
 
+    void deleteUser(User user);
+
 }
