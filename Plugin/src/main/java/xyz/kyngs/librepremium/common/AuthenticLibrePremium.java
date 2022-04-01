@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.easydb.EasyDB;
 import xyz.kyngs.easydb.EasyDBConfig;
 import xyz.kyngs.easydb.provider.mysql.MySQL;
@@ -21,8 +22,11 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
+import xyz.kyngs.librepremium.api.premium.PremiumException;
+import xyz.kyngs.librepremium.api.premium.PremiumUser;
 import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librepremium.common.command.CommandProvider;
+import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.config.HoconMessages;
 import xyz.kyngs.librepremium.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librepremium.common.crypto.SHA256CryptoProvider;
@@ -220,6 +224,14 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         }
     }
 
+    public UUID generateNewUUID(String name, @Nullable UUID premiumID) {
+        return switch (configuration.getNewUUIDCreator()) {
+            case RANDOM -> UUID.randomUUID();
+            case MOJANG -> premiumID == null ? GeneralUtil.getCrackedUUIDFromName(name) : premiumID;
+            case CRACKED -> GeneralUtil.getCrackedUUIDFromName(name);
+        };
+    }
+
     protected void disable() {
         databaseProvider.disable();
     }
@@ -258,12 +270,27 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public abstract void kick(UUID uuid, Component reason);
 
+    public abstract void delay(Runnable runnable, long delayInMillis);
+
     public String chooseLobby(User user, Audience audience) throws NoSuchElementException {
         var event = new AuthenticLobbyServerChooseEvent(user, audience);
 
         getEventProvider().fire(LobbyServerChooseEvent.class, event);
 
         return event.getServer() != null ? event.getServer() : chooseLobbyDefault();
+    }
+
+    public PremiumUser getUserOrThrowICA(String username) throws InvalidCommandArgument {
+        try {
+            return getPremiumProvider().getUserForName(username);
+        } catch (PremiumException e) {
+            throw new InvalidCommandArgument(getMessages().getMessage(
+                    switch (e.getIssue()) {
+                        case THROTTLED -> "error-premium-throttled";
+                        default -> "error-premium-unknown";
+                    }
+            ));
+        }
     }
 
     protected abstract void initMetrics(CustomChart... charts);

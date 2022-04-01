@@ -45,4 +45,8 @@ public interface PluginConfiguration {
 
     String getMigrationOldDatabaseTable();
 
+    NewUUIDCreator getNewUUIDCreator();
+
+    boolean useTitles();
+
 }

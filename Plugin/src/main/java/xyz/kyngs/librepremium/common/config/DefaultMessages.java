@@ -381,6 +381,24 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    /*
+    Titles
+     */
+
+    public static final ConfigurationKey<String> TITLE_REGISTER = new ConfigurationKey<>(
+            "title-register",
+            "&bRegister",
+            "This title is displayed when the player is prompted to register. Make sure that you have use-titles set to true in the configuration.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> TITLE_LOGIN = new ConfigurationKey<>(
+            "title-login",
+            "&bLogin",
+            "This title is displayed when the player is prompted to login. Make sure that you have use-titles set to true in the configuration.",
+            ConfigurateHelper::getString
+    );
+
     static {
         DEFAULT_MESSAGES = CommentedConfigurationNode.root()
                 .comment("""
@@ -450,6 +468,9 @@ public class DefaultMessages {
         helper.setDefault(PROMPT_REGISTER);
         helper.setDefault(PROMPT_LOGIN);
         helper.setDefault(PROMPT_CONFIRM);
+
+        helper.setDefault(TITLE_LOGIN);
+        helper.setDefault(TITLE_REGISTER);
 
     }
 

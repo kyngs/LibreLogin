@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class BungeeCordLibrePremium extends AuthenticLibrePremium {
@@ -130,6 +131,11 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     @Override
     public void kick(UUID uuid, Component reason) {
         plugin.getProxy().getPlayer(uuid).disconnect(plugin.getSerializer().serialize(reason));
+    }
+
+    @Override
+    public void delay(Runnable runnable, long delayInMillis) {
+        plugin.getProxy().getScheduler().schedule(plugin, runnable, delayInMillis, TimeUnit.MILLISECONDS);
     }
 
     @Override

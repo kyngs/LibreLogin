@@ -47,4 +47,9 @@ public class GeneralUtil {
         return component;
     }
 
+    public static UUID getCrackedUUIDFromName(String name) {
+        if (name == null) return null;
+        return UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
+    }
+
 }

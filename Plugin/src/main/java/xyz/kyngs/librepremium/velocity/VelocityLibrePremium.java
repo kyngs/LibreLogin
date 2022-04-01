@@ -123,6 +123,14 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
+    public void delay(Runnable runnable, long delayInMillis) {
+        server.getScheduler()
+                .buildTask(this, runnable)
+                .delay(delayInMillis, TimeUnit.MILLISECONDS)
+                .schedule();
+    }
+
+    @Override
     protected void initMetrics(CustomChart... charts) {
         var metrics = factory.make(this, 14805);
 

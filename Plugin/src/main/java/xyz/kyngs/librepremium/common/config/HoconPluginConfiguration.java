@@ -2,6 +2,7 @@ package xyz.kyngs.librepremium.common.config;
 
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
+import xyz.kyngs.librepremium.api.configuration.NewUUIDCreator;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
 
@@ -122,6 +123,22 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     @Override
     public String getMigrationOldDatabaseTable() {
         return get(MIGRATION_OLD_DATABASE_TABLE);
+    }
+
+    @Override
+    public NewUUIDCreator getNewUUIDCreator() {
+        var name = get(NEW_UUID_CREATOR);
+
+        try {
+            return NewUUIDCreator.valueOf(name.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return NewUUIDCreator.RANDOM;
+        }
+    }
+
+    @Override
+    public boolean useTitles() {
+        return get(USE_TITLES);
     }
 
     public <T> T get(ConfigurationKey<T> key) {

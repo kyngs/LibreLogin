@@ -31,6 +31,7 @@ public class ConfigurateConfiguration {
                 .emitComments(true)
                 .prettyPrinting(true);
 
+
         loader = builder.build();
 
         helper = new ConfigurateHelper(loader.load()

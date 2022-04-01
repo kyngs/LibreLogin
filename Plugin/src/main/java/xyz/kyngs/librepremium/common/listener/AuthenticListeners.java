@@ -1,6 +1,7 @@
 package xyz.kyngs.librepremium.common.listener;
 
 import net.kyori.adventure.audience.Audience;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
@@ -35,7 +36,6 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
         }
         plugin.getAuthorizationProvider().startTracking(uuid, audience);
     }
-
     protected void onPlayerDisconnect(UUID uuid) {
         plugin.getAuthorizationProvider().stopTracking(uuid);
     }
@@ -65,7 +65,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
         if (premium == null) {
             User user;
             try {
-                user = checkAndValidateByName(username, true);
+                user = checkAndValidateByName(username, null, true);
             } catch (InvalidCommandArgument e) {
                 return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
             }
@@ -78,12 +78,13 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
 
             plugin.getDatabaseProvider().saveUser(user);
         } else {
-            var user = plugin.getDatabaseProvider().getByPremiumUUID(premium.uuid());
+            var premiumID = premium.uuid();
+            var user = plugin.getDatabaseProvider().getByPremiumUUID(premiumID);
 
             if (user == null) {
                 User userByName;
                 try {
-                    userByName = checkAndValidateByName(username, true);
+                    userByName = checkAndValidateByName(username, premiumID, true);
                 } catch (InvalidCommandArgument e) {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
                 }
@@ -92,7 +93,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
             } else {
                 User byName;
                 try {
-                    byName = checkAndValidateByName(username, false);
+                    byName = checkAndValidateByName(username, premiumID, false);
                 } catch (InvalidCommandArgument e) {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
                 }
@@ -117,7 +118,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
         return new PreLoginResult(PreLoginState.FORCE_OFFLINE, null);
     }
 
-    private User checkAndValidateByName(String username, boolean generate) throws InvalidCommandArgument {
+    private User checkAndValidateByName(String username, @Nullable UUID premiumID, boolean generate) throws InvalidCommandArgument {
         var user = plugin.getDatabaseProvider().getByName(username);
 
         if (user != null) {
@@ -129,7 +130,10 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
             }
         } else if (generate) {
             user = new User(
-                    UUID.randomUUID(),
+                    plugin.generateNewUUID(
+                            username,
+                            premiumID
+                    ),
                     null,
                     null,
                     username,

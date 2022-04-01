@@ -29,7 +29,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
     }
 
     @EventHandler
-    public void onProfileRequest(PreLoginEvent event) {
+    public void onPreLogin(PreLoginEvent event) {
         var result = onPreLogin(event.getConnection().getName());
 
         switch (result.state()) {
@@ -45,7 +45,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
     }
 
     @EventHandler
-    public void onLoginEvent(LoginEvent event) {
+    public void onProfileRequest(LoginEvent event) {
         var profile = plugin.getLibrePremium().getDatabaseProvider().getByName(event.getConnection().getName());
         PendingConnection connection = event.getConnection();
 
@@ -55,7 +55,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
             field.setAccessible(true);
             field.set(connection, profile.getUuid());
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

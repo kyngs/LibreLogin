@@ -75,7 +75,7 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
     }
 
     public <T> T get(ConfigurationKey<T> key) {
-        return key.getter().apply(this, key.key());
+        return key.compute(this);
     }
 
 }

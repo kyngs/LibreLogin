@@ -8,7 +8,6 @@ import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
-import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
@@ -18,7 +17,6 @@ import javax.annotation.Syntax;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static xyz.kyngs.librepremium.common.AuthenticLibrePremium.DATE_TIME_FORMATTER;
 
@@ -89,22 +87,13 @@ public class LibrePremiumCommand extends StaffCommand {
     }
 
     public static void enablePremium(Audience audience, User user, AuthenticLibrePremium plugin) {
-        try {
-            var id = plugin.getPremiumProvider().getUserForName(user.getLastNickname());
+        var id = plugin.getUserOrThrowICA(user.getLastNickname());
 
-            if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+        if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
 
-            user.setPremiumUUID(id.uuid());
+        user.setPremiumUUID(id.uuid());
 
-            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
-        } catch (PremiumException e) {
-            throw new InvalidCommandArgument(plugin.getMessages().getMessage(
-                    switch (e.getIssue()) {
-                        case THROTTLED -> "error-premium-throttled";
-                        default -> "error-premium-unknown";
-                    }
-            ));
-        }
+        plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
     }
 
     @Subcommand("user migrate")
@@ -215,7 +204,7 @@ public class LibrePremiumCommand extends StaffCommand {
         }
 
         user = new User(
-                UUID.randomUUID(),
+                plugin.generateNewUUID(name, plugin.getUserOrThrowICA(name).uuid()),
                 null,
                 plugin.getDefaultCryptoProvider().createHash(password),
                 name,
