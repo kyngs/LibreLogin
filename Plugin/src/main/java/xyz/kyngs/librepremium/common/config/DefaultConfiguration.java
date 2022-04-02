@@ -67,6 +67,7 @@ public class DefaultConfiguration {
             "RANDOM",
             """
                     Sets which method should be used for creating fixed UUID when a new player is created.
+                    See the wiki for further information: https://github.com/kyngs/LibrePremium/wiki/UUID-Creators
                     Available Creators:
                     RANDOM - Generates a random UUID
                     CRACKED - Generates a UUID based on the player's name, the same method as if the server was in offline mode

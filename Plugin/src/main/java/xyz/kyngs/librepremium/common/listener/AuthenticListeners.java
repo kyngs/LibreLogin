@@ -129,11 +129,21 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                 ));
             }
         } else if (generate) {
+            var newID = plugin.generateNewUUID(
+                    username,
+                    premiumID
+            );
+
+            var conflictingUser = plugin.getDatabaseProvider().getByUUID(newID);
+
+            if (conflictingUser != null) {
+                throw new InvalidCommandArgument(plugin.getMessages().getMessage("kick-occupied-username",
+                        "%username%", conflictingUser.getLastNickname()
+                ));
+            }
+
             user = new User(
-                    plugin.generateNewUUID(
-                            username,
-                            premiumID
-                    ),
+                    newID,
                     null,
                     null,
                     username,

@@ -60,6 +60,15 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> KICK_OCCUPIED_USERNAME = new ConfigurationKey<>(
+            "kick-occupied-username",
+            "Please, change your username to &c%username%",
+            """
+                    This message is displayed when the player's username is already taken.
+                    """,
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> KICK_ILLEGAL_USERNAME = new ConfigurationKey<>(
             "kick-illegal-username",
             "You have illegal characters in your username or/and your username is longer than 16 characters!",
@@ -424,6 +433,7 @@ public class DefaultMessages {
         helper.setDefault(KICK_INVALID_CASE_USERNAME);
         helper.setDefault(KICK_ILLEGAL_USERNAME);
         helper.setDefault(KICK_NAME_MISMATCH);
+        helper.setDefault(KICK_OCCUPIED_USERNAME);
 
         helper.setDefault(KICK_NO_SERVER);
 
