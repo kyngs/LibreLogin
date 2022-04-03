@@ -14,7 +14,7 @@ public abstract class MySQLReadProvider implements ReadDatabaseProvider {
     protected final String tableName;
     protected final Logger logger;
 
-    protected MySQLReadProvider(EasyDB<MySQL, Connection, SQLException> easyDB, String tableName, Logger logger) {
+    public MySQLReadProvider(EasyDB<MySQL, Connection, SQLException> easyDB, String tableName, Logger logger) {
         this.easyDB = easyDB;
         this.tableName = tableName;
         this.logger = logger;

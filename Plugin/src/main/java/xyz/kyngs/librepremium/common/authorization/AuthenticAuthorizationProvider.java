@@ -43,7 +43,7 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
 
         plugin.delay(() -> {
             sendInfoMessage(plugin.getDatabaseProvider().getByUUID(uuid), audience);
-        }, 100);
+        }, 250);
     }
 
     private void sendInfoMessage(User user, Audience audience) {

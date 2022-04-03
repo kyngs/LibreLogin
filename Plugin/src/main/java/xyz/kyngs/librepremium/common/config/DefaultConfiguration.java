@@ -42,9 +42,12 @@ public class DefaultConfiguration {
 
     public static final ConfigurationKey<String> DEFAULT_CRYPTO_PROVIDER = new ConfigurationKey<>(
             "default-crypto-provider",
-            "SHA-256",
-            "The default crypto provider.\n" +
-                    "Available Providers: SHA-256",
+            "BCrypt2A",
+            """
+                    The default crypto provider. This is used for hashing passwords. Available Providers:
+                    SHA-256 - Older, not recommended
+                    BCrypt2A - Newer, more safe, recommended
+                    """,
             ConfigurateHelper::getString
     );
 
@@ -121,8 +124,11 @@ public class DefaultConfiguration {
     public static final ConfigurationKey<String> MIGRATION_TYPE = new ConfigurationKey<>(
             "migration.type",
             "",
-            "The type of the migration.\n" +
-                    "Available Types: JPremium",
+            """
+                    The type of the migration. Available Types:
+                    JPremium - Can convert from JPremium SHA256
+                    AuthMe - Can convert from AuthMe BCrypt
+                    """,
             ConfigurateHelper::getString
     );
 

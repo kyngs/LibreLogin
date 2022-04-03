@@ -10,28 +10,28 @@ import java.security.SecureRandom;
 
 public class SHA256CryptoProvider implements CryptoProvider {
 
-    private final SecureRandom b;
+    private final SecureRandom random;
 
-    private final MessageDigest c;
+    private final MessageDigest sha256;
 
     public SHA256CryptoProvider() {
         try {
-            this.b = new SecureRandom();
-            this.c = MessageDigest.getInstance(getIdentifier());
-        } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
-            throw new RuntimeException(noSuchAlgorithmException);
+            this.random = new SecureRandom();
+            this.sha256 = MessageDigest.getInstance(getIdentifier());
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private String randomSalt() {
         byte[] bytes = new byte[16];
-        this.b.nextBytes(bytes);
+        this.random.nextBytes(bytes);
         return String.format("%016x", new BigInteger(1, bytes));
     }
 
     private String plainHash(String input) {
         byte[] inputBytes = input.getBytes();
-        byte[] hashedBytes = this.c.digest(inputBytes);
+        byte[] hashedBytes = this.sha256.digest(inputBytes);
         return String.format("%064x", new BigInteger(1, hashedBytes));
     }
 

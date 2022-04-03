@@ -29,11 +29,13 @@ import xyz.kyngs.librepremium.common.command.CommandProvider;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.config.HoconMessages;
 import xyz.kyngs.librepremium.common.config.HoconPluginConfiguration;
+import xyz.kyngs.librepremium.common.crypto.BCrypt2ACryptoProvider;
 import xyz.kyngs.librepremium.common.crypto.SHA256CryptoProvider;
 import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
 import xyz.kyngs.librepremium.common.event.AuthenticEventProvider;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLobbyServerChooseEvent;
+import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
@@ -67,6 +69,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         eventProvider = new AuthenticEventProvider(this);
 
         registerCryptoProvider(new SHA256CryptoProvider());
+        registerCryptoProvider(new BCrypt2ACryptoProvider());
     }
 
     @Override
@@ -198,6 +201,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
                     var localProviders = new HashMap<String, ReadDatabaseProvider>();
 
                     localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
+                    localProviders.put("AuthMe", new AuthMeReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
 
                     var provider = localProviders.get(configuration.getMigrationType());
 

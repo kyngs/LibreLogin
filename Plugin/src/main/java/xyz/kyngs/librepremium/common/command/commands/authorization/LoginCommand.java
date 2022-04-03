@@ -27,6 +27,8 @@ public class LoginCommand extends AuthorizationCommand {
         var hashed = user.getHashedPassword();
         var crypto = getCrypto(hashed);
 
+        if (crypto == null) throw new InvalidCommandArgument(getMessage("error-password-corrupted"));
+
         if (!crypto.matches(password, hashed)) {
             if (plugin.getConfiguration().kickOnWrongPassword()) {
                 plugin.kick(uuid, getMessage("error-password-wrong"));

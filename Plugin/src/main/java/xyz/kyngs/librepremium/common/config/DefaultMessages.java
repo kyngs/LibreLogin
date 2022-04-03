@@ -167,6 +167,13 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_PASSWORD_CORRUPTED = new ConfigurationKey<>(
+            "error-password-corrupted",
+            "Your password is corrupted, please contact an administrator!",
+            "This message is displayed when the player tries to login with corrupted password.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_PREMIUM_THROTTLED = new ConfigurationKey<>(
             "error-premium-throttled",
             "The Mojang API is rate limiting our server, please try the command again in a while!",
@@ -446,6 +453,7 @@ public class DefaultMessages {
         helper.setDefault(ERROR_NOT_CRACKED);
         helper.setDefault(ERROR_PASSWORD_WRONG);
         helper.setDefault(ERROR_PASSWORD_NOT_MATCH);
+        helper.setDefault(ERROR_PASSWORD_CORRUPTED);
         helper.setDefault(ERROR_PREMIUM_THROTTLED);
         helper.setDefault(ERROR_PREMIUM_UNKNOWN);
         helper.setDefault(ERROR_THROTTLE);
