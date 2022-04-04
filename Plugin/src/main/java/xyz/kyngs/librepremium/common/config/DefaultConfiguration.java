@@ -42,11 +42,11 @@ public class DefaultConfiguration {
 
     public static final ConfigurationKey<String> DEFAULT_CRYPTO_PROVIDER = new ConfigurationKey<>(
             "default-crypto-provider",
-            "BCrypt2A",
+            "BCrypt-2A",
             """
                     The default crypto provider. This is used for hashing passwords. Available Providers:
                     SHA-256 - Older, not recommended
-                    BCrypt2A - Newer, more safe, recommended
+                    BCrypt-2A - Newer, more safe, recommended
                     """,
             ConfigurateHelper::getString
     );
