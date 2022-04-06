@@ -128,6 +128,7 @@ public class DefaultConfiguration {
                     The type of the migration. Available Types:
                     JPremium - Can convert from JPremium SHA256
                     AuthMe - Can convert from AuthMe BCrypt and SHA256
+                    Aegis - Can convert from Aegis BCrypt
                     """,
             ConfigurateHelper::getString
     );

@@ -35,6 +35,7 @@ import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
 import xyz.kyngs.librepremium.common.event.AuthenticEventProvider;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLobbyServerChooseEvent;
+import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
 import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
@@ -220,6 +221,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
                     localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
                     localProviders.put("AuthMe", new AuthMeReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
+                    localProviders.put("Aegis", new AegisReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
 
                     var provider = localProviders.get(configuration.getMigrationType());
 

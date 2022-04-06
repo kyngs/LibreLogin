@@ -8,7 +8,7 @@ public class CryptoUtil {
     public static HashedPassword convertFromBCryptRaw(String raw) {
         var split = raw.split("\\$");
         var algo = split[1];
-        var cost = Integer.parseInt(split[2]);
+        var cost = split[2];
         var rest = split[3];
 
         var salt = rest.substring(0, 22);
@@ -23,11 +23,11 @@ public class CryptoUtil {
         );
     }
 
-    public static BiHolder<Integer, String> convertHash(String hash) {
+    public static BiHolder<String, String> convertHash(String hash) {
         var split = hash.split("\\$");
 
         return new BiHolder<>(
-                Integer.parseInt(split[0]),
+                split[0],
                 split[1]
         );
     }

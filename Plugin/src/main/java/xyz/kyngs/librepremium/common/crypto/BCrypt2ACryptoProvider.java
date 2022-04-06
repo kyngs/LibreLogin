@@ -21,9 +21,12 @@ public class BCrypt2ACryptoProvider implements CryptoProvider {
 
     @Override
     public boolean matches(String input, HashedPassword password) {
-        return VERIFIER.verify(input.toCharArray(),
-                CryptoUtil.rawFromHashed(password).toCharArray()
-        ).verified;
+        var raw = CryptoUtil.rawFromHashed(password).toCharArray();
+        var result = VERIFIER.verify(input.toCharArray(),
+                raw
+        );
+
+        return result.verified;
     }
 
     @Override
