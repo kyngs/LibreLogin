@@ -55,7 +55,7 @@ public class AegisReadProvider extends MySQLReadProvider {
 
                     HashedPassword password = null;
 
-                    if (passwordRaw != null) {
+                    if (passwordRaw != null && !passwordRaw.contentEquals("")) { //God damn Aegis.
                         if (passwordRaw.startsWith("$2a$")) {
                             password = CryptoUtil.convertFromBCryptRaw(passwordRaw);
                         } else {
