@@ -1,7 +1,6 @@
 package xyz.kyngs.librepremium.common.authorization;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import xyz.kyngs.librepremium.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librepremium.api.database.User;
@@ -51,7 +50,7 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
         if (!plugin.getConfiguration().useTitles()) return;
         audience.showTitle(Title.title(
                 plugin.getMessages().getMessage(user.isRegistered() ? "title-login" : "title-register"),
-                Component.empty(),
+                plugin.getMessages().getMessage(user.isRegistered() ? "sub-title-login" : "sub-title-register"),
                 Title.Times.times(
                         Duration.ofMillis(0),
                         Duration.ofSeconds(15),

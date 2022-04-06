@@ -38,7 +38,7 @@ public class AuthMeReadProvider extends MySQLReadProvider {
     @Override
     public Collection<User> getAllUsers() {
         return easyDB.runFunctionSync(connection -> {
-            var ps = connection.prepareStatement("SELECT * FROM " + tableName);
+            var ps = connection.prepareStatement("SELECT * FROM `%s`".formatted(tableName));
 
             var rs = ps.executeQuery();
 

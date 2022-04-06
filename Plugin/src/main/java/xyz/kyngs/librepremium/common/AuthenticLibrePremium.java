@@ -110,7 +110,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
                 logger.warn("!! A new configuration was generated, please fill it out, if in doubt, see the wiki !!");
                 System.exit(0);
             }
-            ;
+
             validateConfiguration(configuration);
         } catch (IOException e) {
             e.printStackTrace();
@@ -149,12 +149,24 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
             databaseProvider = new MySQLDatabaseProvider(configuration, logger);
         } catch (Exception e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
             logger.error("Failed to connect to the database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             System.exit(1);
         }
 
         logger.info("Successfully connected to the database");
+
+        logger.info("Validating tables");
+
+        try {
+            databaseProvider.validateTables();
+        } catch (Exception e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("Failed to validate tables! Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            logger.error("Please open an issue on or GitHub, or visit Discord support");
+        }
+
+        logger.info("Tables validated");
 
         checkAndMigrate();
 

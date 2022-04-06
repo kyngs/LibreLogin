@@ -1,8 +1,10 @@
 package xyz.kyngs.librepremium.common.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +15,7 @@ public class ConfigurateConfiguration {
     private final boolean newlyCreated;
     private final HoconConfigurationLoader loader;
 
-    public ConfigurateConfiguration(File dataFolder, String name, CommentedConfigurationNode defaultConfiguration) throws IOException {
+    public ConfigurateConfiguration(File dataFolder, String name, CommentedConfigurationNode defaultConfiguration) throws IOException, CorruptedConfigurationException {
         var file = new File(dataFolder, name);
 
         if (!file.exists()) {
@@ -34,8 +36,12 @@ public class ConfigurateConfiguration {
 
         loader = builder.build();
 
-        helper = new ConfigurateHelper(loader.load()
-                .mergeFrom(defaultConfiguration));
+        try {
+            helper = new ConfigurateHelper(loader.load()
+                    .mergeFrom(defaultConfiguration));
+        } catch (ConfigurateException e) {
+            throw new CorruptedConfigurationException(e);
+        }
 
         save();
     }

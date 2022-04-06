@@ -109,7 +109,6 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
                     )
                     .connect()
                     .whenComplete((result, throwable) -> {
-                        System.out.println("SUS");
                         if (throwable != null || !result.isSuccessful())
                             player.disconnect(Component.text("Unable to connect"));
                     });

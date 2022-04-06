@@ -45,11 +45,9 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                         .setConnectionExceptionHandler(this::handleConnectionException)
                         .useGlobalExecutor(true)
         );
-
-        validateTables();
     }
 
-    private void validateTables() {
+    public void validateTables() {
         easyDB.runTaskSync(connection -> connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS librepremium_data(" +
                         "uuid VARCHAR(256) NOT NULL PRIMARY KEY," +
