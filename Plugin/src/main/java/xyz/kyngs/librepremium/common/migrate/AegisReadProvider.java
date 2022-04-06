@@ -55,7 +55,7 @@ public class AegisReadProvider extends MySQLReadProvider {
 
                     HashedPassword password = null;
 
-                    if (passwordRaw != null && !passwordRaw.contentEquals("")) { //God damn Aegis.
+                    if (passwordRaw != null && !passwordRaw.contentEquals("")) { //God-damn Aegis.
                         if (passwordRaw.startsWith("$2a$")) {
                             password = CryptoUtil.convertFromBCryptRaw(passwordRaw);
                         } else {
@@ -65,7 +65,7 @@ public class AegisReadProvider extends MySQLReadProvider {
 
                     users.add(new User(
                             uuid,
-                            onlineID == null ? null : UUID.fromString(onlineID.replace(".", "")), //Aegis at it again, this time with a dot.
+                            onlineID == null || !rs.getBoolean("premium") ? null : UUID.fromString(onlineID.replace(".", "")), //Aegis at it again, this time with a dot.
                             password,
                             nickname,
                             Timestamp.valueOf(LocalDateTime.now()),
