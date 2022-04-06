@@ -51,4 +51,6 @@ public interface LibrePremiumPlugin {
 
     void checkDataFolder();
 
+    String getVersion();
+
 }

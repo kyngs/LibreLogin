@@ -139,6 +139,11 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
+    public String getVersion() {
+        return plugin.getDescription().getVersion();
+    }
+
+    @Override
     protected void initMetrics(CustomChart... charts) {
         var metrics = new Metrics(plugin, 14805);
 

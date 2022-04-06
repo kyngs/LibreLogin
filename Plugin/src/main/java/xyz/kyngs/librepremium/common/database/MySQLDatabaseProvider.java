@@ -50,14 +50,14 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     public void validateTables() {
         easyDB.runTaskSync(connection -> connection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS librepremium_data(" +
-                        "uuid VARCHAR(256) NOT NULL PRIMARY KEY," +
-                        "premium_uuid VARCHAR(256)," +
-                        "hashed_password VARCHAR(256)," +
-                        "salt VARCHAR(256)," +
-                        "algo VARCHAR(256)," +
-                        "last_nickname VARCHAR(256) NOT NULL," +
-                        "joined TIMESTAMP NOT NULL," +
-                        "last_seen TIMESTAMP NOT NULL" +
+                        "uuid VARCHAR(255) NOT NULL PRIMARY KEY," +
+                        "premium_uuid VARCHAR(255)," +
+                        "hashed_password VARCHAR(255)," +
+                        "salt VARCHAR(255)," +
+                        "algo VARCHAR(255)," +
+                        "last_nickname VARCHAR(255) NOT NULL," +
+                        "joined TIMESTAMP NULL DEFAULT NULL," +
+                        "last_seen TIMESTAMP NULL DEFAULT NULL" +
                         ")"
         ).executeUpdate());
     }

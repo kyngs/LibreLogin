@@ -56,11 +56,19 @@ public class AuthMeReadProvider extends MySQLReadProvider {
                     HashedPassword password = null;
 
                     if (passwordRaw != null) {
-                        if (!passwordRaw.startsWith("$2a$")) {
+                        if (passwordRaw.startsWith("$SHA$")) {
+                            var split = passwordRaw.split("\\$");
+
+                            var algo = "SHA-256";
+                            var salt = split[2];
+                            var hash = split[3];
+
+                            password = new HashedPassword(hash, salt, algo);
+                        } else if (passwordRaw.startsWith("$2a$")) {
+                            password = CryptoUtil.convertFromBCryptRaw(passwordRaw);
+                        } else {
                             logger.error("User " + nickname + " has an invalid password hash");
                         }
-
-                        password = CryptoUtil.convertFromBCryptRaw(passwordRaw);
                     }
 
                     users.add(

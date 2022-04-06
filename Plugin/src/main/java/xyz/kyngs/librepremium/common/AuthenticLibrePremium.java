@@ -173,7 +173,13 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         authorizationProvider = new AuthenticAuthorizationProvider(this);
         commandProvider = new CommandProvider(this);
 
-        initMetrics();
+        if (getVersion().contains("DEVELOPMENT")) {
+            logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBREPREMIUM !!");
+            logger.warn("!! THIS IS NOT A RELEASE, USE THIS ONLY IF YOU WERE INSTRUCTED TO DO SO. DO NOT USE THIS IN PRODUCTION !!");
+        } else {
+            initMetrics();
+        }
+
     }
 
     private void checkAndMigrate() {

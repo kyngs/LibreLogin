@@ -6,6 +6,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.audience.Audience;
@@ -47,6 +48,8 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     private ProxyServer server;
     @Inject
     private Metrics.Factory factory;
+    @Inject
+    private PluginDescription description;
 
     public ProxyServer getServer() {
         return server;
@@ -129,6 +132,11 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
                 .buildTask(this, runnable)
                 .delay(delayInMillis, TimeUnit.MILLISECONDS)
                 .schedule();
+    }
+
+    @Override
+    public String getVersion() {
+        return description.getVersion().orElseThrow();
     }
 
     @Override
