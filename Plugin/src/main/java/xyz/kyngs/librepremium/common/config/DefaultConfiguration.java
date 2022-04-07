@@ -45,7 +45,8 @@ public class DefaultConfiguration {
             "BCrypt-2A",
             """
                     The default crypto provider. This is used for hashing passwords. Available Providers:
-                    SHA-256 - Older, not recommended
+                    SHA-256 - Older, not recommended. Kept for compatibility reasons.
+                    SHA-512 - More safer than SHA-256, but still not recommended. Kept for compatibility reasons.
                     BCrypt-2A - Newer, more safe, recommended
                     """,
             ConfigurateHelper::getString

@@ -30,7 +30,7 @@ import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.config.HoconMessages;
 import xyz.kyngs.librepremium.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librepremium.common.crypto.BCrypt2ACryptoProvider;
-import xyz.kyngs.librepremium.common.crypto.SHA256CryptoProvider;
+import xyz.kyngs.librepremium.common.crypto.MessageDigestCryptoProvider;
 import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
 import xyz.kyngs.librepremium.common.event.AuthenticEventProvider;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEvent;
@@ -69,7 +69,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         readProviders = new HashMap<>();
         eventProvider = new AuthenticEventProvider(this);
 
-        registerCryptoProvider(new SHA256CryptoProvider());
+        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
+        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
     }
 

@@ -8,16 +8,19 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-public class SHA256CryptoProvider implements CryptoProvider {
+public class MessageDigestCryptoProvider implements CryptoProvider {
 
     private final SecureRandom random;
-
     private final MessageDigest sha256;
+    private final String identifier;
 
-    public SHA256CryptoProvider() {
+    public MessageDigestCryptoProvider(String identifier) {
+        this.identifier = identifier;
+
+        random = new SecureRandom();
+
         try {
-            this.random = new SecureRandom();
-            this.sha256 = MessageDigest.getInstance(getIdentifier());
+            sha256 = MessageDigest.getInstance(identifier);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -37,23 +40,23 @@ public class SHA256CryptoProvider implements CryptoProvider {
 
     @Override
     public HashedPassword createHash(String password) {
-        String salt = randomSalt();
-        String plain = plainHash(password);
-        String hash = plainHash(plain + salt);
+        var salt = randomSalt();
+        var plain = plainHash(password);
+        var hash = plainHash(plain + salt);
         return new HashedPassword(hash, salt, getIdentifier());
     }
 
     @Override
     public boolean matches(String input, HashedPassword password) {
-        String salt = password.salt();
-        String hash = password.hash();
-        String hashedInput = plainHash(plainHash(input) + salt);
+        var salt = password.salt();
+        var hash = password.hash();
+        var hashedInput = plainHash(plainHash(input) + salt);
         return hashedInput.equals(hash);
     }
 
     @Override
     public String getIdentifier() {
-        return "SHA-256";
+        return identifier;
     }
 
 }
