@@ -178,6 +178,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
             insertToStatement(ps, user);
+
+            ps.executeUpdate();
         });
     }
 
