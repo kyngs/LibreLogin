@@ -247,6 +247,27 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_PLAYER_OFFLINE = new ConfigurationKey<>(
+            "error-player-offline",
+            "This player is offline!",
+            "This message is displayed when someone attempts to refer an offline player.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> ERROR_PLAYER_AUTHORIZED = new ConfigurationKey<>(
+            "error-player-authorized",
+            "This player is already authenticated!",
+            "This message is displayed when someone attempts to refer an authenticated player.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> ERROR_PLAYER_NOT_REGISTERED = new ConfigurationKey<>(
+            "error-player-not-registered",
+            "This player is not registered!",
+            "This message is displayed when someone attempts to refer an unregistered player.",
+            ConfigurateHelper::getString
+    );
+
     /*
     ACF Related errors
      */
@@ -363,10 +384,10 @@ public class DefaultMessages {
     public static final ConfigurationKey<String> INFO_USER = new ConfigurationKey<>(
             "info-user",
             """
-                      UUID: %uuid%
-                      Premium UUID: %premium_uuid%
-                      Last Seen: %last_seen%
-                      Joined: %joined%
+                    UUID: %uuid%
+                    Premium UUID: %premium_uuid%
+                    Last Seen: %last_seen%
+                    Joined: %joined%
                     """,
             "This message is displayed when the player's information is requested.",
             ConfigurateHelper::getString
@@ -432,6 +453,7 @@ public class DefaultMessages {
             "This subtitle is displayed when the player is prompted to login. Make sure that you have use-titles set to true in the configuration.",
             ConfigurateHelper::getString
     );
+    ;
 
     static {
         DEFAULT_MESSAGES = CommentedConfigurationNode.root()
@@ -479,9 +501,13 @@ public class DefaultMessages {
         helper.setDefault(ERROR_CORRUPTED_MESSAGES);
         helper.setDefault(ERROR_CORRUPTED_CONFIGURATION);
         helper.setDefault(ERROR_UNKNOWN);
+
         helper.setDefault(ERROR_UNKNOWN_USER);
         helper.setDefault(ERROR_OCCUPIED_USER);
         helper.setDefault(ERROR_PLAYER_ONLINE);
+        helper.setDefault(ERROR_PLAYER_OFFLINE);
+        helper.setDefault(ERROR_PLAYER_AUTHORIZED);
+        helper.setDefault(ERROR_PLAYER_NOT_REGISTERED);
 
         helper.setDefault(ERROR_NO_PERMISSION);
         helper.setDefault(ERROR_INVALID_SYNTAX);

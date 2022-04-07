@@ -29,7 +29,8 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
     }
 
     @Override
-    public void authorize(UUID uuid, User user, Audience audience) {
+    public void authorize(User user, Audience audience) {
+        var uuid = user.getUuid();
         stopTracking(uuid);
 
         audience.clearTitle();

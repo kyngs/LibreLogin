@@ -1,5 +1,6 @@
 package xyz.kyngs.librepremium.common.command.commands.staff;
 
+import net.kyori.adventure.audience.Audience;
 import org.jetbrains.annotations.NotNull;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
@@ -23,6 +24,23 @@ public class StaffCommand extends Command {
     protected void requireOffline(User user) {
         if (plugin.getAudienceForID(user.getUuid()) != null)
             throw new InvalidCommandArgument(getMessage("error-player-online"));
+    }
+
+    protected Audience requireOnline(User user) {
+        var audience = plugin.getAudienceForID(user.getUuid());
+        if (audience == null)
+            throw new InvalidCommandArgument(getMessage("error-player-offline"));
+        return audience;
+    }
+
+    protected void requireUnAuthorized(User user) {
+        if (plugin.getAuthorizationProvider().isAuthorized(user.getUuid()))
+            throw new InvalidCommandArgument(getMessage("error-player-authorized"));
+    }
+
+    protected void requireRegistered(User user) {
+        if (!user.isRegistered())
+            throw new InvalidCommandArgument(getMessage("error-player-not-registered"));
     }
 
 }

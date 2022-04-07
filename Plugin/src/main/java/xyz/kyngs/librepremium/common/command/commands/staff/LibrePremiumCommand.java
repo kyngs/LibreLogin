@@ -217,4 +217,22 @@ public class LibrePremiumCommand extends StaffCommand {
         audience.sendMessage(getMessage("info-registered"));
     }
 
+    @Subcommand("user login")
+    @CommandPermission("librepremium.user.login")
+    @Syntax("<name>")
+    @CommandCompletion("@players")
+    public void onUserLogin(Audience audience, String name) {
+        var user = getUserOtherWiseInform(name);
+
+        var target = requireOnline(user);
+        requireUnAuthorized(user);
+        requireRegistered(user);
+
+        audience.sendMessage(getMessage("info-logging-in"));
+
+        plugin.getAuthorizationProvider().authorize(user, target);
+
+        audience.sendMessage(getMessage("info-logged-in"));
+    }
+
 }

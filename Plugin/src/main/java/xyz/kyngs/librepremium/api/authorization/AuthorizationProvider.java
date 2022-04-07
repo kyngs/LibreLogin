@@ -10,7 +10,7 @@ public interface AuthorizationProvider {
     boolean isAuthorized(UUID uuid);
 
     /**
-     * There is <b>no</b> guarantee, that {@link #isAuthorized(UUID)} for the supplied uuid, returns true.
+     * There is <b>no</b> guarantee, that {@link #isAuthorized(UUID)} for the supplied user, returns true.
      */
-    void authorize(UUID uuid, User user, Audience audience);
+    void authorize(User user, Audience audience);
 }
