@@ -130,6 +130,7 @@ public class DefaultConfiguration {
                     JPremium - Can convert from JPremium SHA256
                     AuthMe - Can convert from AuthMe BCrypt and SHA256
                     Aegis - Can convert from Aegis BCrypt
+                    DBA-SHA-512 - Can convert from DynamicBungeeAuth, which was configured to use SHA-512
                     """,
             ConfigurateHelper::getString
     );

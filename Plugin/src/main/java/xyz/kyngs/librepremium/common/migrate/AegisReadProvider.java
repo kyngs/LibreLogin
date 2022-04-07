@@ -73,7 +73,6 @@ public class AegisReadProvider extends MySQLReadProvider {
                     ));
 
                 } catch (Exception e) {
-                    e.printStackTrace();
                     logger.error("Failed to read user from Aegis db, omitting");
                 }
 

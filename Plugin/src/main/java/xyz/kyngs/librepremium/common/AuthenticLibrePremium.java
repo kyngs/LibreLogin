@@ -37,6 +37,7 @@ import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEven
 import xyz.kyngs.librepremium.common.event.events.AuthenticLobbyServerChooseEvent;
 import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
 import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
+import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
@@ -223,6 +224,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
                     localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
                     localProviders.put("AuthMe", new AuthMeReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
                     localProviders.put("Aegis", new AegisReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
+                    localProviders.put("DBA-SHA-512", new DBAReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
 
                     var provider = localProviders.get(configuration.getMigrationType());
 
