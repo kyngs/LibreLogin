@@ -41,7 +41,9 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
 
     @Override
     public Audience getAudienceForID(UUID uuid) {
-        return plugin.getAdventure().player(plugin.getProxy().getPlayer(uuid));
+        var player = plugin.getProxy().getPlayer(uuid);
+
+        return player == null ? null : plugin.getAdventure().player(plugin.getProxy().getPlayer(uuid));
     }
 
     @Override
