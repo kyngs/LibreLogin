@@ -3,6 +3,7 @@ package xyz.kyngs.librepremium.common;
 import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
@@ -43,6 +44,8 @@ import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -180,9 +183,33 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
             logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBREPREMIUM !!");
             logger.warn("!! THIS IS NOT A RELEASE, USE THIS ONLY IF YOU WERE INSTRUCTED TO DO SO. DO NOT USE THIS IN PRODUCTION !!");
         } else {
+            checkForUpdates();
             initMetrics();
         }
 
+    }
+
+    private void checkForUpdates() {
+        logger.info("Checking for updates...");
+        try (var in = new URL("https://api.github.com/repos/kyngs/LibrePremium/releases/latest").openStream()) {
+
+            var root = GSON.fromJson(new InputStreamReader(in), JsonObject.class);
+
+            var version = root.get("tag_name").getAsString();
+
+            if (version.equals(getVersion())) {
+                logger.info("You are running the latest version of LibrePremium");
+            } else {
+                logger.warn("!! YOU ARE RUNNING AN OUTDATED VERSION OF LIBREPREMIUM !!");
+                logger.info("You are running version %s, the latest version is %s".formatted(getVersion(), version));
+                logger.info("Latest version name: %s".formatted(root.get("name").getAsString()));
+                logger.warn("!! PLEASE UPDATE TO THE LATEST VERSION !!");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.warn("Failed to check for updates");
+        }
     }
 
     private void checkAndMigrate() {
