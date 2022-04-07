@@ -28,7 +28,7 @@ public class PremiumDisableCommand extends PremiumCommand {
 
         plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, sender));
 
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().updateUser(user);
 
         plugin.kick(uuid, getMessage("kick-premium-info-disabled"));
     }

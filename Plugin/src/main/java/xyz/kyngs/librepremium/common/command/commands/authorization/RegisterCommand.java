@@ -30,7 +30,7 @@ public class RegisterCommand extends AuthorizationCommand {
 
         user.setHashedPassword(provider.createHash(password));
 
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().updateUser(user);
 
         sender.sendMessage(getMessage("info-registered"));
 

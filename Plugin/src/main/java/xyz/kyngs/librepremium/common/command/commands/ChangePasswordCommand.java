@@ -36,7 +36,7 @@ public class ChangePasswordCommand extends Command {
 
         user.setHashedPassword(defaultProvider.createHash(newPass));
 
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().updateUser(user);
 
         sender.sendMessage(getMessage("info-edited"));
 

@@ -343,7 +343,10 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     @Override
     public void migrate(ReadDatabaseProvider from, WriteDatabaseProvider to) {
-        to.saveUsers(from.getAllUsers());
+        logger.info("Reading data...");
+        var users = from.getAllUsers();
+        logger.info("Data read, inserting into database...");
+        to.insertUsers(users);
     }
 
     @Override

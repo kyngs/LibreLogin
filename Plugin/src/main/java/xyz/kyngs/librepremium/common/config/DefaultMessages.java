@@ -148,7 +148,7 @@ public class DefaultMessages {
 
     public static final ConfigurationKey<String> ERROR_NOT_CRACKED = new ConfigurationKey<>(
             "error-not-cracked",
-            "YYou have autologin enabled, disable it using /cracked!",
+            "You have autologin enabled, disable it using /cracked!",
             "This message is displayed when the player tries to enable autologin, but they already have it enabled.",
             ConfigurateHelper::getString
     );

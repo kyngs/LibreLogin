@@ -117,7 +117,7 @@ public class LibrePremiumCommand extends StaffCommand {
             user.setPremiumUUID(null);
             plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
         }
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().updateUser(user);
 
         audience.sendMessage(getMessage("info-edited"));
     }
@@ -134,7 +134,7 @@ public class LibrePremiumCommand extends StaffCommand {
         audience.sendMessage(getMessage("info-editing"));
 
         user.setHashedPassword(null);
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().updateUser(user);
 
         audience.sendMessage(getMessage("info-edited"));
     }
@@ -168,7 +168,7 @@ public class LibrePremiumCommand extends StaffCommand {
 
         enablePremium(audience, user, plugin);
 
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().updateUser(user);
 
         audience.sendMessage(getMessage("info-edited"));
     }
@@ -185,7 +185,7 @@ public class LibrePremiumCommand extends StaffCommand {
         audience.sendMessage(getMessage("info-editing"));
 
         user.setPremiumUUID(null);
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().updateUser(user);
 
         audience.sendMessage(getMessage("info-edited"));
     }
@@ -212,7 +212,7 @@ public class LibrePremiumCommand extends StaffCommand {
                 Timestamp.valueOf(LocalDateTime.now())
         );
 
-        getDatabaseProvider().saveUser(user);
+        getDatabaseProvider().insertUser(user);
 
         audience.sendMessage(getMessage("info-registered"));
     }

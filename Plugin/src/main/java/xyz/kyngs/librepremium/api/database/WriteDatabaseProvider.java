@@ -4,9 +4,11 @@ import java.util.Collection;
 
 public interface WriteDatabaseProvider {
 
-    void saveUser(User user);
+    void insertUser(User user);
 
-    void saveUsers(Collection<User> users);
+    void insertUsers(Collection<User> users);
+
+    void updateUser(User user);
 
     void deleteUser(User user);
 

@@ -100,7 +100,7 @@ public class CommandProvider {
 
         LibrePremiumCommand.enablePremium(audience, user, plugin);
 
-        plugin.getDatabaseProvider().saveUser(user);
+        plugin.getDatabaseProvider().updateUser(user);
 
         plugin.kick(uuid, plugin.getMessages().getMessage("kick-premium-info-enabled"));
 

@@ -2,6 +2,7 @@ package xyz.kyngs.librepremium.common.database;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.easydb.EasyDB;
 import xyz.kyngs.easydb.EasyDBConfig;
 import xyz.kyngs.easydb.provider.mysql.MySQL;
@@ -11,9 +12,10 @@ import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.database.User;
-import xyz.kyngs.librepremium.common.util.MultipleSetter;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
@@ -84,31 +86,14 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
             var rs = ps.executeQuery();
 
-            if (rs.next()) {
-                var id = UUID.fromString(rs.getString("uuid"));
-                var premiumUUID = rs.getString("premium_uuid");
-                var hashedPassword = rs.getString("hashed_password");
-                var salt = rs.getString("salt");
-                var algo = rs.getString("algo");
-                var lastNickname = rs.getString("last_nickname");
-                var joinDate = rs.getTimestamp("joined");
-                var lastSeen = rs.getTimestamp("last_seen");
-
-                return userCache.get(id, x -> new User(
-                        id,
-                        premiumUUID == null ? null : UUID.fromString(premiumUUID),
-                        hashedPassword == null ? null : new HashedPassword(
-                                hashedPassword,
-                                salt,
-                                algo
-                        ),
-                        lastNickname,
-                        joinDate,
-                        lastSeen
-                ));
-            } else return null;
+            return getUserFromResult(rs);
 
         });
+    }
+
+    @Override
+    public Collection<User> getAllUsers() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -156,91 +141,87 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
             var rs = ps.executeQuery();
 
-            if (rs.next()) {
-                var id = UUID.fromString(rs.getString("uuid"));
-                var premiumUUID = rs.getString("premium_uuid");
-                var hashedPassword = rs.getString("hashed_password");
-                var salt = rs.getString("salt");
-                var algo = rs.getString("algo");
-                var lastNickname = rs.getString("last_nickname");
-                var joinDate = rs.getTimestamp("joined");
-                var lastSeen = rs.getTimestamp("last_seen");
+            return getUserFromResult(rs);
+        });
+    }
 
-                return userCache.get(id, x -> new User(
-                        id,
-                        premiumUUID == null ? null : UUID.fromString(premiumUUID),
-                        hashedPassword == null ? null : new HashedPassword(
-                                hashedPassword,
-                                salt,
-                                algo
-                        ),
-                        lastNickname,
-                        joinDate,
-                        lastSeen
-                ));
-            } else return null;
+    @Nullable
+    private User getUserFromResult(ResultSet rs) throws SQLException {
+        if (rs.next()) {
+            var id = UUID.fromString(rs.getString("uuid"));
+            var premiumUUID = rs.getString("premium_uuid");
+            var hashedPassword = rs.getString("hashed_password");
+            var salt = rs.getString("salt");
+            var algo = rs.getString("algo");
+            var lastNickname = rs.getString("last_nickname");
+            var joinDate = rs.getTimestamp("joined");
+            var lastSeen = rs.getTimestamp("last_seen");
+
+            return userCache.get(id, x -> new User(
+                    id,
+                    premiumUUID == null ? null : UUID.fromString(premiumUUID),
+                    hashedPassword == null ? null : new HashedPassword(
+                            hashedPassword,
+                            salt,
+                            algo
+                    ),
+                    lastNickname,
+                    joinDate,
+                    lastSeen
+            ));
+        } else return null;
+    }
+
+    @Override
+    public void insertUser(User user) {
+        easyDB.runTaskSync(connection -> {
+            var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+            insertToStatement(ps, user);
         });
     }
 
     @Override
-    public Collection<User> getAllUsers() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void saveUser(User user) {
+    public void insertUsers(Collection<User> users) {
         easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE uuid=?, premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=?");
-
-            var password = user.getHashedPassword();
-
-            var setter = new MultipleSetter();
-
-            setter.set(1, user.getUuid().toString());
-            setter.set(2, user.getPremiumUUID() == null ? null : user.getPremiumUUID().toString());
-            setter.set(3, password == null ? null : password.hash());
-            setter.set(4, password == null ? null : password.salt());
-            setter.set(5, password == null ? null : password.algo());
-            setter.set(6, user.getLastNickname());
-            setter.set(7, user.getJoinDate());
-            setter.set(8, user.getLastSeen());
-
-            setter.apply(ps, 2);
-
-            ps.executeUpdate();
-        });
-    }
-
-    @Override
-    public void saveUsers(Collection<User> users) {
-        easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE uuid=?, premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=?");
+            var ps = connection.prepareStatement("INSERT IGNORE INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
             for (User user : users) {
-                try {
-                    var setter = new MultipleSetter();
-                    var password = user.getHashedPassword();
+                insertToStatement(ps, user);
 
-                    setter.set(1, user.getUuid().toString());
-                    setter.set(2, user.getPremiumUUID() == null ? null : user.getPremiumUUID().toString());
-                    setter.set(3, password == null ? null : password.hash());
-                    setter.set(4, password == null ? null : password.salt());
-                    setter.set(5, password == null ? null : password.algo());
-                    setter.set(6, user.getLastNickname());
-                    setter.set(7, user.getJoinDate());
-                    setter.set(8, user.getLastSeen());
-
-                    setter.apply(ps, 2);
-
-                    ps.addBatch();
-                } catch (Exception e) {
-                    logger.error("Failed to save user %s, omitting".formatted(user.getUuid()));
-                    e.printStackTrace();
-                }
-
+                ps.addBatch();
             }
 
             ps.executeBatch();
+        });
+    }
+
+    private void insertToStatement(PreparedStatement ps, User user) throws SQLException {
+        ps.setString(1, user.getUuid().toString());
+        ps.setString(2, user.getPremiumUUID() == null ? null : user.getPremiumUUID().toString());
+        ps.setString(3, user.getHashedPassword() == null ? null : user.getHashedPassword().hash());
+        ps.setString(4, user.getHashedPassword() == null ? null : user.getHashedPassword().salt());
+        ps.setString(5, user.getHashedPassword() == null ? null : user.getHashedPassword().algo());
+        ps.setString(6, user.getLastNickname());
+        ps.setTimestamp(7, user.getJoinDate());
+        ps.setTimestamp(8, user.getLastSeen());
+    }
+
+    @Override
+    public void updateUser(User user) {
+        easyDB.runTaskSync(connection -> {
+            var ps = connection.prepareStatement("UPDATE librepremium_data SET premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=? WHERE uuid=?");
+
+            ps.setString(1, user.getPremiumUUID() == null ? null : user.getPremiumUUID().toString());
+            ps.setString(2, user.getHashedPassword() == null ? null : user.getHashedPassword().hash());
+            ps.setString(3, user.getHashedPassword() == null ? null : user.getHashedPassword().salt());
+            ps.setString(4, user.getHashedPassword() == null ? null : user.getHashedPassword().algo());
+            ps.setString(5, user.getLastNickname());
+            ps.setTimestamp(6, user.getJoinDate());
+            ps.setTimestamp(7, user.getLastSeen());
+            ps.setString(8, user.getUuid().toString());
+
+            ps.executeUpdate();
         });
     }
 

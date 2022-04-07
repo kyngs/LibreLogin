@@ -76,7 +76,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                 plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, Audience.empty()));
             }
 
-            plugin.getDatabaseProvider().saveUser(user);
+            plugin.getDatabaseProvider().updateUser(user);
         } else {
             var premiumID = premium.uuid();
             var user = plugin.getDatabaseProvider().getByPremiumUUID(premiumID);
@@ -89,7 +89,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
                 }
 
-                plugin.getDatabaseProvider().saveUser(userByName);
+                plugin.getDatabaseProvider().updateUser(userByName);
             } else {
                 User byName;
                 try {
@@ -108,7 +108,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                 if (!user.getLastNickname().contentEquals(premium.name())) {
                     user.setLastNickname(premium.name());
 
-                    plugin.getDatabaseProvider().saveUser(user);
+                    plugin.getDatabaseProvider().updateUser(user);
                 }
 
                 return new PreLoginResult(PreLoginState.FORCE_ONLINE, null);
@@ -150,6 +150,8 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                     Timestamp.valueOf(LocalDateTime.now()),
                     Timestamp.valueOf(LocalDateTime.now())
             );
+
+            plugin.getDatabaseProvider().insertUser(user);
         } else return null;
 
         return user;

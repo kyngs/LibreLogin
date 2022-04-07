@@ -5,9 +5,12 @@ import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
 
 import java.lang.reflect.Field;
+
+import static net.md_5.bungee.event.EventPriority.HIGHEST;
 
 public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremium> implements Listener {
 
@@ -18,7 +21,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = HIGHEST)
     public void onPostLogin(PostLoginEvent event) {
         onPostLogin(event.getPlayer().getUniqueId(), plugin.getAdventure().player(event.getPlayer()));
     }
@@ -28,7 +31,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
         onPlayerDisconnect(event.getPlayer().getUniqueId());
     }
 
-    @EventHandler
+    @EventHandler(priority = HIGHEST)
     public void onPreLogin(PreLoginEvent event) {
         var result = onPreLogin(event.getConnection().getName());
 
@@ -44,7 +47,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onProfileRequest(LoginEvent event) {
         var profile = plugin.getLibrePremium().getDatabaseProvider().getByName(event.getConnection().getName());
         PendingConnection connection = event.getConnection();
@@ -59,7 +62,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = HIGHEST)
     public void chooseServer(ServerConnectEvent event) {
         if (!event.getReason().equals(ServerConnectEvent.Reason.JOIN_PROXY)) return;
 
