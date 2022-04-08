@@ -8,7 +8,7 @@ import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
 import java.util.UUID;
 
-@CommandAlias("register|r")
+@CommandAlias("register")
 public class RegisterCommand extends AuthorizationCommand {
     public RegisterCommand(AuthenticLibrePremium premium) {
         super(premium);
