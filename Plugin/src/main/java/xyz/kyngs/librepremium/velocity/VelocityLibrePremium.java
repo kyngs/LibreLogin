@@ -168,9 +168,13 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
         server.getEventManager().register(this, new Blockers(getAuthorizationProvider(), getConfiguration()));
         server.getEventManager().register(this, new VelocityListeners(this));
 
-        server.getScheduler().buildTask(this, () -> getAuthorizationProvider().notifyUnauthorized())
-                .repeat(10, TimeUnit.SECONDS)
-                .schedule();
+        var millis = getConfiguration().milliSecondsToRefreshNotification();
+
+        if (millis > 0) {
+            server.getScheduler().buildTask(this, () -> getAuthorizationProvider().notifyUnauthorized())
+                    .repeat(getConfiguration().milliSecondsToRefreshNotification(), TimeUnit.MILLISECONDS)
+                    .schedule();
+        }
     }
 
     @Subscribe

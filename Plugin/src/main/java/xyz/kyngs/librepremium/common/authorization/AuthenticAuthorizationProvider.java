@@ -49,12 +49,16 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
     private void sendInfoMessage(User user, Audience audience) {
         audience.sendMessage(plugin.getMessages().getMessage(user.isRegistered() ? "prompt-login" : "prompt-register"));
         if (!plugin.getConfiguration().useTitles()) return;
+        var toRefresh = plugin.getConfiguration().milliSecondsToRefreshNotification();
         audience.showTitle(Title.title(
                 plugin.getMessages().getMessage(user.isRegistered() ? "title-login" : "title-register"),
                 plugin.getMessages().getMessage(user.isRegistered() ? "sub-title-login" : "sub-title-register"),
                 Title.Times.times(
                         Duration.ofMillis(0),
-                        Duration.ofSeconds(15),
+                        Duration.ofMillis(toRefresh > 0 ?
+                                (long) (toRefresh * 1.1) :
+                                10000
+                        ),
                         Duration.ofMillis(0)
                 )
         ));

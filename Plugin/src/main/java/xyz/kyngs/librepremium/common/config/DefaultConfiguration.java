@@ -90,6 +90,18 @@ public class DefaultConfiguration {
             ConfigurateHelper::getBoolean
     );
 
+    public static final ConfigurationKey<Integer> MILLISECONDS_TO_REFRESH_NOTIFICATION = new ConfigurationKey<>(
+            "milliseconds-to-refresh-notification",
+            10000,
+            """
+                    This specifies how often players should be notified when not authenticated. Set to negative to disable.
+                    This includes (but is not limited to):
+                    - Message in chat
+                    - Title
+                    """,
+            ConfigurateHelper::getInt
+    );
+
     public static final ConfigurationKey<String> DATABASE_HOST = new ConfigurationKey<>(
             "database.host",
             "localhost",
@@ -212,6 +224,7 @@ public class DefaultConfiguration {
         helper.setDefault(USE_TITLES);
         helper.setDefault(NEW_UUID_CREATOR);
         helper.setDefault(AUTO_REGISTER);
+        helper.setDefault(MILLISECONDS_TO_REFRESH_NOTIFICATION);
 
         helper.setDefault(DATABASE_HOST);
         helper.setDefault(DATABASE_PORT);

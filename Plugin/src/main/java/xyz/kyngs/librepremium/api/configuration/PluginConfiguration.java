@@ -51,4 +51,6 @@ public interface PluginConfiguration {
 
     boolean autoRegister();
 
+    int milliSecondsToRefreshNotification();
+
 }

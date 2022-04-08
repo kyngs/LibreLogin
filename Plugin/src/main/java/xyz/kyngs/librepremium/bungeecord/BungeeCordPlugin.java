@@ -41,9 +41,12 @@ public class BungeeCordPlugin extends Plugin implements LibrePremiumProvider {
         getProxy().getPluginManager().registerListener(this, new BlockerListener(librePremium.getAuthorizationProvider(), librePremium.getConfiguration()));
         getProxy().getPluginManager().registerListener(this, new BungeeCordListener(this));
 
-        getProxy().getScheduler().schedule(this, () -> {
-            librePremium.getAuthorizationProvider().notifyUnauthorized();
-        }, 0, 10, TimeUnit.SECONDS);
+        var millis = librePremium.getConfiguration().milliSecondsToRefreshNotification();
+
+        if (millis > 0) {
+            getProxy().getScheduler().schedule(this, () -> librePremium.getAuthorizationProvider().notifyUnauthorized(), 0, millis, TimeUnit.MILLISECONDS);
+        }
+
     }
 
     @Override
