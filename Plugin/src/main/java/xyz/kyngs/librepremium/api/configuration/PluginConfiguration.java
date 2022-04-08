@@ -49,4 +49,6 @@ public interface PluginConfiguration {
 
     boolean useTitles();
 
+    boolean autoRegister();
+
 }

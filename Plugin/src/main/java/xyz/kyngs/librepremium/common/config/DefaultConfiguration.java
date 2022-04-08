@@ -80,6 +80,16 @@ public class DefaultConfiguration {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<Boolean> AUTO_REGISTER = new ConfigurationKey<>(
+            "auto-register",
+            false,
+            """
+                    Should we automatically register all players with a premium nickname?
+                    !!CRACKED PLAYERS WILL NOT BE ABLE TO REGISTER PREMIUM USERNAMES!!
+                    """,
+            ConfigurateHelper::getBoolean
+    );
+
     public static final ConfigurationKey<String> DATABASE_HOST = new ConfigurationKey<>(
             "database.host",
             "localhost",
@@ -201,6 +211,7 @@ public class DefaultConfiguration {
         helper.setDefault(DEFAULT_CRYPTO_PROVIDER);
         helper.setDefault(USE_TITLES);
         helper.setDefault(NEW_UUID_CREATOR);
+        helper.setDefault(AUTO_REGISTER);
 
         helper.setDefault(DATABASE_HOST);
         helper.setDefault(DATABASE_PORT);

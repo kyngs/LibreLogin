@@ -89,6 +89,9 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
                 }
 
+                //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
+                if (userByName.autoLoginEnabled()) return new PreLoginResult(PreLoginState.FORCE_ONLINE, null);
+
                 plugin.getDatabaseProvider().updateUser(userByName);
             } else {
                 User byName;
@@ -142,14 +145,27 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                 ));
             }
 
-            user = new User(
-                    newID,
-                    null,
-                    null,
-                    username,
-                    Timestamp.valueOf(LocalDateTime.now()),
-                    Timestamp.valueOf(LocalDateTime.now())
-            );
+
+            if (premiumID != null && plugin.getConfiguration().autoRegister()) {
+                user = new User(
+                        newID,
+                        premiumID,
+                        null,
+                        username,
+                        Timestamp.valueOf(LocalDateTime.now()),
+                        Timestamp.valueOf(LocalDateTime.now())
+                );
+            } else {
+                user = new User(
+                        newID,
+                        null,
+                        null,
+                        username,
+                        Timestamp.valueOf(LocalDateTime.now()),
+                        Timestamp.valueOf(LocalDateTime.now())
+                );
+            }
+
 
             plugin.getDatabaseProvider().insertUser(user);
         } else return null;

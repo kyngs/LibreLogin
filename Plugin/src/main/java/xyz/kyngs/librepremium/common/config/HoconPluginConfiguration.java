@@ -141,6 +141,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return get(USE_TITLES);
     }
 
+    @Override
+    public boolean autoRegister() {
+        return get(AUTO_REGISTER);
+    }
+
     public <T> T get(ConfigurationKey<T> key) {
         return helper.get(key);
     }
