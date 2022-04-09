@@ -95,7 +95,7 @@ public class DefaultMessages {
 
     public static final ConfigurationKey<String> KICK_NO_SERVER = new ConfigurationKey<>(
             "kick-no-server",
-            "kick-no-server",
+            "There's no available server to connect you to. Please try again later.",
             "This message is displayed when the player is kicked because there is not any server available.",
             ConfigurateHelper::getString
     );
