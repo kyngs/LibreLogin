@@ -137,7 +137,7 @@ public class DefaultConfiguration {
             ConfigurateHelper::getString
     );
     
-    public static final ConfigurationKey<String> DATABASE_CACHE = new ConfigurationKey<>(
+    public static final ConfigurationKey<Integer> DATABASE_CACHE = new ConfigurationKey<>(
             "database.cache",
             10,
             "Database cache time in minutes.",
