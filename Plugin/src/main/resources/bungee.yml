@@ -1,4 +1,4 @@
 name: "LibrePremium"
 author: "kyngs"
-version: 0.4.5
+version: 0.5.0-DEVELOPMENT
 main: "xyz.kyngs.librepremium.bungeecord.BungeeCordPlugin"
