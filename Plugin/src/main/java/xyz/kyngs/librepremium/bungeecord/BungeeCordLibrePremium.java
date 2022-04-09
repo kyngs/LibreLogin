@@ -3,8 +3,8 @@ package xyz.kyngs.librepremium.bungeecord;
 import co.aikar.commands.*;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
@@ -80,7 +80,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
         contexts.registerIssuerAwareContext(Audience.class, context -> {
             if (getCommandProvider().getLimiter().tryAndLimit(context.getIssuer().getUniqueId()))
                 throw new xyz.kyngs.librepremium.common.command.InvalidCommandArgument(getMessages().getMessage("error-throttle"));
-            return getAudienceForPlayer(context.getPlayer());
+            return getAudienceForSender(context.getSender());
         });
         contexts.registerIssuerAwareContext(UUID.class, context -> {
             var player = context.getPlayer();
@@ -168,8 +168,8 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
                 .orElseThrow().getName();
     }
 
-    public Audience getAudienceForPlayer(ProxiedPlayer player) {
-        return plugin.getAdventure().player(player);
+    public Audience getAudienceForSender(CommandSender sender) {
+        return plugin.getAdventure().sender(sender);
     }
 
 }
