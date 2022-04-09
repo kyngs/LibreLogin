@@ -41,7 +41,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     }
 
     @Override
-    public String getDatabaseCacheTime() {
+    public int getDatabaseCacheTime() {
         return get(DATABASE_CACHE);
     }
     
