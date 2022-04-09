@@ -136,6 +136,13 @@ public class DefaultConfiguration {
             "The user of the database.",
             ConfigurateHelper::getString
     );
+    
+    public static final ConfigurationKey<String> DATABASE_CACHE = new ConfigurationKey<>(
+            "database.cache",
+            10,
+            "Database cache time in minutes.",
+            ConfigurateHelper::getString
+    );
 
     public static final ConfigurationKey<Boolean> MIGRATION_ON_NEXT_STARTUP = new ConfigurationKey<>(
             "migration.on-next-startup",
