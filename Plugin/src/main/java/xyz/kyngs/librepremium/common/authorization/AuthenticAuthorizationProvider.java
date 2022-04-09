@@ -53,7 +53,7 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
         audience.showTitle(Title.title(
                 plugin.getMessages().getMessage(user.isRegistered() ? "title-login" : "title-register"),
                 plugin.getMessages().getMessage(user.isRegistered() ? "sub-title-login" : "sub-title-register"),
-                Title.Times.times(
+                Title.Times.of(
                         Duration.ofMillis(0),
                         Duration.ofMillis(toRefresh > 0 ?
                                 (long) (toRefresh * 1.1) :
