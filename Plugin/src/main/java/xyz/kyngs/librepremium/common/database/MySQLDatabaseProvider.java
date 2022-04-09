@@ -31,7 +31,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
         this.logger = logger;
 
         userCache = Caffeine.newBuilder()
-                .expireAfterAccess(configuration.getDatabaseCacheTime(), TimeUnit.MINUTES)
+                .expireAfterAccess(configuration.getDatabaseCacheTime(), TimeUnit.SECONDS)
                 .build();
 
         easyDB = new EasyDB<>(

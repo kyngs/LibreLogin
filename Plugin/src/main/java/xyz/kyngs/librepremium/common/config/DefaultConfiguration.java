@@ -139,9 +139,9 @@ public class DefaultConfiguration {
     
     public static final ConfigurationKey<Integer> DATABASE_CACHE = new ConfigurationKey<>(
             "database.cache",
-            10,
-            "Database cache time in minutes.",
-            ConfigurateHelper::getString
+            600,
+            "Database cache time in seconds.",
+            ConfigurateHelper::getInt
     );
 
     public static final ConfigurationKey<Boolean> MIGRATION_ON_NEXT_STARTUP = new ConfigurationKey<>(
@@ -238,6 +238,7 @@ public class DefaultConfiguration {
         helper.setDefault(DATABASE_USER);
         helper.setDefault(DATABASE_PASSWORD);
         helper.setDefault(DATABASE_NAME);
+        helper.setDefault(DATABASE_CACHE);
 
         helper.setDefault(MIGRATION_ON_NEXT_STARTUP);
         helper.setDefault(MIGRATION_TYPE);
