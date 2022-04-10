@@ -51,11 +51,11 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
             premium = plugin.getPremiumProvider().getUserForName(username);
         } catch (PremiumException e) {
             var message = switch (e.getIssue()) {
-                case THROTTLED -> plugin.getMessages().getMessage("premium-error-throttled-kick");
+                case THROTTLED -> plugin.getMessages().getMessage("kick-premium-error-throttled");
                 default -> {
                     plugin.getLogger().error("Encountered an exception while communicating with the mojang API!");
                     e.printStackTrace();
-                    yield plugin.getMessages().getMessage("premium-error-undefined-kick");
+                    yield plugin.getMessages().getMessage("kick-premium-error-undefined");
                 }
             };
 
