@@ -26,7 +26,7 @@ public class DefaultConfiguration {
     public static final ConfigurationKey<String> LIMBO = new ConfigurationKey<>(
             "limbo",
             "",
-            "The limbo, players should be sent to, when not authenticated.",
+            "The limbo, players should be sent to, when not authenticated. THIS SERVER MUST BE REGISTERED IN THE PROXY CONFIG",
             ConfigurateHelper::getString
     );
 
@@ -36,7 +36,7 @@ public class DefaultConfiguration {
                     "lobby0",
                     "lobby1"
             ),
-            "The server, player should be sent through, after they're authenticated.",
+            "The server, player should be sent to, after they're authenticated. THIS SERVER MUST BE REGISTERED IN THE PROXY CONFIG",
             ConfigurateHelper::getStringList
     );
 

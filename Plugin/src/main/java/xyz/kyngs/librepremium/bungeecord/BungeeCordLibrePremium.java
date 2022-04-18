@@ -102,7 +102,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
         var serverMap = plugin.getProxy().getServers();
         if (!serverMap.containsKey(configuration.getLimbo())) {
-            throw new CorruptedConfigurationException("Invalid limbo");
+            throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
         }
 
         if (configuration.getPassThrough().isEmpty()) {
@@ -111,7 +111,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
 
         for (String server : configuration.getPassThrough()) {
             if (!serverMap.containsKey(server)) {
-                throw new CorruptedConfigurationException("Pass-through server %s not configured!".formatted(server));
+                throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
             }
         }
     }

@@ -90,12 +90,12 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     @Override
     public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
         if (server.getServer(configuration.getLimbo()).isEmpty())
-            throw new CorruptedConfigurationException("Invalid limbo");
+            throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
         if (configuration.getPassThrough().isEmpty())
             throw new CorruptedConfigurationException("No pass-through servers defined!");
         for (String server : configuration.getPassThrough()) {
             if (this.server.getServer(server).isEmpty())
-                throw new CorruptedConfigurationException("Pass-through server %s not configured!".formatted(server));
+                throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
         }
     }
 
