@@ -57,7 +57,16 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
             Field field = clazz.getDeclaredField("uniqueId");
             field.setAccessible(true);
             field.set(connection, profile.getUuid());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        } catch (NoSuchFieldException e) {
+            var logger = super.plugin.getLogger();
+            logger.error("The uuid field was not found in the PendingConnection class, please report this to the developer. And attach the field summary below.");
+            logger.error("-- BEGIN FIELD SUMMARY --");
+            for (Field field : clazz.getDeclaredFields()) {
+                logger.error(field.getType().getName() + ": " + field.getName());
+            }
+            logger.error("-- END FIELD SUMMARY --");
+            event.setCancelled(true);
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
