@@ -55,4 +55,6 @@ public interface PluginConfiguration {
 
     int milliSecondsToRefreshNotification();
 
+    int secondsToAuthorize();
+
 }

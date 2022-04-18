@@ -156,6 +156,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return get(MILLISECONDS_TO_REFRESH_NOTIFICATION);
     }
 
+    @Override
+    public int secondsToAuthorize() {
+        return get(SECONDS_TO_AUTHORIZE);
+    }
+
     public <T> T get(ConfigurationKey<T> key) {
         return helper.get(key);
     }

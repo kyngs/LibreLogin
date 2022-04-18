@@ -102,6 +102,13 @@ public class DefaultConfiguration {
             ConfigurateHelper::getInt
     );
 
+    public static final ConfigurationKey<Integer> SECONDS_TO_AUTHORIZE = new ConfigurationKey<>(
+            "seconds-to-authorize",
+            -1,
+            "Sets the login/register time limit in seconds. Set to negative to disable.",
+            ConfigurateHelper::getInt
+    );
+
     public static final ConfigurationKey<String> DATABASE_HOST = new ConfigurationKey<>(
             "database.host",
             "localhost",
@@ -232,6 +239,7 @@ public class DefaultConfiguration {
         helper.setDefault(NEW_UUID_CREATOR);
         helper.setDefault(AUTO_REGISTER);
         helper.setDefault(MILLISECONDS_TO_REFRESH_NOTIFICATION);
+        helper.setDefault(SECONDS_TO_AUTHORIZE);
 
         helper.setDefault(DATABASE_HOST);
         helper.setDefault(DATABASE_PORT);

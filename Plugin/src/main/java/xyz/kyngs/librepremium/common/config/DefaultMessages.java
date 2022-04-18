@@ -100,6 +100,13 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> KICK_TIME_LIMIT = new ConfigurationKey<>(
+            "kick-time-limit",
+            "You took too long to authorize!",
+            "This message is displayed when the player takes too long to authorize. (You can specify this time limit in the config file)",
+            ConfigurateHelper::getString
+    );
+
     /*
     Errors related to commands
      */
@@ -483,6 +490,7 @@ public class DefaultMessages {
         helper.setDefault(KICK_OCCUPIED_USERNAME);
 
         helper.setDefault(KICK_NO_SERVER);
+        helper.setDefault(KICK_TIME_LIMIT);
 
         helper.setDefault(ERROR_ALREADY_AUTHORIZED);
         helper.setDefault(ERROR_ALREADY_REGISTERED);
