@@ -33,7 +33,8 @@ public class HoconPluginConfiguration implements PluginConfiguration {
                           This is the configuration file for LibrePremium.
                           You can find more information about LibrePremium on the github page:
                           https://github.com/kyngs/LibrePremium
-                        """
+                        """,
+                0
         );
 
         var helperAdept = adept.getHelper();
