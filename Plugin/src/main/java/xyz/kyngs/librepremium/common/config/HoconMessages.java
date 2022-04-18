@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static xyz.kyngs.librepremium.common.config.DefaultMessages.DEFAULT_MESSAGES;
-
 public class HoconMessages implements Messages {
 
     private final static LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
@@ -50,7 +48,19 @@ public class HoconMessages implements Messages {
         var adept = new ConfigurateConfiguration(
                 plugin.getDataFolder(),
                 "messages.conf",
-                DEFAULT_MESSAGES
+                DefaultMessages.class,
+                """
+                          !!THIS FILE IS WRITTEN IN THE HOCON FORMAT!!
+                          The hocon format is very similar to JSON, but it has some extra features.
+                          You can find more information about the format on the sponge wiki:
+                          https://docs.spongepowered.org/stable/en/server/getting-started/configuration/hocon.html
+                          ----------------------------------------------------------------------------------------
+                          LibrePremium Messages
+                          ----------------------------------------------------------------------------------------
+                          This file contains all of the messages used by the plugin, you are welcome to fit it to your needs.
+                          You can find more information about LibrePremium on the github page:
+                          https://github.com/kyngs/LibrePremium
+                        """
         );
 
         var node = adept.getHelper().configuration();

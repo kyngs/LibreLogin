@@ -21,7 +21,19 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         var adept = new ConfigurateConfiguration(
                 plugin.getDataFolder(),
                 "config.conf",
-                DefaultConfiguration.DEFAULT_CONFIGURATION
+                DefaultConfiguration.class,
+                """
+                          !!THIS FILE IS WRITTEN IN THE HOCON FORMAT!!
+                          The hocon format is very similar to JSON, but it has some extra features.
+                          You can find more information about the format on the sponge wiki:
+                          https://docs.spongepowered.org/stable/en/server/getting-started/configuration/hocon.html
+                          ----------------------------------------------------------------------------------------
+                          LibrePremium Configuration
+                          ----------------------------------------------------------------------------------------
+                          This is the configuration file for LibrePremium.
+                          You can find more information about LibrePremium on the github page:
+                          https://github.com/kyngs/LibrePremium
+                        """
         );
 
         var helperAdept = adept.getHelper();
