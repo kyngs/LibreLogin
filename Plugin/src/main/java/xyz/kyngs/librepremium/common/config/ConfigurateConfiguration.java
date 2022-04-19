@@ -64,7 +64,7 @@ public class ConfigurateConfiguration {
 
         var presentRevision = helper.getInt("revision");
 
-        if (presentRevision == null) presentRevision = 0;
+        if (presentRevision == null) presentRevision = newlyCreated ? revision : 0;
 
         if (presentRevision < revision) {
             for (int i = presentRevision; i < revision; i++) {

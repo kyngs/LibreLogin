@@ -138,7 +138,9 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
 
     @Override
     public void kick(UUID uuid, Component reason) {
-        plugin.getProxy().getPlayer(uuid).disconnect(plugin.getSerializer().serialize(reason));
+        var player = plugin.getProxy().getPlayer(uuid);
+        if (player == null) return;
+        player.disconnect(plugin.getSerializer().serialize(reason));
     }
 
     @Override
