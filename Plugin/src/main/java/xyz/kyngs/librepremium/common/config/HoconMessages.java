@@ -60,8 +60,7 @@ public class HoconMessages implements Messages {
                           This file contains all of the messages used by the plugin, you are welcome to fit it to your needs.
                           You can find more information about LibrePremium on the github page:
                           https://github.com/kyngs/LibrePremium
-                        """,
-                0
+                        """
         );
 
         var node = adept.getHelper().configuration();

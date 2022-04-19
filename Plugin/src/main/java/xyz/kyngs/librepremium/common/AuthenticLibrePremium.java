@@ -389,6 +389,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
         getEventProvider().fire(LimboServerChooseEvent.class, event);
 
-        return event.getServer() != null ? event.getServer() : getConfiguration().getLimbo();
+        return event.getServer() != null ? event.getServer() : chooseLimboDefault();
     }
+
+    public abstract String chooseLimboDefault();
 }

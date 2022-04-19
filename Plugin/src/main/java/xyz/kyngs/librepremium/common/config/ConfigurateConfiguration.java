@@ -18,7 +18,8 @@ public class ConfigurateConfiguration {
     private final boolean newlyCreated;
     private final HoconConfigurationLoader loader;
 
-    public ConfigurateConfiguration(File dataFolder, String name, Class<?> defaultKeys, String comment, int revision, ConfigurationMigrator... migrators) throws IOException, CorruptedConfigurationException {
+    public ConfigurateConfiguration(File dataFolder, String name, Class<?> defaultKeys, String comment, ConfigurationMigrator... migrators) throws IOException, CorruptedConfigurationException {
+        var revision = migrators.length;
         var file = new File(dataFolder, name);
 
         if (!file.exists()) {

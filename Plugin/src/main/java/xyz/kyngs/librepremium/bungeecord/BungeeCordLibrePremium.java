@@ -101,8 +101,8 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     @Override
     public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
         var serverMap = plugin.getProxy().getServers();
-        if (!serverMap.containsKey(configuration.getLimbo())) {
-            throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
+        if (configuration.getLimbo().isEmpty()) {
+            throw new CorruptedConfigurationException("No limbo servers defined!");
         }
 
         if (configuration.getPassThrough().isEmpty()) {
@@ -110,6 +110,12 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
         }
 
         for (String server : configuration.getPassThrough()) {
+            if (!serverMap.containsKey(server)) {
+                throw new CorruptedConfigurationException("The supplied pass-through server is not configured in the proxy configuration!");
+            }
+        }
+
+        for (String server : configuration.getLimbo()) {
             if (!serverMap.containsKey(server)) {
                 throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
             }
@@ -164,6 +170,15 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
 
         return plugin.getProxy().getServers().values().stream()
                 .filter(server -> passThroughServers.contains(server.getName()))
+                .min(Comparator.comparingInt(o -> o.getPlayers().size()))
+                .orElseThrow().getName();
+    }
+
+    @Override
+    public String chooseLimboDefault() {
+        var limbos = getConfiguration().getLimbo();
+        return plugin.getProxy().getServers().values().stream()
+                .filter(server -> limbos.contains(server.getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayers().size()))
                 .orElseThrow().getName();
     }

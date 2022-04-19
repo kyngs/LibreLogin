@@ -89,11 +89,15 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
 
     @Override
     public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
-        if (server.getServer(configuration.getLimbo()).isEmpty())
-            throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
+        if (configuration.getLimbo().isEmpty())
+            throw new CorruptedConfigurationException("No limbo servers defined!");
         if (configuration.getPassThrough().isEmpty())
             throw new CorruptedConfigurationException("No pass-through servers defined!");
         for (String server : configuration.getPassThrough()) {
+            if (this.server.getServer(server).isEmpty())
+                throw new CorruptedConfigurationException("The supplied pass-through server is not configured in the proxy configuration!");
+        }
+        for (String server : configuration.getLimbo()) {
             if (this.server.getServer(server).isEmpty())
                 throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
         }
@@ -157,6 +161,15 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
         var passThroughServers = getConfiguration().getPassThrough();
         return server.getAllServers().stream()
                 .filter(server -> passThroughServers.contains(server.getServerInfo().getName()))
+                .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
+                .orElseThrow().getServerInfo().getName();
+    }
+
+    @Override
+    public String chooseLimboDefault() {
+        var limbos = getConfiguration().getLimbo();
+        return server.getAllServers().stream()
+                .filter(server -> limbos.contains(server.getServerInfo().getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
                 .orElseThrow().getServerInfo().getName();
     }

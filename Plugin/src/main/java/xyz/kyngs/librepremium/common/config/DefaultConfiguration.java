@@ -20,11 +20,11 @@ public class DefaultConfiguration {
             ConfigurateHelper::getStringList
     );
 
-    public static final ConfigurationKey<String> LIMBO = new ConfigurationKey<>(
+    public static final ConfigurationKey<List<String>> LIMBO = new ConfigurationKey<>(
             "limbo",
-            "",
-            "The limbo, players should be sent to, when not authenticated. THIS SERVER MUST BE REGISTERED IN THE PROXY CONFIG",
-            ConfigurateHelper::getString
+            List.of("limbo0", "limbo1"),
+            "The limbos, players should be sent to, when not authenticated. THIS SERVER MUST BE REGISTERED IN THE PROXY CONFIG",
+            ConfigurateHelper::getStringList
     );
 
     public static final ConfigurationKey<List<String>> PASS_THROUGH = new ConfigurationKey<>(

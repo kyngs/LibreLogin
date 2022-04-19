@@ -5,6 +5,7 @@ import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.NewUUIDCreator;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
+import xyz.kyngs.librepremium.common.config.migrate.config.FirstConfigurationMigrator;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -34,7 +35,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
                           You can find more information about LibrePremium on the github page:
                           https://github.com/kyngs/LibrePremium
                         """,
-                0
+                new FirstConfigurationMigrator()
         );
 
         var helperAdept = adept.getHelper();
@@ -84,7 +85,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     }
 
     @Override
-    public String getLimbo() {
+    public List<String> getLimbo() {
         return get(LIMBO);
     }
 

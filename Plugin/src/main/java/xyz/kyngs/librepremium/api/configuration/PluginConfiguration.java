@@ -23,7 +23,7 @@ public interface PluginConfiguration {
 
     Collection<String> getPassThrough();
 
-    String getLimbo();
+    Collection<String> getLimbo();
 
     int getDatabasePort();
 
