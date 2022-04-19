@@ -42,10 +42,6 @@ public class ConfigurateConfiguration {
 
         var ref = refHelper.configuration();
 
-        ref.node("revision")
-                .comment("The config revision number. !!DO NOT TOUCH THIS!!")
-                .set(revision);
-
         var builder = HoconConfigurationLoader.builder()
                 .defaultOptions(
                         ConfigurationOptions
@@ -68,13 +64,17 @@ public class ConfigurateConfiguration {
 
         var presentRevision = helper.getInt("revision");
 
+        if (presentRevision == null) presentRevision = 0;
+
         if (presentRevision < revision) {
             for (int i = presentRevision; i < revision; i++) {
                 migrators[i].migrate(helper);
             }
         }
 
-        helper.set("revision", revision);
+        helper.configuration().node("revision")
+                .set(revision)
+                .comment("The config revision number. !!DO NOT TOUCH THIS!!");
 
         save();
     }
