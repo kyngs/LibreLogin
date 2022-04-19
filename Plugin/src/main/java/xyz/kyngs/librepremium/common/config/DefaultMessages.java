@@ -105,6 +105,13 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> KICK_ERROR_PASSWORD_WRONG = new ConfigurationKey<>(
+            "kick-error-password-wrong",
+            "Wrong password!",
+            "This message is displayed when the player is kicked because they authorize with wrong password.",
+            ConfigurateHelper::getString
+    );
+
     /*
     Errors related to commands
      */

@@ -31,7 +31,7 @@ public class LoginCommand extends AuthorizationCommand {
 
         if (!crypto.matches(password, hashed)) {
             if (plugin.getConfiguration().kickOnWrongPassword()) {
-                plugin.kick(uuid, getMessage("error-password-wrong"));
+                plugin.kick(uuid, getMessage("kick-error-password-wrong"));
             }
             throw new InvalidCommandArgument(getMessage("error-password-wrong"));
         }
