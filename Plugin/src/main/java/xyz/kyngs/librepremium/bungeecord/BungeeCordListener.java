@@ -7,6 +7,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
+import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
 
@@ -33,17 +34,23 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
 
     @EventHandler(priority = HIGHEST)
     public void onPreLogin(PreLoginEvent event) {
-        var result = onPreLogin(event.getConnection().getName());
+        event.registerIntent(plugin);
 
-        switch (result.state()) {
-            case DENIED -> {
-                assert result.message() != null;
-                event.setCancelled(true);
-                event.setCancelReason(plugin.getSerializer().serialize(result.message()));
+        GeneralUtil.ASYNC_POOL.execute(() -> {
+            var result = onPreLogin(event.getConnection().getName());
+
+            switch (result.state()) {
+                case DENIED -> {
+                    assert result.message() != null;
+                    event.setCancelled(true);
+                    event.setCancelReason(plugin.getSerializer().serialize(result.message()));
+                }
+                case FORCE_ONLINE -> event.getConnection().setOnlineMode(true);
+                case FORCE_OFFLINE -> event.getConnection().setOnlineMode(false);
             }
-            case FORCE_ONLINE -> event.getConnection().setOnlineMode(true);
-            case FORCE_OFFLINE -> event.getConnection().setOnlineMode(false);
-        }
+
+            event.completeIntent(plugin);
+        });
 
     }
 

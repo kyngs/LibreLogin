@@ -39,7 +39,6 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> 
     @Subscribe(order = PostOrder.LAST)
     public void onPreLogin(PreLoginEvent event) {
         if (!event.getResult().isAllowed()) return;
-
         var result = onPreLogin(event.getUsername());
 
         event.setResult(

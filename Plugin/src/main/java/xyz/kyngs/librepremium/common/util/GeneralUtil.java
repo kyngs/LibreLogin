@@ -10,8 +10,11 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ForkJoinPool;
 
 public class GeneralUtil {
+
+    public static final ForkJoinPool ASYNC_POOL = new ForkJoinPool(4);
 
     public static String readInput(InputStream inputStream) throws IOException {
         var input = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
