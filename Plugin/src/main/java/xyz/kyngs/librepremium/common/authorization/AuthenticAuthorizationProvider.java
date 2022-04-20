@@ -42,13 +42,17 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
         unAuthorized.add(uuid);
 
         plugin.delay(() -> {
+            if (!unAuthorized.contains(uuid)) return;
             sendInfoMessage(plugin.getDatabaseProvider().getByUUID(uuid), audience);
         }, 250);
 
         var limit = plugin.getConfiguration().secondsToAuthorize();
 
         if (limit > 0) {
-            plugin.delay(() -> plugin.kick(uuid, plugin.getMessages().getMessage("kick-time-limit")), limit * 1000L);
+            plugin.delay(() -> {
+                if (!unAuthorized.contains(uuid)) return;
+                plugin.kick(uuid, plugin.getMessages().getMessage("kick-time-limit"));
+            }, limit * 1000L);
         }
 
 
