@@ -41,18 +41,18 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
     public void startTracking(UUID uuid, Audience audience) {
         unAuthorized.add(uuid);
 
-        plugin.delay(() -> {
+        plugin.cancelOnExit(plugin.delay(() -> {
             if (!unAuthorized.contains(uuid)) return;
             sendInfoMessage(plugin.getDatabaseProvider().getByUUID(uuid), audience);
-        }, 250);
+        }, 250), uuid);
 
         var limit = plugin.getConfiguration().secondsToAuthorize();
 
         if (limit > 0) {
-            plugin.delay(() -> {
+            plugin.cancelOnExit(plugin.delay(() -> {
                 if (!unAuthorized.contains(uuid)) return;
                 plugin.kick(uuid, plugin.getMessages().getMessage("kick-time-limit"));
-            }, limit * 1000L);
+            }, limit * 1000L), uuid);
         }
 
 
@@ -62,6 +62,7 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
         audience.sendMessage(plugin.getMessages().getMessage(user.isRegistered() ? "prompt-login" : "prompt-register"));
         if (!plugin.getConfiguration().useTitles()) return;
         var toRefresh = plugin.getConfiguration().milliSecondsToRefreshNotification();
+        //noinspection UnstableApiUsage
         audience.showTitle(Title.title(
                 plugin.getMessages().getMessage(user.isRegistered() ? "title-login" : "title-register"),
                 plugin.getMessages().getMessage(user.isRegistered() ? "sub-title-login" : "sub-title-register"),

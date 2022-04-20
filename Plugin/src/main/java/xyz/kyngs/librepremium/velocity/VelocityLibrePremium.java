@@ -22,6 +22,7 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.SL4JLogger;
+import xyz.kyngs.librepremium.common.util.CancellableTask;
 
 import java.io.File;
 import java.io.InputStream;
@@ -131,11 +132,12 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
-    public void delay(Runnable runnable, long delayInMillis) {
-        server.getScheduler()
+    public CancellableTask delay(Runnable runnable, long delayInMillis) {
+        var task = server.getScheduler()
                 .buildTask(this, runnable)
                 .delay(delayInMillis, TimeUnit.MILLISECONDS)
                 .schedule();
+        return task::cancel;
     }
 
     @Override

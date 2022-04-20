@@ -13,6 +13,7 @@ import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
+import xyz.kyngs.librepremium.common.util.CancellableTask;
 
 import java.io.File;
 import java.io.InputStream;
@@ -144,8 +145,9 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public void delay(Runnable runnable, long delayInMillis) {
-        plugin.getProxy().getScheduler().schedule(plugin, runnable, delayInMillis, TimeUnit.MILLISECONDS);
+    public CancellableTask delay(Runnable runnable, long delayInMillis) {
+        var task = plugin.getProxy().getScheduler().schedule(plugin, runnable, delayInMillis, TimeUnit.MILLISECONDS);
+        return task::cancel;
     }
 
     @Override

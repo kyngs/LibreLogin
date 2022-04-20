@@ -37,6 +37,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
         plugin.getAuthorizationProvider().startTracking(uuid, audience);
     }
     protected void onPlayerDisconnect(UUID uuid) {
+        plugin.onExit(uuid);
         plugin.getAuthorizationProvider().stopTracking(uuid);
     }
 

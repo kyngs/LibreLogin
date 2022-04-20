@@ -2,6 +2,8 @@ package xyz.kyngs.librepremium.common;
 
 import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
@@ -41,6 +43,7 @@ import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
+import xyz.kyngs.librepremium.common.util.CancellableTask;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.io.IOException;
@@ -59,6 +62,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     private final MojangPremiumProvider premiumProvider;
     private final Map<String, CryptoProvider> cryptoProviders;
     private final Map<String, ReadDatabaseProvider> readProviders;
+    private final Multimap<UUID, CancellableTask> cancelOnExit;
     private final AuthenticEventProvider eventProvider;
     private Logger logger;
     private HoconPluginConfiguration configuration;
@@ -76,6 +80,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
+        cancelOnExit = HashMultimap.create();
     }
 
     @Override
@@ -324,7 +329,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public abstract void kick(UUID uuid, Component reason);
 
-    public abstract void delay(Runnable runnable, long delayInMillis);
+    public abstract CancellableTask delay(Runnable runnable, long delayInMillis);
 
     public String chooseLobby(User user, Audience audience) throws NoSuchElementException {
         var event = new AuthenticLobbyServerChooseEvent(user, audience);
@@ -393,4 +398,12 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     }
 
     public abstract String chooseLimboDefault();
+
+    public void onExit(UUID uuid) {
+        cancelOnExit.removeAll(uuid).forEach(CancellableTask::cancel);
+    }
+
+    public void cancelOnExit(CancellableTask task, UUID uuid) {
+        cancelOnExit.put(uuid, task);
+    }
 }
