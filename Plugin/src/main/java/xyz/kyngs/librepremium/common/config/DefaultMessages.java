@@ -280,6 +280,13 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_NOT_AVAILABLE_ON_MULTI_PROXY = new ConfigurationKey<>(
+            "error-not-available-on-multi-proxy",
+            "This feature is not available on MultiProxy!",
+            "This message is displayed when someone attempts to use a feature that is not available on MultiProxy.",
+            ConfigurateHelper::getString
+    );
+
     /*
     ACF Related errors
      */

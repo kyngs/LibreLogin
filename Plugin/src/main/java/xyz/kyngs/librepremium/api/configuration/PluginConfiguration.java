@@ -10,8 +10,6 @@ public interface PluginConfiguration {
     boolean reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException;
 
     Collection<String> getAllowedCommandsWhileUnauthorized();
-    
-    int getDatabaseCacheTime();
 
     String getDatabasePassword();
 

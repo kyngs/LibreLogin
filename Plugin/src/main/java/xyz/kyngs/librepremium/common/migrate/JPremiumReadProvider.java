@@ -5,6 +5,7 @@ import xyz.kyngs.easydb.provider.mysql.MySQL;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.common.util.CryptoUtil;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.sql.Connection;
@@ -53,33 +54,20 @@ public class JPremiumReadProvider extends MySQLReadProvider {
                     var rawPassword = rs.getString("hashedPassword");
 
                     if (lastNickname == null) continue; //Yes this may happen
+                    var split = rawPassword == null ? null : rawPassword.split("\\$");
 
-                    HashedPassword password = null;
-
-                    if (rawPassword != null) {
-                        var split = rawPassword.split("\\$");
-
-                        var algo = split[0];
-                        var salt = split[1];
-                        var hash = split[2];
-
-                        algo = switch (algo) {
-                            case "SHA256" -> "SHA-256";
-                            default -> {
-                                logger.error("User %s has invalid algorithm %s, omitting".formatted(lastNickname, algo));
-                                yield null;
-                            }
-                        };
-
-                        if (algo == null) continue;
-
-                        password = new HashedPassword(
-                                hash,
-                                salt,
-                                algo
+                    HashedPassword password = rawPassword == null ? null : switch (split[0]) {
+                        case "SHA256" -> new HashedPassword(
+                                split[2],
+                                split[1],
+                                "SHA-256"
                         );
-
-                    }
+                        case "BCRYPT" -> CryptoUtil.convertFromBCryptRaw(rawPassword.replace("BCRYPT", "$2a"));
+                        default -> {
+                            logger.error("User %s has invalid algorithm %s, omitting".formatted(lastNickname, split[0]));
+                            yield null;
+                        }
+                    };
 
                     users.add(new User(
                             GeneralUtil.fromUnDashedUUID(uniqueIdString),

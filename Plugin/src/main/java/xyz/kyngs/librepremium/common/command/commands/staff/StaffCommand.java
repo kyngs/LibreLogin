@@ -22,11 +22,13 @@ public class StaffCommand extends Command {
     }
 
     protected void requireOffline(User user) {
-        if (plugin.getAudienceForID(user.getUuid()) != null)
+        if (plugin.isPresent(user.getUuid()))
             throw new InvalidCommandArgument(getMessage("error-player-online"));
     }
 
     protected Audience requireOnline(User user) {
+        if (plugin.multiProxyEnabled())
+            throw new InvalidCommandArgument(getMessage("error-not-available-on-multi-proxy"));
         var audience = plugin.getAudienceForID(user.getUuid());
         if (audience == null)
             throw new InvalidCommandArgument(getMessage("error-player-offline"));

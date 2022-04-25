@@ -53,4 +53,8 @@ public interface LibrePremiumPlugin {
 
     String getVersion();
 
+    boolean isPresent(UUID uuid);
+
+    boolean multiProxyEnabled();
+
 }

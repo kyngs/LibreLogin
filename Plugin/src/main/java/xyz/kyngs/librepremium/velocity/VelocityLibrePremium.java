@@ -146,6 +146,16 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
+    public boolean isPresent(UUID uuid) {
+        return getAudienceForID(uuid) != null;
+    }
+
+    @Override
+    public boolean multiProxyEnabled() {
+        return false;
+    }
+
+    @Override
     protected void initMetrics(CustomChart... charts) {
         var metrics = factory.make(this, 14805);
 

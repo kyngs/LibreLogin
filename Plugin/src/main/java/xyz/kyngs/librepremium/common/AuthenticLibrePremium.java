@@ -129,8 +129,10 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
             System.exit(1);
         } catch (CorruptedConfigurationException e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
-            logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            logger.error("""
+                    !! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!
+                    !!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s
+                    """.formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             System.exit(1);
         }
 
@@ -190,6 +192,10 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         } else {
             delay(this::checkForUpdates, 1000);
             initMetrics();
+        }
+
+        if (multiProxyEnabled()) {
+            logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
         }
 
     }
@@ -401,6 +407,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public void onExit(UUID uuid) {
         cancelOnExit.removeAll(uuid).forEach(CancellableTask::cancel);
+        databaseProvider.invalidate(uuid);
     }
 
     public void cancelOnExit(CancellableTask task, UUID uuid) {

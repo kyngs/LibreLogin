@@ -1,7 +1,5 @@
 package xyz.kyngs.librepremium.common.database;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.easydb.EasyDB;
 import xyz.kyngs.easydb.EasyDBConfig;
@@ -18,21 +16,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     private final EasyDB<MySQL, Connection, SQLException> easyDB;
-    private final Cache<UUID, User> userCache;
+    private final Map<UUID, User> userCache;
     private final Logger logger;
 
     public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger) {
         this.logger = logger;
 
-        userCache = Caffeine.newBuilder()
-                .expireAfterAccess(configuration.getDatabaseCacheTime(), TimeUnit.SECONDS)
-                .build();
+        userCache = new HashMap<>();
 
         easyDB = new EasyDB<>(
                 new EasyDBConfig<>(
@@ -98,7 +95,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public User getByUUID(UUID uuid) {
-        return userCache.get(uuid, x -> easyDB.runFunctionSync(connection -> {
+        return userCache.computeIfAbsent(uuid, x -> easyDB.runFunctionSync(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE uuid=?");
 
             ps.setString(1, uuid.toString());
@@ -157,7 +154,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             var joinDate = rs.getTimestamp("joined");
             var lastSeen = rs.getTimestamp("last_seen");
 
-            return userCache.get(id, x -> new User(
+            return userCache.computeIfAbsent(id, x -> new User(
                     id,
                     premiumUUID == null ? null : UUID.fromString(premiumUUID),
                     hashedPassword == null ? null : new HashedPassword(
@@ -237,7 +234,12 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             ps.executeUpdate();
         });
 
-        userCache.invalidate(user.getUuid());
+        userCache.remove(user.getUuid());
+    }
+
+    @Override
+    public void invalidate(UUID uuid) {
+        userCache.remove(uuid);
     }
 
     public void disable() {

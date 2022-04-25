@@ -1,6 +1,7 @@
 package xyz.kyngs.librepremium.bungeecord;
 
 import co.aikar.commands.*;
+import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.CommandSender;
@@ -26,12 +27,14 @@ import java.util.logging.Level;
 public class BungeeCordLibrePremium extends AuthenticLibrePremium {
 
     private final BungeeCordPlugin plugin;
+    private RedisBungeeAPI redisBungee;
 
     public BungeeCordLibrePremium(BungeeCordPlugin plugin) {
         this.plugin = plugin;
     }
 
     public void makeEnabled() {
+        redisBungee = RedisBungeeAPI.getRedisBungeeApi();
         enable();
     }
 
@@ -153,6 +156,16 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     @Override
     public String getVersion() {
         return plugin.getDescription().getVersion();
+    }
+
+    @Override
+    public boolean isPresent(UUID uuid) {
+        return redisBungee.isPlayerOnline(uuid);
+    }
+
+    @Override
+    public boolean multiProxyEnabled() {
+        return redisBungee != null;
     }
 
     @Override

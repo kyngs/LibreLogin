@@ -102,8 +102,9 @@ public class LibrePremiumCommand extends StaffCommand {
     @CommandCompletion("@players newName")
     public void onUserMigrate(Audience audience, String name, String newName) {
         var user = getUserOtherWiseInform(name);
+        var colliding = getDatabaseProvider().getByName(newName);
 
-        if (getDatabaseProvider().getByName(newName) != null)
+        if (colliding != null && !colliding.getUuid().equals(user.getUuid()))
             throw new InvalidCommandArgument(getMessage("error-occupied-user",
                     "%name%", newName
             ));

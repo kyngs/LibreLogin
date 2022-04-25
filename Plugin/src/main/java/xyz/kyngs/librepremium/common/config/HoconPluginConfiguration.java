@@ -53,11 +53,6 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     public List<String> getAllowedCommandsWhileUnauthorized() {
         return get(ALLOWED_COMMANDS_WHILE_UNAUTHORIZED);
     }
-
-    @Override
-    public int getDatabaseCacheTime() {
-        return get(DATABASE_CACHE);
-    }
     
     @Override
     public String getDatabasePassword() {

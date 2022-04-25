@@ -146,7 +146,6 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                 ));
             }
 
-
             if (premiumID != null && plugin.getConfiguration().autoRegister()) {
                 user = new User(
                         newID,
