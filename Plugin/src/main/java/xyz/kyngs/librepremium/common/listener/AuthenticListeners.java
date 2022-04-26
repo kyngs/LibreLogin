@@ -102,7 +102,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
                 }
 
-                if (byName != null && user != byName) {
+                if (!user.equals(byName)) {
                     // Oh, no
                     return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-name-mismatch",
                             "%nickname%", username
