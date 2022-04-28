@@ -9,6 +9,7 @@ import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
 import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.event.EventProvider;
 import xyz.kyngs.librepremium.api.premium.PremiumProvider;
+import xyz.kyngs.librepremium.api.util.SemanticVersion;
 
 import java.io.File;
 import java.io.InputStream;
@@ -52,6 +53,8 @@ public interface LibrePremiumPlugin {
     void checkDataFolder();
 
     String getVersion();
+
+    SemanticVersion getParsedVersion();
 
     boolean isPresent(UUID uuid);
 

@@ -27,6 +27,7 @@ import xyz.kyngs.librepremium.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.api.premium.PremiumUser;
+import xyz.kyngs.librepremium.api.util.SemanticVersion;
 import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librepremium.common.command.CommandProvider;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
@@ -64,6 +65,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     private final Map<String, ReadDatabaseProvider> readProviders;
     private final Multimap<UUID, CancellableTask> cancelOnExit;
     private final AuthenticEventProvider eventProvider;
+    private SemanticVersion version;
     private Logger logger;
     private HoconPluginConfiguration configuration;
     private HoconMessages messages;
@@ -81,6 +83,11 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
         cancelOnExit = HashMultimap.create();
+    }
+
+    @Override
+    public SemanticVersion getParsedVersion() {
+        return version;
     }
 
     @Override
@@ -108,6 +115,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     }
 
     protected void enable() {
+        version = SemanticVersion.parse(getVersion());
         logger = provideLogger();
 
         logger.info("Loading configuration...");
@@ -190,9 +198,10 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
             logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBREPREMIUM !!");
             logger.warn("!! THIS IS NOT A RELEASE, USE THIS ONLY IF YOU WERE INSTRUCTED TO DO SO. DO NOT USE THIS IN PRODUCTION !!");
         } else {
-            delay(this::checkForUpdates, 1000);
             initMetrics();
         }
+
+        delay(this::checkForUpdates, 1000);
 
         if (multiProxyEnabled()) {
             logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
@@ -206,17 +215,17 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
             var root = GSON.fromJson(new InputStreamReader(in), JsonObject.class);
 
-            var version = root.get("tag_name").getAsString();
+            var version = SemanticVersion.parse(root.get("tag_name").getAsString());
 
-            if (version.equals(getVersion())) {
-                logger.info("You are running the latest version of LibrePremium");
-            } else {
-                logger.warn("!! YOU ARE RUNNING AN OUTDATED VERSION OF LIBREPREMIUM !!");
-                logger.info("You are running version %s, the latest version is %s".formatted(getVersion(), version));
-                logger.info("Latest version name: %s".formatted(root.get("name").getAsString()));
-                logger.warn("!! PLEASE UPDATE TO THE LATEST VERSION !!");
+            switch (this.version.compare(version)) {
+                case 0, 1 -> logger.info("You are running the latest version of LibrePremium");
+                case -1 -> {
+                    logger.warn("!! YOU ARE RUNNING AN OUTDATED VERSION OF LIBREPREMIUM !!");
+                    logger.info("You are running version %s, the latest version is %s".formatted(getVersion(), version));
+                    logger.info("Latest version name: %s".formatted(root.get("name").getAsString()));
+                    logger.warn("!! PLEASE UPDATE TO THE LATEST VERSION !!");
+                }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             logger.warn("Failed to check for updates");
