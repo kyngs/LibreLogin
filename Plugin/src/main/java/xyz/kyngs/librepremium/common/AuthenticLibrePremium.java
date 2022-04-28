@@ -407,7 +407,6 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public void onExit(UUID uuid) {
         cancelOnExit.removeAll(uuid).forEach(CancellableTask::cancel);
-        databaseProvider.invalidate(uuid);
     }
 
     public void cancelOnExit(CancellableTask task, UUID uuid) {

@@ -30,11 +30,12 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
     }
 
     protected void onPostLogin(UUID uuid, Audience audience) {
-        if (plugin.getDatabaseProvider().getByUUID(uuid).autoLoginEnabled()) {
+        var user = plugin.getDatabaseProvider().getByUUID(uuid);
+        if (user.autoLoginEnabled()) {
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent(plugin.getDatabaseProvider().getByUUID(uuid), audience));
             return;
         }
-        plugin.getAuthorizationProvider().startTracking(uuid, audience);
+        plugin.getAuthorizationProvider().startTracking(user, audience);
     }
     protected void onPlayerDisconnect(UUID uuid) {
         plugin.onExit(uuid);
@@ -175,7 +176,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
 
     protected String chooseServer(UUID playerUUID, Audience audience) throws NoSuchElementException {
         var user = plugin.getDatabaseProvider().getByUUID(playerUUID);
-        if (plugin.getDatabaseProvider().getByUUID(playerUUID).autoLoginEnabled()) {
+        if (user.autoLoginEnabled()) {
             return plugin.chooseLobby(user, audience);
         } else {
             return plugin.getLimboServer(audience, user);

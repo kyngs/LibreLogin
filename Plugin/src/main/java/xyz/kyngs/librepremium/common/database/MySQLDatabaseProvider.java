@@ -16,20 +16,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     private final EasyDB<MySQL, Connection, SQLException> easyDB;
-    private final Map<UUID, User> userCache;
     private final Logger logger;
 
     public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger) {
         this.logger = logger;
-
-        userCache = new HashMap<>();
 
         easyDB = new EasyDB<>(
                 new EasyDBConfig<>(
@@ -95,7 +90,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public User getByUUID(UUID uuid) {
-        return userCache.computeIfAbsent(uuid, x -> easyDB.runFunctionSync(connection -> {
+        return easyDB.runFunctionSync(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE uuid=?");
 
             ps.setString(1, uuid.toString());
@@ -126,7 +121,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                 );
             } else return null;
 
-        }));
+        });
     }
 
     @Override
@@ -154,7 +149,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             var joinDate = rs.getTimestamp("joined");
             var lastSeen = rs.getTimestamp("last_seen");
 
-            return userCache.computeIfAbsent(id, x -> new User(
+            return new User(
                     id,
                     premiumUUID == null ? null : UUID.fromString(premiumUUID),
                     hashedPassword == null ? null : new HashedPassword(
@@ -165,7 +160,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                     lastNickname,
                     joinDate,
                     lastSeen
-            ));
+            );
         } else return null;
     }
 
@@ -233,13 +228,6 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
             ps.executeUpdate();
         });
-
-        userCache.remove(user.getUuid());
-    }
-
-    @Override
-    public void invalidate(UUID uuid) {
-        userCache.remove(uuid);
     }
 
     public void disable() {

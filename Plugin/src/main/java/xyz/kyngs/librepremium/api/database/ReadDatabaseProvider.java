@@ -13,8 +13,4 @@ public interface ReadDatabaseProvider {
 
     Collection<User> getAllUsers();
 
-    default void invalidate(UUID uuid) {
-        // NOOP
-    }
-
 }

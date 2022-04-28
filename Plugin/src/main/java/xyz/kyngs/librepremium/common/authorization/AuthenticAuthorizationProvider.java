@@ -9,23 +9,23 @@ import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
 
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class AuthenticAuthorizationProvider implements AuthorizationProvider {
 
-    private final Set<UUID> unAuthorized;
+    private final Map<UUID, Boolean> unAuthorized;
     private final AuthenticLibrePremium plugin;
 
     public AuthenticAuthorizationProvider(AuthenticLibrePremium plugin) {
         this.plugin = plugin;
-        unAuthorized = new HashSet<>();
+        unAuthorized = new HashMap<>();
     }
 
     @Override
     public boolean isAuthorized(UUID uuid) {
-        return !unAuthorized.contains(uuid);
+        return !unAuthorized.containsKey(uuid);
     }
 
     @Override
@@ -38,34 +38,34 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
         plugin.authorize(uuid, user, audience);
     }
 
-    public void startTracking(UUID uuid, Audience audience) {
-        unAuthorized.add(uuid);
+    public void startTracking(User user, Audience audience) {
+        unAuthorized.put(user.getUuid(), user.isRegistered());
 
         plugin.cancelOnExit(plugin.delay(() -> {
-            if (!unAuthorized.contains(uuid)) return;
-            sendInfoMessage(plugin.getDatabaseProvider().getByUUID(uuid), audience);
-        }, 250), uuid);
+            if (!unAuthorized.containsKey(user.getUuid())) return;
+            sendInfoMessage(user.isRegistered(), audience);
+        }, 250), user.getUuid());
 
         var limit = plugin.getConfiguration().secondsToAuthorize();
 
         if (limit > 0) {
             plugin.cancelOnExit(plugin.delay(() -> {
-                if (!unAuthorized.contains(uuid)) return;
-                plugin.kick(uuid, plugin.getMessages().getMessage("kick-time-limit"));
-            }, limit * 1000L), uuid);
+                if (!unAuthorized.containsKey(user.getUuid())) return;
+                plugin.kick(user.getUuid(), plugin.getMessages().getMessage("kick-time-limit"));
+            }, limit * 1000L), user.getUuid());
         }
 
 
     }
 
-    private void sendInfoMessage(User user, Audience audience) {
-        audience.sendMessage(plugin.getMessages().getMessage(user.isRegistered() ? "prompt-login" : "prompt-register"));
+    private void sendInfoMessage(boolean registered, Audience audience) {
+        audience.sendMessage(plugin.getMessages().getMessage(registered ? "prompt-login" : "prompt-register"));
         if (!plugin.getConfiguration().useTitles()) return;
         var toRefresh = plugin.getConfiguration().milliSecondsToRefreshNotification();
         //noinspection UnstableApiUsage
         audience.showTitle(Title.title(
-                plugin.getMessages().getMessage(user.isRegistered() ? "title-login" : "title-register"),
-                plugin.getMessages().getMessage(user.isRegistered() ? "sub-title-login" : "sub-title-register"),
+                plugin.getMessages().getMessage(registered ? "title-login" : "title-register"),
+                plugin.getMessages().getMessage(registered ? "sub-title-login" : "sub-title-register"),
                 Title.Times.of(
                         Duration.ofMillis(0),
                         Duration.ofMillis(toRefresh > 0 ?
@@ -82,10 +82,6 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
     }
 
     public void notifyUnauthorized() {
-        for (UUID uuid : unAuthorized) {
-            var audience = plugin.getAudienceForID(uuid);
-
-            sendInfoMessage(plugin.getDatabaseProvider().getByUUID(uuid), audience);
-        }
+        unAuthorized.forEach((uuid, registered) -> sendInfoMessage(registered, plugin.getAudienceForID(uuid)));
     }
 }
