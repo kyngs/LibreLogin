@@ -10,21 +10,22 @@ import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
+import java.util.NoSuchElementException;
 
 import static net.md_5.bungee.event.EventPriority.HIGHEST;
 
 public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremium> implements Listener {
 
-    private final BungeeCordPlugin plugin;
+    private final BungeeCordPlugin bungeePlugin;
 
     public BungeeCordListener(BungeeCordPlugin plugin) {
         super(plugin.getLibrePremium());
-        this.plugin = plugin;
+        this.bungeePlugin = plugin;
     }
 
     @EventHandler(priority = HIGHEST)
     public void onPostLogin(PostLoginEvent event) {
-        onPostLogin(event.getPlayer().getUniqueId(), plugin.getAdventure().player(event.getPlayer()));
+        onPostLogin(event.getPlayer().getUniqueId(), bungeePlugin.getAdventure().player(event.getPlayer()));
     }
 
     @EventHandler
@@ -34,7 +35,10 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
 
     @EventHandler(priority = HIGHEST)
     public void onPreLogin(PreLoginEvent event) {
-        event.registerIntent(plugin);
+
+        if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
+
+        event.registerIntent(bungeePlugin);
 
         GeneralUtil.ASYNC_POOL.execute(() -> {
             var result = onPreLogin(event.getConnection().getName());
@@ -43,20 +47,23 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
                 case DENIED -> {
                     assert result.message() != null;
                     event.setCancelled(true);
-                    event.setCancelReason(plugin.getSerializer().serialize(result.message()));
+                    event.setCancelReason(bungeePlugin.getSerializer().serialize(result.message()));
                 }
                 case FORCE_ONLINE -> event.getConnection().setOnlineMode(true);
                 case FORCE_OFFLINE -> event.getConnection().setOnlineMode(false);
             }
 
-            event.completeIntent(plugin);
+            event.completeIntent(bungeePlugin);
         });
 
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onProfileRequest(LoginEvent event) {
-        var profile = plugin.getLibrePremium().getDatabaseProvider().getByName(event.getConnection().getName());
+
+        if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
+
+        var profile = bungeePlugin.getLibrePremium().getDatabaseProvider().getByName(event.getConnection().getName());
         PendingConnection connection = event.getConnection();
 
         Class<?> clazz = connection.getClass();
@@ -82,10 +89,17 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
     public void chooseServer(ServerConnectEvent event) {
         if (!event.getReason().equals(ServerConnectEvent.Reason.JOIN_PROXY)) return;
 
-        ServerInfo serverInfo = plugin.getProxy().getServerInfo(chooseServer(event.getPlayer().getUniqueId(), plugin.getLibrePremium().getAudienceForSender(event.getPlayer())));
+        ServerInfo serverInfo;
+        try {
+            serverInfo = bungeePlugin.getProxy().getServerInfo(chooseServer(event.getPlayer().getUniqueId(), bungeePlugin.getLibrePremium().getAudienceForSender(event.getPlayer())));
+        } catch (NoSuchElementException e) {
+            event.getPlayer().disconnect(bungeePlugin.getSerializer().serialize(bungeePlugin.getLibrePremium().getMessages().getMessage("kick-no-server")));
+            event.setCancelled(true);
+            return;
+        }
 
         if (serverInfo == null) {
-            event.getPlayer().disconnect(plugin.getSerializer().serialize(plugin.getLibrePremium().getMessages().getMessage("kick-no-server")));
+            event.getPlayer().disconnect(bungeePlugin.getSerializer().serialize(bungeePlugin.getLibrePremium().getMessages().getMessage("kick-no-server")));
             event.setCancelled(true);
             return;
         }

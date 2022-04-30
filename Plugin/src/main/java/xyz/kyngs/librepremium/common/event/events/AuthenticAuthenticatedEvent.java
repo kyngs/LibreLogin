@@ -7,6 +7,6 @@ import xyz.kyngs.librepremium.common.event.AuthenticPlayerBasedEvent;
 
 public class AuthenticAuthenticatedEvent extends AuthenticPlayerBasedEvent implements AuthenticatedEvent {
     public AuthenticAuthenticatedEvent(User user, Audience audience) {
-        super(user, audience);
+        super(user, audience, user.getUuid());
     }
 }

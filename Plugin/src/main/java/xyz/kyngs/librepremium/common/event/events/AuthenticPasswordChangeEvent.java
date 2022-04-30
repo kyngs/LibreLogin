@@ -10,7 +10,7 @@ public class AuthenticPasswordChangeEvent extends AuthenticPlayerBasedEvent impl
     private final HashedPassword oldPassword;
 
     public AuthenticPasswordChangeEvent(User user, Audience audience, HashedPassword oldPassword) {
-        super(user, audience);
+        super(user, audience, user.getUuid());
         this.oldPassword = oldPassword;
     }
 

@@ -27,8 +27,12 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> 
         onPlayerDisconnect(event.getPlayer().getUniqueId());
     }
 
-    @Subscribe(order = PostOrder.FIRST)
+    @Subscribe(order = PostOrder.NORMAL)
     public void onProfileRequest(GameProfileRequestEvent event) {
+        var existing = event.getGameProfile();
+
+        if (existing != null && plugin.fromFloodgate(existing.getId())) return;
+
         var profile = plugin.getDatabaseProvider().getByName(event.getUsername());
 
         var gProfile = event.getOriginalProfile();
@@ -38,7 +42,10 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> 
 
     @Subscribe(order = PostOrder.LAST)
     public void onPreLogin(PreLoginEvent event) {
-        if (!event.getResult().isAllowed()) return;
+
+        if (!event.getResult().isAllowed() || event.getResult() == PreLoginEvent.PreLoginComponentResult.forceOfflineMode())
+            return; // The offline mode checking thingy indicates that the player is coming from Floodgate. I know this is a terrible solution, but it's the best I have for now.
+
         var result = onPreLogin(event.getUsername());
 
         event.setResult(

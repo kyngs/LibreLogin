@@ -134,7 +134,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     public void authorize(UUID uuid, User user, Audience audience) {
         var player = plugin.getProxy().getPlayer(uuid);
 
-        ServerInfo serverInfo = plugin.getProxy().getServerInfo(chooseLobby(user, audience));
+        ServerInfo serverInfo = plugin.getProxy().getServerInfo(chooseLobby(user, uuid, audience));
 
         if (serverInfo == null) {
             player.disconnect(plugin.getSerializer().serialize(getMessages().getMessage("kick-no-server")));
@@ -155,6 +155,11 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     public CancellableTask delay(Runnable runnable, long delayInMillis) {
         var task = plugin.getProxy().getScheduler().schedule(plugin, runnable, delayInMillis, TimeUnit.MILLISECONDS);
         return task::cancel;
+    }
+
+    @Override
+    public boolean pluginPresent(String pluginName) {
+        return plugin.getProxy().getPluginManager().getPlugin(pluginName) != null;
     }
 
     @Override

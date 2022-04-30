@@ -1,6 +1,7 @@
 package xyz.kyngs.librepremium.common.event;
 
 import net.kyori.adventure.audience.Audience;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.PlayerBasedEvent;
 
@@ -10,10 +11,12 @@ public class AuthenticPlayerBasedEvent implements PlayerBasedEvent {
 
     private final User user;
     private final Audience audience;
+    private final UUID uuid;
 
-    public AuthenticPlayerBasedEvent(User user, Audience audience) {
+    public AuthenticPlayerBasedEvent(@Nullable User user, Audience audience, UUID uuid) {
         this.user = user;
         this.audience = audience;
+        this.uuid = uuid;
     }
 
     @Override
@@ -23,7 +26,7 @@ public class AuthenticPlayerBasedEvent implements PlayerBasedEvent {
 
     @Override
     public UUID getUUID() {
-        return user.getUuid();
+        return uuid;
     }
 
     @Override

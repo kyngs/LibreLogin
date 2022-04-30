@@ -7,6 +7,6 @@ import xyz.kyngs.librepremium.common.event.AuthenticServerChooseEvent;
 
 public class AuthenticLimboServerChooseEvent extends AuthenticServerChooseEvent implements LimboServerChooseEvent {
     public AuthenticLimboServerChooseEvent(User user, Audience audience) {
-        super(user, audience);
+        super(user, audience, user.getUuid());
     }
 }

@@ -1,6 +1,7 @@
 name: "LibrePremium"
 author: "kyngs"
-version: 0.6.1
+version: 0.6.2-DEVELOPMENT
 main: "xyz.kyngs.librepremium.bungeecord.BungeeCordPlugin"
 softdepends:
   - "RedisBungee"
+  - "floodgate"

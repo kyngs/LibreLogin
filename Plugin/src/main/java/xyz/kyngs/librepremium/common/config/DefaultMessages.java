@@ -116,6 +116,13 @@ public class DefaultMessages {
     Errors related to commands
      */
 
+    public static final ConfigurationKey<String> ERROR_FROM_FLOODGATE = new ConfigurationKey<>(
+            "error-from-floodgate",
+            "You can't use this command from Floodgate!",
+            "This message is displayed when the player is executing a command, but they are coming from Floodgate.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_ALREADY_AUTHORIZED = new ConfigurationKey<>(
             "error-already-authorized",
             "You are already authorized!",

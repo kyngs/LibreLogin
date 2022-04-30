@@ -55,6 +55,8 @@ public class CommandProvider {
 
             if (uuid == null) return null;
 
+            if (plugin.fromFloodgate(uuid)) throw new InvalidCommandArgument(getMessage("error-from-floodgate"));
+
             return plugin.getDatabaseProvider().getByUUID(uuid);
         });
 

@@ -1,6 +1,7 @@
 package xyz.kyngs.librepremium.api.event;
 
 import net.kyori.adventure.audience.Audience;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.database.User;
 
 import java.util.UUID;
@@ -29,8 +30,9 @@ public interface PlayerBasedEvent extends Event {
     /**
      * Gets the player's database profile
      *
-     * @return player's database profile - it's uuid should match {@link #getUUID()}
+     * @return player's database profile or null if the player comes from floodgate
      */
+    @Nullable
     User getUser();
 
 }

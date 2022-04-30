@@ -30,6 +30,8 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
     }
 
     protected void onPostLogin(UUID uuid, Audience audience) {
+        if (plugin.fromFloodgate(uuid)) return;
+
         var user = plugin.getDatabaseProvider().getByUUID(uuid);
         if (user.autoLoginEnabled()) {
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent(plugin.getDatabaseProvider().getByUUID(uuid), audience));
@@ -43,6 +45,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
     }
 
     protected PreLoginResult onPreLogin(String username) {
+
         if (username.length() > 16 || !NAME_PATTERN.matcher(username).matches()) {
             return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-illegal-username"));
         }
@@ -175,9 +178,11 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
     }
 
     protected String chooseServer(UUID playerUUID, Audience audience) throws NoSuchElementException {
-        var user = plugin.getDatabaseProvider().getByUUID(playerUUID);
-        if (user.autoLoginEnabled()) {
-            return plugin.chooseLobby(user, audience);
+        var fromFloodgate = plugin.fromFloodgate(playerUUID);
+
+        var user = fromFloodgate ? null : plugin.getDatabaseProvider().getByUUID(playerUUID);
+        if (fromFloodgate || user.autoLoginEnabled()) {
+            return plugin.chooseLobby(user, playerUUID, audience);
         } else {
             return plugin.getLimboServer(audience, user);
         }

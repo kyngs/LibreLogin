@@ -5,8 +5,10 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librepremium.common.event.AuthenticServerChooseEvent;
 
+import java.util.UUID;
+
 public class AuthenticLobbyServerChooseEvent extends AuthenticServerChooseEvent implements LobbyServerChooseEvent {
-    public AuthenticLobbyServerChooseEvent(User user, Audience audience) {
-        super(user, audience);
+    public AuthenticLobbyServerChooseEvent(User user, Audience audience, UUID uuid) {
+        super(user, audience, uuid);
     }
 }

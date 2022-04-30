@@ -39,6 +39,7 @@ import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
 import xyz.kyngs.librepremium.common.event.AuthenticEventProvider;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLobbyServerChooseEvent;
+import xyz.kyngs.librepremium.common.integration.FloodgateIntegration;
 import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
 import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
@@ -65,6 +66,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     private final Map<String, ReadDatabaseProvider> readProviders;
     private final Multimap<UUID, CancellableTask> cancelOnExit;
     private final AuthenticEventProvider eventProvider;
+    private FloodgateIntegration floodgateApi;
     private SemanticVersion version;
     private Logger logger;
     private HoconPluginConfiguration configuration;
@@ -202,6 +204,11 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         }
 
         delay(this::checkForUpdates, 1000);
+
+        if (pluginPresent("floodgate")) {
+            logger.info("Floodgate detected, enabling bedrock support...");
+            floodgateApi = new FloodgateIntegration();
+        }
 
         if (multiProxyEnabled()) {
             logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
@@ -346,8 +353,10 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public abstract CancellableTask delay(Runnable runnable, long delayInMillis);
 
-    public String chooseLobby(User user, Audience audience) throws NoSuchElementException {
-        var event = new AuthenticLobbyServerChooseEvent(user, audience);
+    public abstract boolean pluginPresent(String pluginName);
+
+    public String chooseLobby(User user, UUID uuid, Audience audience) throws NoSuchElementException {
+        var event = new AuthenticLobbyServerChooseEvent(user, audience, uuid);
 
         getEventProvider().fire(LobbyServerChooseEvent.class, event);
 
@@ -420,5 +429,13 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public void cancelOnExit(CancellableTask task, UUID uuid) {
         cancelOnExit.put(uuid, task);
+    }
+
+    public boolean floodgateEnabled() {
+        return floodgateApi != null;
+    }
+
+    public boolean fromFloodgate(UUID uuid) {
+        return floodgateApi != null && uuid != null && floodgateApi.isFloodgateId(uuid);
     }
 }

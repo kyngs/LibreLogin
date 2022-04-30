@@ -23,7 +23,7 @@ public class AuthenticEventProvider implements EventProvider {
     @Override
     public <E extends Event> void subscribe(Class<E> clazz, Consumer<E> handler) {
         if (!clazz.isInterface())
-            throw new IllegalArgumentException("You must subscribe to the event, not it's implementation");
+            throw new IllegalArgumentException("You must subscribe to the event, not its implementation");
         listeners.computeIfAbsent(clazz, x -> new HashSet<>()).add((Consumer<Event>) handler);
     }
 

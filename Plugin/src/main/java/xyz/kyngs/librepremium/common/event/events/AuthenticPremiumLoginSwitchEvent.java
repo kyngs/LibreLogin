@@ -7,6 +7,6 @@ import xyz.kyngs.librepremium.common.event.AuthenticPlayerBasedEvent;
 
 public class AuthenticPremiumLoginSwitchEvent extends AuthenticPlayerBasedEvent implements PremiumLoginSwitchEvent {
     public AuthenticPremiumLoginSwitchEvent(User user, Audience audience) {
-        super(user, audience);
+        super(user, audience, user.getUuid());
     }
 }
