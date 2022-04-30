@@ -9,6 +9,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
@@ -27,6 +28,7 @@ import java.util.logging.Level;
 public class BungeeCordLibrePremium extends AuthenticLibrePremium {
 
     private final BungeeCordPlugin plugin;
+    @Nullable
     private RedisBungeeAPI redisBungee;
 
     public BungeeCordLibrePremium(BungeeCordPlugin plugin) {
@@ -34,7 +36,9 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     public void makeEnabled() {
-        redisBungee = RedisBungeeAPI.getRedisBungeeApi();
+        if (plugin.getProxy().getPluginManager().getPlugin("RedisBungee") != null) {
+            redisBungee = RedisBungeeAPI.getRedisBungeeApi();
+        }
         enable();
     }
 
@@ -160,7 +164,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
 
     @Override
     public boolean isPresent(UUID uuid) {
-        return redisBungee.isPlayerOnline(uuid);
+        return redisBungee != null ? redisBungee.isPlayerOnline(uuid) : plugin.getProxy().getPlayer(uuid) != null;
     }
 
     @Override
