@@ -7,6 +7,7 @@ import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.player.GameProfileRequestEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
+import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.util.GameProfile;
 import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
 
@@ -81,7 +82,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> 
     public void onServerPreConnect(ServerPreConnectEvent event) {
         if (!plugin.getAuthorizationProvider().isAuthorized(event.getPlayer().getUniqueId())) {
             event.getResult().getServer().ifPresentOrElse(registeredServer -> {
-                if (!plugin.getConfiguration().getLimbo().equals(registeredServer.getServerInfo().getName())) {
+                if (!plugin.getConfiguration().getLimbo().contains(registeredServer.getServerInfo().getName())) {
                     event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 }
             }, () -> event.setResult(ServerPreConnectEvent.ServerResult.denied()));
