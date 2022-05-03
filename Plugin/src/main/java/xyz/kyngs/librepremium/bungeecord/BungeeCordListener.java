@@ -87,7 +87,12 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
 
     @EventHandler(priority = HIGHEST)
     public void chooseServer(ServerConnectEvent event) {
-        if (!event.getReason().equals(ServerConnectEvent.Reason.JOIN_PROXY)) return;
+        if (!event.getReason().equals(ServerConnectEvent.Reason.JOIN_PROXY)) {
+            if (!plugin.getAuthorizationProvider().isAuthorized(event.getPlayer().getUniqueId())) {
+                event.setCancelled(true);
+            }
+            return;
+        }
 
         ServerInfo serverInfo;
         try {

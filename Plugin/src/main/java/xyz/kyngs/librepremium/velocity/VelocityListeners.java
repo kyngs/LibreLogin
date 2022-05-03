@@ -77,5 +77,15 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> 
 
     }
 
+    @Subscribe(order = PostOrder.FIRST)
+    public void onServerPreConnect(ServerPreConnectEvent event) {
+        if (!plugin.getAuthorizationProvider().isAuthorized(event.getPlayer().getUniqueId())) {
+            event.getResult().getServer().ifPresentOrElse(registeredServer -> {
+                if (!plugin.getConfiguration().getLimbo().equals(registeredServer.getServerInfo().getName())) {
+                    event.setResult(ServerPreConnectEvent.ServerResult.denied());
+                }
+            }, () -> event.setResult(ServerPreConnectEvent.ServerResult.denied()));
+        }
+    }
 
 }
