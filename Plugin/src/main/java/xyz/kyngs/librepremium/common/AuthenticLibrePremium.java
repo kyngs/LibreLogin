@@ -218,9 +218,17 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     private void checkForUpdates() {
         logger.info("Checking for updates...");
-        try (var in = new URL("https://api.github.com/repos/kyngs/LibrePremium/releases/latest").openStream()) {
+
+        try {
+            var connection = new URL("https://api.github.com/repos/kyngs/LibrePremium/releases/latest").openConnection();
+
+            connection.setRequestProperty("User-Agent", "LibrePremium");
+
+            var in = connection.getInputStream();
 
             var root = GSON.fromJson(new InputStreamReader(in), JsonObject.class);
+
+            in.close(); //Not the safest way, but a slight leak isn't a big deal
 
             var version = SemanticVersion.parse(root.get("tag_name").getAsString());
 
