@@ -179,6 +179,20 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> TOTP_NOT_PROVIDED = new ConfigurationKey<>(
+            "totp-not-provided",
+            "You must provide a 2FA code! Use /login <password> <2FA code>, if you lost your code, contact the admins.",
+            "This message is displayed when the player tries to authorize without providing a 2FA code.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> TOTP_WRONG = new ConfigurationKey<>(
+            "totp-wrong",
+            "Wrong 2FA code!",
+            "This message is displayed when the player tries to authorize with wrong 2FA code.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_PASSWORD_NOT_MATCH = new ConfigurationKey<>(
             "error-password-not-match",
             "Passwords do not match!",
@@ -432,7 +446,7 @@ public class DefaultMessages {
 
     public static final ConfigurationKey<String> PROMPT_LOGIN = new ConfigurationKey<>(
             "prompt-login",
-            "Please login using: /login <password>",
+            "Please login using: /login <password> [2fa_code]",
             "This message is displayed when the player is prompted to login.",
             ConfigurateHelper::getString
     );
@@ -477,6 +491,24 @@ public class DefaultMessages {
             "sub-title-login",
             "&bLogin",
             "This subtitle is displayed when the player is prompted to login. Make sure that you have use-titles set to true in the configuration.",
+            ConfigurateHelper::getString
+    );
+
+    /*
+    TOTP
+     */
+
+    public static final ConfigurationKey<String> TOTP_SHOW_INFO = new ConfigurationKey<>(
+            "totp-show-info",
+            "Please scan the QR code on the map into your 2FA app. For example, Google Authenticator. When you are complete, please disconnect.",
+            "This message is displayed when the player is prompted to scan the 2FA QR code.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> TOTP_GENERATING = new ConfigurationKey<>(
+            "totp-generating",
+            "Generating 2FA code...",
+            "This message is displayed when player has begun the 2FA enable procedure.",
             ConfigurateHelper::getString
     );
 

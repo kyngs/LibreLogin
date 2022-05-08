@@ -42,18 +42,27 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     }
 
     public void validateTables() {
-        easyDB.runTaskSync(connection -> connection.prepareStatement(
-                "CREATE TABLE IF NOT EXISTS librepremium_data(" +
-                        "uuid VARCHAR(255) NOT NULL PRIMARY KEY," +
-                        "premium_uuid VARCHAR(255)," +
-                        "hashed_password VARCHAR(255)," +
-                        "salt VARCHAR(255)," +
-                        "algo VARCHAR(255)," +
-                        "last_nickname VARCHAR(255) NOT NULL," +
-                        "joined TIMESTAMP NULL DEFAULT NULL," +
-                        "last_seen TIMESTAMP NULL DEFAULT NULL" +
-                        ")"
-        ).executeUpdate());
+        easyDB.runTaskSync(connection -> {
+            connection.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS librepremium_data(" +
+                            "uuid VARCHAR(255) NOT NULL PRIMARY KEY," +
+                            "premium_uuid VARCHAR(255)," +
+                            "hashed_password VARCHAR(255)," +
+                            "salt VARCHAR(255)," +
+                            "algo VARCHAR(255)," +
+                            "last_nickname VARCHAR(255) NOT NULL," +
+                            "joined TIMESTAMP NULL DEFAULT NULL," +
+                            "last_seen TIMESTAMP NULL DEFAULT NULL" +
+                            ")"
+            ).executeUpdate();
+
+            try {
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN secret VARCHAR(255) NULL DEFAULT NULL")
+                        .executeUpdate();
+            } catch (SQLException ignored) {
+            } //FIXME: This is a horrible approach.
+
+        });
     }
 
     private boolean handleConnectionException(Exception e) {
@@ -106,6 +115,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                 var lastNickname = rs.getString("last_nickname");
                 var joinDate = rs.getTimestamp("joined");
                 var lastSeen = rs.getTimestamp("last_seen");
+                var secret = rs.getString("secret");
 
                 return new User(
                         id,
@@ -117,7 +127,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                         ),
                         lastNickname,
                         joinDate,
-                        lastSeen
+                        lastSeen,
+                        secret
                 );
             } else return null;
 
@@ -159,7 +170,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                     ),
                     lastNickname,
                     joinDate,
-                    lastSeen
+                    lastSeen,
+                    rs.getString("secret")
             );
         } else return null;
     }
@@ -167,7 +179,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public void insertUser(User user) {
         easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             insertToStatement(ps, user);
 
@@ -178,7 +190,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public void insertUsers(Collection<User> users) {
         easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("INSERT IGNORE INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            var ps = connection.prepareStatement("INSERT IGNORE INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             for (User user : users) {
                 insertToStatement(ps, user);
@@ -199,12 +211,13 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
         ps.setString(6, user.getLastNickname());
         ps.setTimestamp(7, user.getJoinDate());
         ps.setTimestamp(8, user.getLastSeen());
+        ps.setString(9, user.getSecret());
     }
 
     @Override
     public void updateUser(User user) {
         easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("UPDATE librepremium_data SET premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=? WHERE uuid=?");
+            var ps = connection.prepareStatement("UPDATE librepremium_data SET premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=?, secret=? WHERE uuid=?");
 
             ps.setString(1, user.getPremiumUUID() == null ? null : user.getPremiumUUID().toString());
             ps.setString(2, user.getHashedPassword() == null ? null : user.getHashedPassword().hash());
@@ -213,7 +226,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             ps.setString(5, user.getLastNickname());
             ps.setTimestamp(6, user.getJoinDate());
             ps.setTimestamp(7, user.getLastSeen());
-            ps.setString(8, user.getUuid().toString());
+            ps.setString(8, user.getSecret());
+            ps.setString(9, user.getUuid().toString());
 
             ps.executeUpdate();
         });

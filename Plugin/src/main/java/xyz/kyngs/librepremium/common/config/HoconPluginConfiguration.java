@@ -116,7 +116,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
 
     @Override
     public int getMigrationOldDatabasePort() {
-        return get(DATABASE_PORT);
+        return get(MIGRATION_OLD_DATABASE_PORT);
     }
 
     @Override
@@ -168,6 +168,16 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     @Override
     public int secondsToAuthorize() {
         return get(SECONDS_TO_AUTHORIZE);
+    }
+
+    @Override
+    public boolean totpEnabled() {
+        return get(TOTP_ENABLED);
+    }
+
+    @Override
+    public String getTotpLabel() {
+        return get(TOTP_LABEL);
     }
 
     public <T> T get(ConfigurationKey<T> key) {

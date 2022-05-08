@@ -2,6 +2,7 @@ package xyz.kyngs.librepremium.bungeecord;
 
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -18,7 +19,7 @@ public class BlockerListener implements Listener {
         this.configuration = configuration;
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(ChatEvent event) {
         if (event.isCommand()) {
             onCommand(event);
@@ -32,6 +33,7 @@ public class BlockerListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
     private void onCommand(ChatEvent event) {
         if (!(event.getSender() instanceof ProxiedPlayer player)) return;
         if (authorizationProvider.isAuthorized(player.getUniqueId())) return;
@@ -43,6 +45,17 @@ public class BlockerListener implements Listener {
         }
 
         event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onServerConnect(ServerConnectEvent event) {
+        var id = event.getPlayer().getUniqueId();
+
+        if (!authorizationProvider.isAuthorized(id) || authorizationProvider.isAwaiting2FA(id)) {
+            if (!configuration.getLimbo().contains(event.getTarget().getName())) {
+                event.setCancelled(true);
+            }
+        }
     }
 
 }

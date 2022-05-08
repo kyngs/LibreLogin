@@ -41,7 +41,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
     }
     protected void onPlayerDisconnect(UUID uuid) {
         plugin.onExit(uuid);
-        plugin.getAuthorizationProvider().stopTracking(uuid);
+        plugin.getAuthorizationProvider().onExit(uuid);
     }
 
     protected PreLoginResult onPreLogin(String username) {
@@ -157,7 +157,8 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                         null,
                         username,
                         Timestamp.valueOf(LocalDateTime.now()),
-                        Timestamp.valueOf(LocalDateTime.now())
+                        Timestamp.valueOf(LocalDateTime.now()),
+                        null
                 );
             } else {
                 user = new User(
@@ -166,7 +167,8 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
                         null,
                         username,
                         Timestamp.valueOf(LocalDateTime.now()),
-                        Timestamp.valueOf(LocalDateTime.now())
+                        Timestamp.valueOf(LocalDateTime.now()),
+                        null
                 );
             }
 
@@ -184,7 +186,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
         if (fromFloodgate || user.autoLoginEnabled()) {
             return plugin.chooseLobby(user, playerUUID, audience);
         } else {
-            return plugin.getLimboServer(audience, user);
+            return plugin.chooseLimbo(audience, user);
         }
     }
 }

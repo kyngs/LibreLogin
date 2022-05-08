@@ -2,10 +2,13 @@ package xyz.kyngs.librepremium.bungeecord;
 
 import co.aikar.commands.*;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import dev.simplix.protocolize.api.Protocolize;
+import dev.simplix.protocolize.api.providers.ModuleProvider;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
@@ -14,7 +17,9 @@ import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.image.ImageProjector;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
+import xyz.kyngs.librepremium.common.image.ProtocolizeImageProjector;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 
 import java.io.File;
@@ -163,6 +168,25 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
+    protected ImageProjector provideImageProjector() {
+        if (pluginPresent("Protocolize")) {
+            getLogger().info("Detected Protocolize, enabling 2FA...");
+            var projector = new ProtocolizeImageProjector(this);
+
+            Protocolize.getService(ModuleProvider.class).registerModule(projector);
+            return projector;
+        } else {
+            getLogger().warn("Protocolize not found, some features (e.g. 2FA) will not work!");
+            return null;
+        }
+    }
+
+    @Override
+    public UUID getUUIDForPlayer(Object player) {
+        return ((ProxiedPlayer) player).getUniqueId();
+    }
+
+    @Override
     public String getVersion() {
         return plugin.getDescription().getVersion();
     }
@@ -207,6 +231,16 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
                 .filter(server -> limbos.contains(server.getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayers().size()))
                 .orElseThrow().getName();
+    }
+
+    @Override
+    public void sendToServer(String server, Object player) {
+        ((ProxiedPlayer) player).connect(plugin.getProxy().getServerInfo(server));
+    }
+
+    @Override
+    public Object getPlayerForUUID(UUID id) {
+        return plugin.getProxy().getPlayer(id);
     }
 
     public Audience getAudienceForSender(CommandSender sender) {

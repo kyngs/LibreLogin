@@ -9,7 +9,10 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import dev.simplix.protocolize.api.Protocolize;
+import dev.simplix.protocolize.api.providers.ModuleProvider;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
@@ -20,9 +23,11 @@ import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.image.ImageProjector;
 import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.SL4JLogger;
+import xyz.kyngs.librepremium.common.image.ProtocolizeImageProjector;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 
 import java.io.File;
@@ -31,6 +36,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -40,7 +46,8 @@ import java.util.concurrent.TimeUnit;
         version = "@version@",
         authors = "kyngs",
         dependencies = {
-                @Dependency(id = "floodgate", optional = true)
+                @Dependency(id = "floodgate", optional = true),
+                @Dependency(id = "protoclize", optional = true)
         }
 )
 public class VelocityLibrePremium extends AuthenticLibrePremium implements LibrePremiumProvider {
@@ -151,6 +158,25 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
+    protected ImageProjector provideImageProjector() {
+        if (pluginPresent("protocolize")) {
+            getLogger().info("Detected Protocolize, enabling 2FA...");
+            var projector = new ProtocolizeImageProjector(this);
+
+            Protocolize.getService(ModuleProvider.class).registerModule(projector);
+            return projector;
+        } else {
+            logger.warn("Protocolize not found, some features (e.g. 2FA) will not work!");
+            return null;
+        }
+    }
+
+    @Override
+    public UUID getUUIDForPlayer(Object player) {
+        return ((Player) player).getUniqueId();
+    }
+
+    @Override
     public String getVersion() {
         return description.getVersion().orElseThrow();
     }
@@ -194,6 +220,22 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
                 .filter(server -> limbos.contains(server.getServerInfo().getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
                 .orElseThrow().getServerInfo().getName();
+    }
+
+    @Override
+    public void sendToServer(String server, Object player) {
+        try {
+            ((Player) player).createConnectionRequest(this.server.getServer(server).orElseThrow())
+                    .connect()
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Object getPlayerForUUID(UUID id) {
+        return server.getPlayer(id).orElse(null);
     }
 
     @Subscribe

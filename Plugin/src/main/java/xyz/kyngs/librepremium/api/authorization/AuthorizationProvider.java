@@ -9,6 +9,8 @@ public interface AuthorizationProvider {
 
     boolean isAuthorized(UUID uuid);
 
+    boolean isAwaiting2FA(UUID uuid);
+
     /**
      * There is <b>no</b> guarantee, that {@link #isAuthorized(UUID)} for the supplied user, returns true.
      */

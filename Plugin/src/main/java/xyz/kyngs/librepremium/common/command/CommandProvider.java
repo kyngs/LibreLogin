@@ -9,6 +9,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.commands.ChangePasswordCommand;
+import xyz.kyngs.librepremium.common.command.commands.TwoFactorAuthCommand;
 import xyz.kyngs.librepremium.common.command.commands.authorization.LoginCommand;
 import xyz.kyngs.librepremium.common.command.commands.authorization.RegisterCommand;
 import xyz.kyngs.librepremium.common.command.commands.premium.PremiumConfirmCommand;
@@ -87,6 +88,10 @@ public class CommandProvider {
         manager.registerCommand(new PremiumDisableCommand(plugin));
         manager.registerCommand(new ChangePasswordCommand(plugin));
         manager.registerCommand(new LibrePremiumCommand(plugin));
+
+        if (plugin.getTOTPProvider() != null) {
+            manager.registerCommand(new TwoFactorAuthCommand(plugin));
+        }
 
     }
 

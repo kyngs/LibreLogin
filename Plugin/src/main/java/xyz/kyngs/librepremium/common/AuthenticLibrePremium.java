@@ -25,8 +25,10 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
+import xyz.kyngs.librepremium.api.image.ImageProjector;
 import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.api.premium.PremiumUser;
+import xyz.kyngs.librepremium.api.totp.TOTPProvider;
 import xyz.kyngs.librepremium.api.util.SemanticVersion;
 import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librepremium.common.command.CommandProvider;
@@ -45,6 +47,7 @@ import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
+import xyz.kyngs.librepremium.common.totp.AuthenticTOTPProvider;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
@@ -66,6 +69,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     private final Map<String, ReadDatabaseProvider> readProviders;
     private final Multimap<UUID, CancellableTask> cancelOnExit;
     private final AuthenticEventProvider eventProvider;
+    private TOTPProvider totpProvider;
+    private ImageProjector imageProjector;
     private FloodgateIntegration floodgateApi;
     private SemanticVersion version;
     private Logger logger;
@@ -114,6 +119,16 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     @Override
     public MojangPremiumProvider getPremiumProvider() {
         return premiumProvider;
+    }
+
+    @Override
+    public TOTPProvider getTOTPProvider() {
+        return totpProvider;
+    }
+
+    @Override
+    public ImageProjector getImageProjector() {
+        return imageProjector;
     }
 
     protected void enable() {
@@ -193,6 +208,14 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
         checkAndMigrate();
 
+        imageProjector = provideImageProjector();
+        if (imageProjector != null && !configuration.totpEnabled()) {
+            imageProjector = null;
+            logger.warn("2FA is disabled in the configuration, aborting...");
+        }
+        totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
+
+
         authorizationProvider = new AuthenticAuthorizationProvider(this);
         commandProvider = new CommandProvider(this);
 
@@ -213,7 +236,6 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         if (multiProxyEnabled()) {
             logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
         }
-
     }
 
     private void checkForUpdates() {
@@ -363,6 +385,10 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public abstract boolean pluginPresent(String pluginName);
 
+    protected abstract ImageProjector provideImageProjector();
+
+    public abstract UUID getUUIDForPlayer(Object player);
+
     public String chooseLobby(User user, UUID uuid, Audience audience) throws NoSuchElementException {
         var event = new AuthenticLobbyServerChooseEvent(user, audience, uuid);
 
@@ -421,7 +447,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         return eventProvider;
     }
 
-    public String getLimboServer(Audience audience, User user) {
+    public String chooseLimbo(Audience audience, User user) {
         var event = new AuthenticLimboServerChooseEvent(user, audience);
 
         getEventProvider().fire(LimboServerChooseEvent.class, event);
@@ -446,4 +472,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     public boolean fromFloodgate(UUID uuid) {
         return floodgateApi != null && uuid != null && floodgateApi.isFloodgateId(uuid);
     }
+
+    public abstract void sendToServer(String server, Object player);
+
+    public abstract Object getPlayerForUUID(UUID id);
 }

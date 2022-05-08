@@ -4,6 +4,7 @@ import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.command.CommandExecuteEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
+import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import xyz.kyngs.librepremium.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
@@ -36,6 +37,17 @@ public class Blockers {
         }
 
         event.setResult(CommandExecuteEvent.CommandResult.denied());
+    }
+
+    @Subscribe(order = PostOrder.FIRST)
+    public void onServerConnect(ServerPreConnectEvent event) {
+        var id = event.getPlayer().getUniqueId();
+
+        if (!authorizationProvider.isAuthorized(id) || authorizationProvider.isAwaiting2FA(id)) {
+            if (!configuration.getLimbo().contains(event.getOriginalServer().getServerInfo().getName())) {
+                event.setResult(ServerPreConnectEvent.ServerResult.denied());
+            }
+        }
     }
 
 }

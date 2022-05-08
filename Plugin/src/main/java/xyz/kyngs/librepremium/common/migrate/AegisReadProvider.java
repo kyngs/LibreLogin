@@ -69,8 +69,8 @@ public class AegisReadProvider extends MySQLReadProvider {
                             password,
                             nickname,
                             Timestamp.valueOf(LocalDateTime.now()),
-                            Timestamp.valueOf(LocalDateTime.now())
-                    ));
+                            Timestamp.valueOf(LocalDateTime.now()),
+                            null));
 
                 } catch (Exception e) {
                     logger.error("Failed to read user from Aegis db, omitting");

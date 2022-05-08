@@ -55,4 +55,8 @@ public interface PluginConfiguration {
 
     int secondsToAuthorize();
 
+    boolean totpEnabled();
+
+    String getTotpLabel();
+
 }

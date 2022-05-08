@@ -16,9 +16,9 @@ public class LoginCommand extends AuthorizationCommand {
     }
 
     @Default
-    @Syntax("<password>")
+    @Syntax("<password> [2fa_code]")
     @CommandCompletion("password")
-    public void onLogin(Audience sender, UUID uuid, User user, @Single String password) {
+    public void onLogin(Audience sender, UUID uuid, User user, @Single String password, @Optional Integer code) {
         checkUnauthorized(user);
         if (!user.isRegistered()) throw new InvalidCommandArgument(getMessage("error-not-registered"));
 
@@ -34,6 +34,23 @@ public class LoginCommand extends AuthorizationCommand {
                 plugin.kick(uuid, getMessage("kick-error-password-wrong"));
             }
             throw new InvalidCommandArgument(getMessage("error-password-wrong"));
+        }
+
+        var secret = user.getSecret();
+
+        if (secret != null) {
+            var totp = plugin.getTOTPProvider();
+
+            if (totp != null) {
+                if (code == null) throw new InvalidCommandArgument(getMessage("totp-not-provided"));
+
+                if (!totp.verify(code, secret)) {
+                    if (plugin.getConfiguration().kickOnWrongPassword()) {
+                        plugin.kick(uuid, getMessage("kick-error-totp-wrong"));
+                    }
+                    throw new InvalidCommandArgument(getMessage("totp-wrong"));
+                }
+            }
         }
 
         sender.sendMessage(getMessage("info-logged-in"));

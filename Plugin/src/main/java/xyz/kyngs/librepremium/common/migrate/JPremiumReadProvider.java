@@ -75,8 +75,8 @@ public class JPremiumReadProvider extends MySQLReadProvider {
                             password,
                             lastNickname,
                             firstSeen,
-                            lastSeen
-                    ));
+                            lastSeen,
+                            null));
 
                 } catch (Exception e) {
                     logger.error("Failed to read user from JPremium db, omitting");

@@ -9,23 +9,28 @@ import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class AuthenticAuthorizationProvider implements AuthorizationProvider {
 
     private final Map<UUID, Boolean> unAuthorized;
+    private final Set<UUID> awaiting2FA;
     private final AuthenticLibrePremium plugin;
 
     public AuthenticAuthorizationProvider(AuthenticLibrePremium plugin) {
         this.plugin = plugin;
         unAuthorized = new HashMap<>();
+        awaiting2FA = new HashSet<>();
     }
 
     @Override
     public boolean isAuthorized(UUID uuid) {
         return !unAuthorized.containsKey(uuid);
+    }
+
+    @Override
+    public boolean isAwaiting2FA(UUID uuid) {
+        return awaiting2FA.contains(uuid);
     }
 
     @Override
@@ -54,8 +59,6 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
                 plugin.kick(user.getUuid(), plugin.getMessages().getMessage("kick-time-limit"));
             }, limit * 1000L), user.getUuid());
         }
-
-
     }
 
     private void sendInfoMessage(boolean registered, Audience audience) {
@@ -83,5 +86,16 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
 
     public void notifyUnauthorized() {
         unAuthorized.forEach((uuid, registered) -> sendInfoMessage(registered, plugin.getAudienceForID(uuid)));
+    }
+
+    public void onExit(UUID uuid) {
+        stopTracking(uuid);
+        awaiting2FA.remove(uuid);
+    }
+
+    public void beginTwoFactorAuth(UUID id, Audience audience, User user, Object player) {
+        awaiting2FA.add(id);
+
+        plugin.sendToServer(plugin.chooseLimbo(audience, user), player);
     }
 }

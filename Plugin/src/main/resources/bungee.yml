@@ -5,3 +5,4 @@ main: "xyz.kyngs.librepremium.bungeecord.BungeeCordPlugin"
 softdepends:
   - "RedisBungee"
   - "floodgate"
+  - "Protocolize"

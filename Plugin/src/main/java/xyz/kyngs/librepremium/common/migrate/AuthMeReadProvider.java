@@ -78,8 +78,8 @@ public class AuthMeReadProvider extends MySQLReadProvider {
                                     password,
                                     nickname,
                                     firstSeen == 0 ? null : new Timestamp(firstSeen),
-                                    lastSeen == 0 ? null : new Timestamp(lastSeen)
-                            )
+                                    lastSeen == 0 ? null : new Timestamp(lastSeen),
+                                    null)
                     );
 
                 } catch (Exception e) {

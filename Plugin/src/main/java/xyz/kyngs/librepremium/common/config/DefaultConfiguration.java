@@ -203,4 +203,21 @@ public class DefaultConfiguration {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<Boolean> TOTP_ENABLED = new ConfigurationKey<>(
+            "totp.enabled",
+            true,
+            """
+                    Should we enable TOTP-Based Two-Factor Authentication? If you don't know what this is, this is the 2FA used in applications like Google Authenticator etc.
+                    I heavily suggest you to read this wiki page: https://github.com/kyngs/LibrePremium/wiki/2FA
+                    """,
+            ConfigurateHelper::getBoolean
+    );
+
+    public static final ConfigurationKey<String> TOTP_LABEL = new ConfigurationKey<>(
+            "totp.label",
+            "LibrePremium Network",
+            "The label to be displayed in the 2FA app. Change this to your network name.",
+            ConfigurateHelper::getString
+    );
+
 }

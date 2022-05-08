@@ -66,9 +66,8 @@ public class DBAReadProvider extends MySQLReadProvider {
                                     password,
                                     name,
                                     rs.getTimestamp("firstjoin"),
-                                    rs.getTimestamp("lastjoin")
-
-                            )
+                                    rs.getTimestamp("lastjoin"),
+                                    null)
                     );
 
                 } catch (Exception e) {

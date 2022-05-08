@@ -14,14 +14,16 @@ public class User {
     private String lastNickname;
     private Timestamp joinDate;
     private Timestamp lastSeen;
+    private String secret;
 
-    public User(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen) {
+    public User(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen, String secret) {
         this.uuid = uuid;
         this.premiumUUID = premiumUUID;
         this.hashedPassword = hashedPassword;
         this.lastNickname = lastNickname;
         this.joinDate = joinDate;
         this.lastSeen = lastSeen;
+        this.secret = secret;
     }
 
     public Timestamp getJoinDate() {
@@ -87,5 +89,13 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(uuid);
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 }

@@ -6,9 +6,12 @@ import xyz.kyngs.librepremium.api.configuration.Messages;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.crypto.CryptoProvider;
 import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
+import xyz.kyngs.librepremium.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.event.EventProvider;
+import xyz.kyngs.librepremium.api.image.ImageProjector;
 import xyz.kyngs.librepremium.api.premium.PremiumProvider;
+import xyz.kyngs.librepremium.api.totp.TOTPProvider;
 import xyz.kyngs.librepremium.api.util.SemanticVersion;
 
 import java.io.File;
@@ -36,7 +39,11 @@ public interface LibrePremiumPlugin {
 
     CryptoProvider getDefaultCryptoProvider();
 
-    ReadDatabaseProvider getDatabaseProvider();
+    ReadWriteDatabaseProvider getDatabaseProvider();
+
+    TOTPProvider getTOTPProvider();
+
+    ImageProjector getImageProjector();
 
     Audience getAudienceForID(UUID uuid);
 

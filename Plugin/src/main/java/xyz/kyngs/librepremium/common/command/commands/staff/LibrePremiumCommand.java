@@ -210,7 +210,8 @@ public class LibrePremiumCommand extends StaffCommand {
                 plugin.getDefaultCryptoProvider().createHash(password),
                 name,
                 Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now())
+                Timestamp.valueOf(LocalDateTime.now()),
+                null
         );
 
         getDatabaseProvider().insertUser(user);
