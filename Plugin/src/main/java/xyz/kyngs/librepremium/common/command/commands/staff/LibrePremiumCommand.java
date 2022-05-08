@@ -237,4 +237,21 @@ public class LibrePremiumCommand extends StaffCommand {
         audience.sendMessage(getMessage("info-logged-in"));
     }
 
+    @Subcommand("user 2faoff")
+    @CommandPermission("librepremium.user.2faoff")
+    @Syntax("<name>")
+    @CommandCompletion("@players")
+    public void onUser2FAOff(Audience audience, String name) {
+        var user = getUserOtherWiseInform(name);
+
+        audience.sendMessage(getMessage("info-editing"));
+
+        user.setSecret(null);
+
+        getDatabaseProvider().updateUser(user);
+
+        audience.sendMessage(getMessage("info-edited"));
+
+    }
+
 }
