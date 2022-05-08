@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
         authors = "kyngs",
         dependencies = {
                 @Dependency(id = "floodgate", optional = true),
-                @Dependency(id = "protoclize", optional = true)
+                @Dependency(id = "protocolize", optional = true)
         }
 )
 public class VelocityLibrePremium extends AuthenticLibrePremium implements LibrePremiumProvider {
