@@ -34,7 +34,7 @@ public class Blockers implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    private void onCommand(ChatEvent event) {
+    public void onCommand(ChatEvent event) {
         if (!(event.getSender() instanceof ProxiedPlayer player)) return;
         if (authorizationProvider.isAuthorized(player.getUniqueId()) && !authorizationProvider.isAwaiting2FA(player.getUniqueId()))
             return;
