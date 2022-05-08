@@ -428,6 +428,7 @@ public class DefaultMessages {
                     Premium UUID: %premium_uuid%
                     Last Seen: %last_seen%
                     Joined: %joined%
+                    2FA: %2fa%
                     """,
             "This message is displayed when the player's information is requested.",
             ConfigurateHelper::getString

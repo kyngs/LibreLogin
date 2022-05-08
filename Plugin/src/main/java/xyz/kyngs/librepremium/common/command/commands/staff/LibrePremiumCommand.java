@@ -82,7 +82,8 @@ public class LibrePremiumCommand extends StaffCommand {
                 "%uuid%", user.getUuid().toString(),
                 "%premium_uuid%", user.getPremiumUUID() == null ? "N/A" : user.getPremiumUUID().toString(),
                 "%last_seen%", DATE_TIME_FORMATTER.format(user.getLastSeen().toLocalDateTime()),
-                "%joined%", DATE_TIME_FORMATTER.format(user.getJoinDate().toLocalDateTime())
+                "%joined%", DATE_TIME_FORMATTER.format(user.getJoinDate().toLocalDateTime()),
+                "%2fa%", user.getSecret() != null ? "Enabled" : "Disabled"
         ));
     }
 
