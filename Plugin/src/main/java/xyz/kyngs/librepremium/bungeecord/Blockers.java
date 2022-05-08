@@ -52,7 +52,7 @@ public class Blockers implements Listener {
     public void onServerConnect(ServerConnectEvent event) {
         var id = event.getPlayer().getUniqueId();
 
-        if (!authorizationProvider.isAuthorized(id) || authorizationProvider.isAwaiting2FA(id)) {
+        if (authorizationProvider.isAwaiting2FA(id)) {
             if (!configuration.getLimbo().contains(event.getTarget().getName())) {
                 event.setCancelled(true);
             }

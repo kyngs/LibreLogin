@@ -44,7 +44,7 @@ public class Blockers {
     public void onServerConnect(ServerPreConnectEvent event) {
         var id = event.getPlayer().getUniqueId();
 
-        if (!authorizationProvider.isAuthorized(id) || authorizationProvider.isAwaiting2FA(id)) {
+        if (authorizationProvider.isAwaiting2FA(id)) {
             if (!configuration.getLimbo().contains(event.getOriginalServer().getServerInfo().getName())) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
             }
