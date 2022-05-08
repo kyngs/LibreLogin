@@ -21,14 +21,15 @@ public class Blockers {
 
     @Subscribe(order = PostOrder.FIRST)
     public void onChat(PlayerChatEvent event) {
-        if (!authorizationProvider.isAuthorized(event.getPlayer().getUniqueId()))
+        if (!authorizationProvider.isAuthorized(event.getPlayer().getUniqueId()) || authorizationProvider.isAwaiting2FA(event.getPlayer().getUniqueId()))
             event.setResult(PlayerChatEvent.ChatResult.denied());
     }
 
     @Subscribe(order = PostOrder.FIRST)
     public void onCommand(CommandExecuteEvent event) {
         if (!(event.getCommandSource() instanceof Player player)) return;
-        if (authorizationProvider.isAuthorized(player.getUniqueId())) return;
+        if (authorizationProvider.isAuthorized(player.getUniqueId()) && !authorizationProvider.isAwaiting2FA(player.getUniqueId()))
+            return;
 
         var command = event.getCommand();
 

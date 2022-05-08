@@ -9,12 +9,12 @@ import net.md_5.bungee.event.EventPriority;
 import xyz.kyngs.librepremium.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 
-public class BlockerListener implements Listener {
+public class Blockers implements Listener {
 
     private final AuthorizationProvider authorizationProvider;
     private final PluginConfiguration configuration;
 
-    public BlockerListener(AuthorizationProvider authorizationProvider, PluginConfiguration configuration) {
+    public Blockers(AuthorizationProvider authorizationProvider, PluginConfiguration configuration) {
         this.authorizationProvider = authorizationProvider;
         this.configuration = configuration;
     }
@@ -27,7 +27,7 @@ public class BlockerListener implements Listener {
         }
 
         if (event.getSender() instanceof ProxiedPlayer player) {
-            if (!authorizationProvider.isAuthorized(player.getUniqueId())) {
+            if (!authorizationProvider.isAuthorized(player.getUniqueId()) || authorizationProvider.isAwaiting2FA(player.getUniqueId())) {
                 event.setCancelled(true);
             }
         }
@@ -36,7 +36,8 @@ public class BlockerListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     private void onCommand(ChatEvent event) {
         if (!(event.getSender() instanceof ProxiedPlayer player)) return;
-        if (authorizationProvider.isAuthorized(player.getUniqueId())) return;
+        if (authorizationProvider.isAuthorized(player.getUniqueId()) && !authorizationProvider.isAwaiting2FA(player.getUniqueId()))
+            return;
 
         var command = event.getMessage().substring(1).split(" ")[0];
 

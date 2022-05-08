@@ -38,7 +38,7 @@ public class BungeeCordPlugin extends Plugin implements LibrePremiumProvider {
         this.librePremium = new BungeeCordLibrePremium(this);
         librePremium.makeEnabled();
 
-        getProxy().getPluginManager().registerListener(this, new BlockerListener(librePremium.getAuthorizationProvider(), librePremium.getConfiguration()));
+        getProxy().getPluginManager().registerListener(this, new Blockers(librePremium.getAuthorizationProvider(), librePremium.getConfiguration()));
         getProxy().getPluginManager().registerListener(this, new BungeeCordListener(this));
 
         var millis = librePremium.getConfiguration().milliSecondsToRefreshNotification();
