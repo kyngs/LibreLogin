@@ -25,6 +25,15 @@ public class TwoFactorAuthCommand extends Command {
             throw new InvalidCommandArgument(getMessage("totp-show-info"));
         }
 
+        var player = plugin.getPlayerForUUID(id);
+
+        if (!plugin.getImageProjector().canProject(player)) {
+            throw new InvalidCommandArgument(getMessage("totp-wrong-version",
+                    "%low%", "1.13",
+                    "%high%", "1.18.2"
+            ));
+        }
+
         auth.beginTwoFactorAuth(id, sender, user, plugin.getPlayerForUUID(id));
 
         sender.sendMessage(getMessage("totp-generating"));
@@ -36,7 +45,7 @@ public class TwoFactorAuthCommand extends Command {
 
             plugin.getDatabaseProvider().updateUser(user);
 
-            plugin.getImageProjector().project(data.qr(), plugin.getPlayerForUUID(id));
+            plugin.getImageProjector().project(data.qr(), player);
 
             sender.sendMessage(getMessage("totp-show-info"));
         }, 250), id);

@@ -85,6 +85,15 @@ public class ProtocolizeImageProjector implements ImageProjector, ProtocolizeMod
     }
 
     @Override
+    public boolean canProject(Object player) {
+        var id = plugin.getUUIDForPlayer(player);
+
+        var protocolize = Protocolize.playerProvider().player(id);
+
+        return protocolize.protocolVersion() >= ProtocolVersions.MINECRAFT_1_13 && protocolize.protocolVersion() <= ProtocolVersions.MINECRAFT_1_18_2;
+    }
+
+    @Override
     public void registerMappings(MappingProvider mappingProvider) {
 
     }

@@ -251,7 +251,6 @@ public class LibrePremiumCommand extends StaffCommand {
         getDatabaseProvider().updateUser(user);
 
         audience.sendMessage(getMessage("info-edited"));
-
     }
 
 }

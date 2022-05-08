@@ -6,4 +6,6 @@ public interface ImageProjector {
 
     void project(BufferedImage image, Object player);
 
+    boolean canProject(Object player);
+
 }

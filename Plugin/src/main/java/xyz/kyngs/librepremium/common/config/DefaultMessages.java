@@ -512,4 +512,11 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> TOTP_WRONG_VERSION = new ConfigurationKey<>(
+            "totp-wrong-version",
+            "You must connect with client version %low% - %high%, in order to enable 2FA. You can then connect back with old version again.",
+            "This message is displayed when the player attempts to enable 2FA with an old client.",
+            ConfigurateHelper::getString
+    );
+
 }
