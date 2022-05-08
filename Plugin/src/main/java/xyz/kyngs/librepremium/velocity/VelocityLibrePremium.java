@@ -11,8 +11,6 @@ import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import dev.simplix.protocolize.api.Protocolize;
-import dev.simplix.protocolize.api.providers.ModuleProvider;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
@@ -161,10 +159,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     protected ImageProjector provideImageProjector() {
         if (pluginPresent("protocolize")) {
             getLogger().info("Detected Protocolize, enabling 2FA...");
-            var projector = new ProtocolizeImageProjector(this);
-
-            Protocolize.getService(ModuleProvider.class).registerModule(projector);
-            return projector;
+            return new ProtocolizeImageProjector(this);
         } else {
             logger.warn("Protocolize not found, some features (e.g. 2FA) will not work!");
             return null;

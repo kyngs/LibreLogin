@@ -6,6 +6,7 @@ import dev.simplix.protocolize.api.Protocolize;
 import dev.simplix.protocolize.api.item.ItemStack;
 import dev.simplix.protocolize.api.module.ProtocolizeModule;
 import dev.simplix.protocolize.api.providers.MappingProvider;
+import dev.simplix.protocolize.api.providers.ModuleProvider;
 import dev.simplix.protocolize.api.providers.ProtocolRegistrationProvider;
 import dev.simplix.protocolize.api.util.ProtocolVersions;
 import dev.simplix.protocolize.data.ItemType;
@@ -23,6 +24,7 @@ public class ProtocolizeImageProjector implements ImageProjector, ProtocolizeMod
 
     public ProtocolizeImageProjector(AuthenticLibrePremium plugin) {
         this.plugin = plugin;
+        Protocolize.getService(ModuleProvider.class).registerModule(this);
     }
 
     /**

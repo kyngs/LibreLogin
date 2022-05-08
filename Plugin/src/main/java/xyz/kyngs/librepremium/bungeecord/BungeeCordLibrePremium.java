@@ -2,8 +2,6 @@ package xyz.kyngs.librepremium.bungeecord;
 
 import co.aikar.commands.*;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
-import dev.simplix.protocolize.api.Protocolize;
-import dev.simplix.protocolize.api.providers.ModuleProvider;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.CommandSender;
@@ -171,10 +169,8 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     protected ImageProjector provideImageProjector() {
         if (pluginPresent("Protocolize")) {
             getLogger().info("Detected Protocolize, enabling 2FA...");
-            var projector = new ProtocolizeImageProjector(this);
 
-            Protocolize.getService(ModuleProvider.class).registerModule(projector);
-            return projector;
+            return new ProtocolizeImageProjector(this);
         } else {
             getLogger().warn("Protocolize not found, some features (e.g. 2FA) will not work!");
             return null;
