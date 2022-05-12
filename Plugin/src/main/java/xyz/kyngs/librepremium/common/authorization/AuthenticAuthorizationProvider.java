@@ -85,7 +85,19 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
     }
 
     public void notifyUnauthorized() {
-        unAuthorized.forEach((uuid, registered) -> sendInfoMessage(registered, plugin.getAudienceForID(uuid)));
+        var wrong = new HashSet<UUID>();
+        unAuthorized.forEach((uuid, registered) -> {
+            var audience = plugin.getAudienceForID(uuid);
+
+            if (audience == null) {
+                wrong.add(uuid);
+                return;
+            }
+
+            sendInfoMessage(registered, audience);
+        });
+
+        wrong.forEach(unAuthorized::remove);
     }
 
     public void onExit(UUID uuid) {
