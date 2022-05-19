@@ -15,16 +15,17 @@ Like JPremium, but free, open-source and multiplatform
 - Name Validation (Including case sensitivity check)
 - Automatic data migration for premium players
 - Migration of a player's data by using one command
+- Geyser support [[Floodgate]]
 
 ## Considerations
 
-- This plugin *currently* does not work with Geyser. **DO NOT ATTEMPT TO USE IT**
-- The migration options are currently limited, see the wiki page for further info
+- The plugin currently does not offer a "session" system, however, it is planned.
 
 ## Platforms
 
 - [x] Velocity
 - [x] BungeeCord
+- [ ] Spigot
 
 ## Wiki
 
