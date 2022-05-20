@@ -48,8 +48,8 @@ public class AuthMeReadProvider extends MySQLReadProvider {
                 try {
                     var nickname = rs.getString("realname");
                     var passwordRaw = rs.getString("password");
-                    var lastSeen = rs.getLong("lastlogin");
-                    var firstSeen = rs.getLong("regdate");
+                    var lastSeen = rs.getObject("lastlogin", Long.class);
+                    var firstSeen = rs.getObject("regdate", Long.class);
 
                     if (nickname == null) continue;
 
@@ -77,8 +77,8 @@ public class AuthMeReadProvider extends MySQLReadProvider {
                                     null,
                                     password,
                                     nickname,
-                                    firstSeen <= 0 ? null : new Timestamp(firstSeen),
-                                    lastSeen <= 0 ? null : new Timestamp(lastSeen),
+                                    firstSeen == null ? null : new Timestamp(firstSeen),
+                                    lastSeen == null ? null : new Timestamp(lastSeen),
                                     null)
                     );
 
