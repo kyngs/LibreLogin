@@ -11,10 +11,8 @@ import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.database.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -209,8 +207,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
         ps.setString(4, user.getHashedPassword() == null ? null : user.getHashedPassword().salt());
         ps.setString(5, user.getHashedPassword() == null ? null : user.getHashedPassword().algo());
         ps.setString(6, user.getLastNickname());
-        ps.setTimestamp(7, user.getJoinDate());
-        ps.setTimestamp(8, user.getLastSeen());
+        ps.setTimestamp(7, user.getJoinDate().getTime() == 0 ? Timestamp.from(Instant.now()) : user.getJoinDate());
+        ps.setTimestamp(8, user.getLastSeen().getTime() == 0 ? Timestamp.from(Instant.now()) : user.getLastSeen());
         ps.setString(9, user.getSecret());
     }
 
