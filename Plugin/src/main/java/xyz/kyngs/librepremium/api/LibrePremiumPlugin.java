@@ -67,4 +67,6 @@ public interface LibrePremiumPlugin {
 
     boolean multiProxyEnabled();
 
+    boolean validPassword(String password);
+
 }

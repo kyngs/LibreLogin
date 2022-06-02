@@ -200,6 +200,13 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_FORBIDDEN_PASSWORD = new ConfigurationKey<>(
+            "error-forbidden-password",
+            "The password is too short and/or is not allowed!",
+            "This message is displayed when the player tries to register with a password that is too short or forbidden.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_PASSWORD_CORRUPTED = new ConfigurationKey<>(
             "error-password-corrupted",
             "Your password is corrupted, please contact an administrator!",

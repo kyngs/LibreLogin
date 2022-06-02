@@ -98,6 +98,11 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     }
 
     @Override
+    public boolean validPassword(String password) {
+        return password.length() >= configuration.minimumPasswordLength();
+    }
+
+    @Override
     public Collection<ReadDatabaseProvider> getReadProviders() {
         return readProviders.values();
     }

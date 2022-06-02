@@ -180,6 +180,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return get(TOTP_LABEL);
     }
 
+    @Override
+    public int minimumPasswordLength() {
+        return get(MINIMUM_PASSWORD_LENGTH);
+    }
+
     public <T> T get(ConfigurationKey<T> key) {
         return helper.get(key);
     }

@@ -20,9 +20,11 @@ public class RegisterCommand extends AuthorizationCommand {
     public void onRegister(Audience sender, UUID uuid, User user, @Single String password, String passwordRepeat) {
         checkUnauthorized(user);
 
+        if (user.isRegistered()) throw new InvalidCommandArgument(getMessage("error-already-registered"));
         if (!password.contentEquals(passwordRepeat))
             throw new InvalidCommandArgument(getMessage("error-password-not-match"));
-        if (user.isRegistered()) throw new InvalidCommandArgument(getMessage("error-already-registered"));
+        if (!plugin.validPassword(password))
+            throw new InvalidCommandArgument(getMessage("error-forbidden-password"));
 
         sender.sendMessage(getMessage("info-registering"));
 

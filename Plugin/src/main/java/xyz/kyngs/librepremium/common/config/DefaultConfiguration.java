@@ -221,4 +221,11 @@ public class DefaultConfiguration {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<Integer> MINIMUM_PASSWORD_LENGTH = new ConfigurationKey<>(
+            "minimum-password-length",
+            -1,
+            "The minimum length of a password. Set to negative to disable.",
+            ConfigurateHelper::getInt
+    );
+
 }

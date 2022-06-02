@@ -59,4 +59,6 @@ public interface PluginConfiguration {
 
     String getTotpLabel();
 
+    int minimumPasswordLength();
+
 }
