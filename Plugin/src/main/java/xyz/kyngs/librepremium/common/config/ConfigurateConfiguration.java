@@ -62,6 +62,15 @@ public class ConfigurateConfiguration {
             throw new CorruptedConfigurationException(e);
         }
 
+        try {
+            for (Field field : defaultKeys.getFields()) {
+                if (field.getType() != ConfigurationKey.class) continue;
+                helper.setComment((ConfigurationKey<?>) field.get(null));
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
         var presentRevision = helper.getInt("revision");
 
         if (presentRevision == null) presentRevision = newlyCreated ? revision : 0;

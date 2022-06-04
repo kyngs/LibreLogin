@@ -66,12 +66,19 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
 
     public void setDefault(ConfigurationKey<?> key) {
         try {
-            resolve(key.key())
-                    .comment(key.comment())
-                    .set(key.defaultValue());
+            var node = resolve(key.key());
+
+            var defaultValue = key.defaultValue();
+
+            if (defaultValue != null) node.set(defaultValue);
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setComment(ConfigurationKey<?> key) {
+        resolve(key.key())
+                .comment(key.comment());
     }
 
     public <T> T get(ConfigurationKey<T> key) {

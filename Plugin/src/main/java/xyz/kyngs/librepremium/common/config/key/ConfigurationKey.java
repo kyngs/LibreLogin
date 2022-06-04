@@ -12,4 +12,10 @@ public record ConfigurationKey<T>(String key, T defaultValue, String comment,
 
         return value == null ? defaultValue : value;
     }
+
+    public static ConfigurationKey<?> comment(String key, String comment) {
+        return new ConfigurationKey<>(key, null, comment, (x, y) -> {
+            throw new UnsupportedOperationException();
+        });
+    }
 }

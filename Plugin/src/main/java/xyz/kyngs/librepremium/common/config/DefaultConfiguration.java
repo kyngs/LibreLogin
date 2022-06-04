@@ -107,6 +107,11 @@ public class DefaultConfiguration {
             ConfigurateHelper::getInt
     );
 
+    public static final ConfigurationKey<?> DATABASE = ConfigurationKey.comment(
+            "database",
+            "This section is used for MySQL database configuration."
+    );
+
     public static final ConfigurationKey<String> DATABASE_HOST = new ConfigurationKey<>(
             "database.host",
             "localhost",
@@ -142,6 +147,14 @@ public class DefaultConfiguration {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<?> MIGRATION = ConfigurationKey.comment(
+            "migration",
+            """
+                    This is used for migrating the database from other plugins.
+                    Please see the wiki for further information: https://github.com/kyngs/LibrePremium/wiki/Database-Migration
+                    """
+    );
+
     public static final ConfigurationKey<Boolean> MIGRATION_ON_NEXT_STARTUP = new ConfigurationKey<>(
             "migration.on-next-startup",
             false,
@@ -154,7 +167,7 @@ public class DefaultConfiguration {
             "",
             """
                     The type of the migration. Available Types:
-                    JPremium - Can convert from JPremium SHA256
+                    JPremium - Can convert from JPremium SHA256 and BCrypt
                     AuthMe - Can convert from AuthMe BCrypt and SHA256
                     Aegis - Can convert from Aegis BCrypt
                     DBA-SHA-512 - Can convert from DynamicBungeeAuth, which was configured to use SHA-512
@@ -202,6 +215,16 @@ public class DefaultConfiguration {
             "user-data",
             "The table of the old database.",
             ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<?> TOTP = ConfigurationKey.comment(
+            "totp",
+            """
+                    This section is used for 2FA configuration.
+                    !! YOU MUST HAVE PROTOCOLIZE INSTALLED FOR THIS TO WORK !!
+                                        
+                    You can find more information on the wiki: https://github.com/kyngs/LibrePremium/wiki/2FA
+                    """
     );
 
     public static final ConfigurationKey<Boolean> TOTP_ENABLED = new ConfigurationKey<>(
