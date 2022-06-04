@@ -358,6 +358,13 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> INFO_AUTOMATICALLY_LOGGED_IN = new ConfigurationKey<>(
+            "info-automatically-logged-in",
+            "You have been logged in automatically!",
+            "This message is displayed when the player logs in automatically.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> INFO_REGISTERING = new ConfigurationKey<>(
             "info-registering",
             "Registering...",
@@ -526,5 +533,6 @@ public class DefaultMessages {
             "This message is displayed when the player attempts to enable 2FA with an old client.",
             ConfigurateHelper::getString
     );
+
 
 }

@@ -37,6 +37,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
 
         var user = plugin.getDatabaseProvider().getByUUID(uuid);
         if (user.autoLoginEnabled()) {
+            plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-automatically-logged-in"));
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin));
             return;
         }
