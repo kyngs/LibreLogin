@@ -51,9 +51,9 @@ import xyz.kyngs.librepremium.common.totp.AuthenticTOTPProvider;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -70,6 +70,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     private final Multimap<P, CancellableTask> cancelOnExit;
     private final AuthenticEventProvider<P, S> eventProvider;
     private final PlatformHandle<P, S> platformHandle;
+    private final Set<String> forbiddenPasswords;
     private TOTPProvider totpProvider;
     private ImageProjector<P> imageProjector;
     private FloodgateIntegration floodgateApi;
@@ -87,6 +88,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         readProviders = new HashMap<>();
         eventProvider = new AuthenticEventProvider<>(this);
         platformHandle = providePlatformHandle();
+        forbiddenPasswords = new HashSet<>();
 
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
@@ -108,7 +110,15 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
     @Override
     public boolean validPassword(String password) {
-        return password.length() >= configuration.minimumPasswordLength();
+        var length = password.length() >= configuration.minimumPasswordLength();
+
+        if (!length) {
+            return false;
+        }
+
+        var upper = password.toUpperCase();
+
+        return !forbiddenPasswords.contains(upper);
     }
 
     @Override
@@ -182,8 +192,9 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         try {
             messages.reload(this);
         } catch (IOException e) {
+            e.printStackTrace();
             logger.info("An unknown exception occurred while attempting to load the messages, this most likely isn't your fault");
-            throw new RuntimeException(e);
+            shutdownProxy(1);
         } catch (CorruptedConfigurationException e) {
             var cause = GeneralUtil.getFurthestCause(e);
             logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
@@ -192,6 +203,18 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         }
 
         logger.info("Messages loaded");
+
+        logger.info("Loading forbidden passwords...");
+
+        try {
+            loadForbiddenPasswords();
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.info("An unknown exception occurred while attempting to load the forbidden passwords, this most likely isn't your fault");
+            shutdownProxy(1);
+        }
+
+        logger.info("Loaded %s forbidden passwords".formatted(forbiddenPasswords.size()));
 
         logger.info("Connecting to the database...");
 
@@ -247,6 +270,24 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
         if (multiProxyEnabled()) {
             logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
+        }
+    }
+
+    private void loadForbiddenPasswords() throws IOException {
+        var file = new File(getDataFolder(), "forbidden-passwords.txt");
+
+        if (!file.exists()) {
+            Files.copy(getResourceAsStream("forbidden-passwords.txt"), file.toPath());
+        }
+
+        try (var reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    continue;
+                }
+                forbiddenPasswords.add(line.toUpperCase(Locale.ROOT));
+            }
         }
     }
 
