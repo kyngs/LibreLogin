@@ -1,7 +1,7 @@
 package xyz.kyngs.librepremium.common.listener;
 
-import net.kyori.adventure.audience.Audience;
 import org.jetbrains.annotations.Nullable;
+import xyz.kyngs.librepremium.api.PlatformHandle;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
@@ -18,34 +18,37 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public class AuthenticListeners<P extends AuthenticLibrePremium> {
+public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S> {
 
     @SuppressWarnings("RegExpSimplifiable") //I don't believe you
     private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_]*");
 
-    protected final P plugin;
+    protected final Plugin plugin;
+    protected final PlatformHandle<P, S> platformHandle;
 
-    public AuthenticListeners(P plugin) {
+    public AuthenticListeners(Plugin plugin) {
         this.plugin = plugin;
+        platformHandle = plugin.getPlatformHandle();
     }
 
-    protected void onPostLogin(UUID uuid, Audience audience) {
+    protected void onPostLogin(P player) {
+        var uuid = platformHandle.getUUIDForPlayer(player);
         if (plugin.fromFloodgate(uuid)) return;
 
         var user = plugin.getDatabaseProvider().getByUUID(uuid);
         if (user.autoLoginEnabled()) {
-            plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent(plugin.getDatabaseProvider().getByUUID(uuid), audience));
+            plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin));
             return;
         }
-        plugin.getAuthorizationProvider().startTracking(user, audience);
+        plugin.getAuthorizationProvider().startTracking(user, player);
     }
-    protected void onPlayerDisconnect(UUID uuid) {
-        plugin.onExit(uuid);
-        plugin.getAuthorizationProvider().onExit(uuid);
+
+    protected void onPlayerDisconnect(P player) {
+        plugin.onExit(player);
+        plugin.getAuthorizationProvider().onExit(player);
     }
 
     protected PreLoginResult onPreLogin(String username) {
-
         if (username.length() > 16 || !NAME_PATTERN.matcher(username).matches()) {
             return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-illegal-username"));
         }
@@ -78,7 +81,7 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
             //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
             if (user.getPremiumUUID() != null) {
                 user.setPremiumUUID(null);
-                plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, Audience.empty()));
+                plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, null, plugin));
             }
 
             plugin.getDatabaseProvider().updateUser(user);
@@ -179,14 +182,15 @@ public class AuthenticListeners<P extends AuthenticLibrePremium> {
         return user;
     }
 
-    protected String chooseServer(UUID playerUUID, Audience audience) throws NoSuchElementException {
-        var fromFloodgate = plugin.fromFloodgate(playerUUID);
+    protected S chooseServer(P player) throws NoSuchElementException {
+        var id = platformHandle.getUUIDForPlayer(player);
+        var fromFloodgate = plugin.fromFloodgate(id);
 
-        var user = fromFloodgate ? null : plugin.getDatabaseProvider().getByUUID(playerUUID);
+        var user = fromFloodgate ? null : plugin.getDatabaseProvider().getByUUID(id);
         if (fromFloodgate || user.autoLoginEnabled()) {
-            return plugin.chooseLobby(user, playerUUID, audience);
+            return plugin.chooseLobby(user, player);
         } else {
-            return plugin.chooseLimbo(audience, user);
+            return plugin.chooseLimbo(user, player);
         }
     }
 }

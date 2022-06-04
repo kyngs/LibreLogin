@@ -8,7 +8,7 @@ import xyz.kyngs.librepremium.api.event.PlayerBasedEvent;
  *
  * @author kyngs
  */
-public interface PasswordChangeEvent extends PlayerBasedEvent {
+public interface PasswordChangeEvent<P, S> extends PlayerBasedEvent<P, S> {
 
     /**
      * Gets the player's old password, in hashed form

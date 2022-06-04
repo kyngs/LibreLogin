@@ -21,9 +21,9 @@ import java.time.LocalDateTime;
 import static xyz.kyngs.librepremium.common.AuthenticLibrePremium.DATE_TIME_FORMATTER;
 
 @CommandAlias("librepremium")
-public class LibrePremiumCommand extends StaffCommand {
+public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
-    public LibrePremiumCommand(AuthenticLibrePremium plugin) {
+    public LibrePremiumCommand(AuthenticLibrePremium<P, ?> plugin) {
         super(plugin);
     }
 
@@ -87,21 +87,21 @@ public class LibrePremiumCommand extends StaffCommand {
         ));
     }
 
-    public static void enablePremium(Audience audience, User user, AuthenticLibrePremium plugin) {
+    public static <P> void enablePremium(P player, User user, AuthenticLibrePremium<P, ?> plugin) {
         var id = plugin.getUserOrThrowICA(user.getLastNickname());
 
         if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
 
         user.setPremiumUUID(id.uuid());
 
-        plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
+        plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
     }
 
     @Subcommand("user migrate")
     @CommandPermission("librepremium.user.migrate")
     @Syntax("<name> <newName>")
     @CommandCompletion("@players newName")
-    public void onUserMigrate(Audience audience, String name, String newName) {
+    public void onUserMigrate(Audience audience, P player, String name, String newName) {
         var user = getUserOtherWiseInform(name);
         var colliding = getDatabaseProvider().getByName(newName);
 
@@ -117,7 +117,7 @@ public class LibrePremiumCommand extends StaffCommand {
         user.setLastNickname(newName);
         if (user.getPremiumUUID() != null) {
             user.setPremiumUUID(null);
-            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, audience));
+            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
         }
         getDatabaseProvider().updateUser(user);
 
@@ -161,14 +161,14 @@ public class LibrePremiumCommand extends StaffCommand {
     @CommandPermission("librepremium.user.premium")
     @Syntax("<name>")
     @CommandCompletion("@players")
-    public void onUserPremium(Audience audience, String name) {
+    public void onUserPremium(Audience audience, P player, String name) {
         var user = getUserOtherWiseInform(name);
 
         requireOffline(user);
 
         audience.sendMessage(getMessage("info-editing"));
 
-        enablePremium(audience, user, plugin);
+        enablePremium(player, user, plugin);
 
         getDatabaseProvider().updateUser(user);
 
@@ -228,7 +228,7 @@ public class LibrePremiumCommand extends StaffCommand {
         var user = getUserOtherWiseInform(name);
 
         var target = requireOnline(user);
-        requireUnAuthorized(user);
+        requireUnAuthorized(target);
         requireRegistered(user);
 
         audience.sendMessage(getMessage("info-logging-in"));

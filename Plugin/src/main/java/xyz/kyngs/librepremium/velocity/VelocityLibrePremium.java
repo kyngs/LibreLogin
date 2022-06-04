@@ -11,6 +11,7 @@ import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
@@ -18,6 +19,7 @@ import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
+import xyz.kyngs.librepremium.api.PlatformHandle;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
@@ -34,7 +36,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -48,7 +49,7 @@ import java.util.concurrent.TimeUnit;
                 @Dependency(id = "protocolize", optional = true)
         }
 )
-public class VelocityLibrePremium extends AuthenticLibrePremium implements LibrePremiumProvider {
+public class VelocityLibrePremium extends AuthenticLibrePremium<Player, RegisteredServer> implements LibrePremiumProvider<Player, RegisteredServer> {
 
     @Inject
     private org.slf4j.Logger logger;
@@ -64,6 +65,11 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
 
     public ProxyServer getServer() {
         return server;
+    }
+
+    @Override
+    protected PlatformHandle<Player, RegisteredServer> providePlatformHandle() {
+        return new VelocityPlatformHandle(this);
     }
 
     @Override
@@ -94,8 +100,8 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
-    public Audience getFromIssuer(CommandIssuer issuer) {
-        return ((VelocityCommandIssuer) issuer).getIssuer();
+    public Player getPlayerFromIssuer(CommandIssuer issuer) {
+        return issuer.getIssuer();
     }
 
     @Override
@@ -115,15 +121,11 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
-    public void authorize(UUID uuid, User user, Audience audience) {
-        var player = server.getPlayer(uuid)
-                .orElseThrow();
-
+    public void authorize(Player player, User user, Audience audience) {
         try {
             player
                     .createConnectionRequest(
-                            server.getServer(chooseLobby(user, uuid, player))
-                                    .orElseThrow()
+                            chooseLobby(user, player)
                     )
                     .connect()
                     .whenComplete((result, throwable) -> {
@@ -133,12 +135,6 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
         } catch (NoSuchElementException e) {
             player.disconnect(getMessages().getMessage("kick-no-server"));
         }
-
-    }
-
-    @Override
-    public void kick(UUID uuid, Component reason) {
-        server.getPlayer(uuid).ifPresent(player -> player.disconnect(reason));
     }
 
     @Override
@@ -156,20 +152,16 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
-    protected ImageProjector provideImageProjector() {
+    protected ImageProjector<Player> provideImageProjector() {
         if (pluginPresent("protocolize")) {
             getLogger().info("Detected Protocolize, enabling 2FA...");
-            return new ProtocolizeImageProjector(this);
+            return new ProtocolizeImageProjector<>(this);
         } else {
             logger.warn("Protocolize not found, some features (e.g. 2FA) will not work!");
             return null;
         }
     }
 
-    @Override
-    public UUID getUUIDForPlayer(Object player) {
-        return ((Player) player).getUniqueId();
-    }
 
     @Override
     public String getVersion() {
@@ -178,12 +170,17 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
 
     @Override
     public boolean isPresent(UUID uuid) {
-        return getAudienceForID(uuid) != null;
+        return getPlayerForUUID(uuid) != null;
     }
 
     @Override
     public boolean multiProxyEnabled() {
         return false;
+    }
+
+    @Override
+    public Player getPlayerForUUID(UUID uuid) {
+        return server.getPlayer(uuid).orElse(null);
     }
 
     @Override
@@ -200,37 +197,21 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
-    public String chooseLobbyDefault() throws NoSuchElementException {
+    public RegisteredServer chooseLobbyDefault() throws NoSuchElementException {
         var passThroughServers = getConfiguration().getPassThrough();
         return server.getAllServers().stream()
                 .filter(server -> passThroughServers.contains(server.getServerInfo().getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
-                .orElseThrow().getServerInfo().getName();
+                .orElseThrow();
     }
 
     @Override
-    public String chooseLimboDefault() {
+    public RegisteredServer chooseLimboDefault() {
         var limbos = getConfiguration().getLimbo();
         return server.getAllServers().stream()
                 .filter(server -> limbos.contains(server.getServerInfo().getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
-                .orElseThrow().getServerInfo().getName();
-    }
-
-    @Override
-    public void sendToServer(String server, Object player) {
-        try {
-            ((Player) player).createConnectionRequest(this.server.getServer(server).orElseThrow())
-                    .connect()
-                    .get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public Object getPlayerForUUID(UUID id) {
-        return server.getPlayer(id).orElse(null);
+                .orElseThrow();
     }
 
     @Subscribe
@@ -260,17 +241,12 @@ public class VelocityLibrePremium extends AuthenticLibrePremium implements Libre
     }
 
     @Override
-    public Audience getAudienceForID(UUID uuid) {
-        return server.getPlayer(uuid).orElse(null);
-    }
-
-    @Override
     public File getDataFolder() {
         return dataDir.toFile();
     }
 
     @Override
-    public LibrePremiumPlugin getLibrePremium() {
+    public LibrePremiumPlugin<Player, RegisteredServer> getLibrePremium() {
         return this;
     }
 }

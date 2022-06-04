@@ -8,29 +8,27 @@ import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
 
-import java.util.UUID;
-
 @CommandAlias("cracked|manuallogin")
-public class PremiumDisableCommand extends PremiumCommand {
+public class PremiumDisableCommand<P> extends PremiumCommand<P> {
 
-    public PremiumDisableCommand(AuthenticLibrePremium premium) {
+    public PremiumDisableCommand(AuthenticLibrePremium<P, ?> premium) {
         super(premium);
     }
 
     @Default
-    public void onCracked(Audience sender, UUID uuid, User user) {
-        checkAuthorized(user);
+    public void onCracked(Audience sender, P player, User user) {
+        checkAuthorized(player);
         checkPremium(user);
 
         sender.sendMessage(getMessage("info-disabling"));
 
         user.setPremiumUUID(null);
 
-        plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent(user, sender));
+        plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
 
         getDatabaseProvider().updateUser(user);
 
-        plugin.kick(uuid, getMessage("kick-premium-info-disabled"));
+        plugin.getPlatformHandle().kick(player, getMessage("kick-premium-info-disabled"));
     }
 
 }

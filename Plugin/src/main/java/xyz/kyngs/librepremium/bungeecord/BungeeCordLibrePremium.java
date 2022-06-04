@@ -3,7 +3,10 @@ package xyz.kyngs.librepremium.bungeecord;
 import co.aikar.commands.*;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -12,6 +15,7 @@ import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.Logger;
+import xyz.kyngs.librepremium.api.PlatformHandle;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
@@ -28,38 +32,75 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-public class BungeeCordLibrePremium extends AuthenticLibrePremium {
+public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer, ServerInfo> {
 
-    private final BungeeCordPlugin plugin;
+    private final BungeeCordBootstrap bootstrap;
+    private BungeeAudiences adventure;
     @Nullable
     private RedisBungeeAPI redisBungee;
+    private BungeeComponentSerializer serializer;
 
-    public BungeeCordLibrePremium(BungeeCordPlugin plugin) {
-        this.plugin = plugin;
+    public BungeeCordLibrePremium(BungeeCordBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 
-    public void makeEnabled() {
-        if (plugin.getProxy().getPluginManager().getPlugin("RedisBungee") != null) {
+    protected BungeeCordBootstrap getBootstrap() {
+        return bootstrap;
+    }
+
+    public BungeeComponentSerializer getSerializer() {
+        return serializer;
+    }
+
+    public BungeeAudiences getAdventure() {
+        return adventure;
+    }
+
+    @Override
+    protected void enable() {
+        this.adventure = BungeeAudiences.create(bootstrap);
+        this.serializer = BungeeComponentSerializer.of(
+                GsonComponentSerializer.builder().downsampleColors().emitLegacyHoverEvent().build(),
+                LegacyComponentSerializer.builder().flattener(adventure.flattener()).build()
+        );
+
+        if (bootstrap.getProxy().getPluginManager().getPlugin("RedisBungee") != null) {
             redisBungee = RedisBungeeAPI.getRedisBungeeApi();
         }
-        enable();
+
+        super.enable();
+
+        bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new Blockers(getAuthorizationProvider(), getConfiguration()));
+        bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new BungeeCordListener(this));
+
+        var millis = getConfiguration().milliSecondsToRefreshNotification();
+
+        if (millis > 0) {
+            bootstrap.getProxy().getScheduler().schedule(bootstrap, () -> getAuthorizationProvider().notifyUnauthorized(), 0, millis, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    @Override
+    protected void disable() {
+        super.disable();
+        if (adventure != null) {
+            adventure.close();
+        }
     }
 
     @Override
     public InputStream getResourceAsStream(String name) {
-        return plugin.getResourceAsStream(name);
-    }
-
-    @Override
-    public Audience getAudienceForID(UUID uuid) {
-        var player = plugin.getProxy().getPlayer(uuid);
-
-        return player == null ? null : plugin.getAdventure().player(plugin.getProxy().getPlayer(uuid));
+        return bootstrap.getResourceAsStream(name);
     }
 
     @Override
     public File getDataFolder() {
-        return plugin.getDataFolder();
+        return bootstrap.getDataFolder();
+    }
+
+    @Override
+    protected PlatformHandle<ProxiedPlayer, ServerInfo> providePlatformHandle() {
+        return new BungeeCordPlatformHandle(this);
     }
 
     @Override
@@ -67,24 +108,24 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
         return new Logger() {
             @Override
             public void info(String message) {
-                plugin.getLogger().info(message);
+                bootstrap.getLogger().info(message);
             }
 
             @Override
             public void warn(String message) {
-                plugin.getLogger().warning(message);
+                bootstrap.getLogger().warning(message);
             }
 
             @Override
             public void error(String message) {
-                plugin.getLogger().log(Level.SEVERE, message);
+                bootstrap.getLogger().log(Level.SEVERE, message);
             }
         };
     }
 
     @Override
     public CommandManager<?, ?, ?, ?, ?, ?> provideManager() {
-        var manager = new BungeeCommandManager(plugin);
+        var manager = new BungeeCommandManager(bootstrap);
 
         var contexts = manager.getCommandContexts();
 
@@ -105,13 +146,13 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public Audience getFromIssuer(CommandIssuer issuer) {
-        return plugin.getAdventure().sender(issuer.getIssuer());
+    public ProxiedPlayer getPlayerFromIssuer(CommandIssuer issuer) {
+        return issuer.getIssuer();
     }
 
     @Override
     public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
-        var serverMap = plugin.getProxy().getServers();
+        var serverMap = bootstrap.getProxy().getServers();
         if (configuration.getLimbo().isEmpty()) {
             throw new CorruptedConfigurationException("No limbo servers defined!");
         }
@@ -134,13 +175,11 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public void authorize(UUID uuid, User user, Audience audience) {
-        var player = plugin.getProxy().getPlayer(uuid);
-
-        ServerInfo serverInfo = plugin.getProxy().getServerInfo(chooseLobby(user, uuid, audience));
+    public void authorize(ProxiedPlayer player, User user, Audience audience) {
+        var serverInfo = chooseLobby(user, player);
 
         if (serverInfo == null) {
-            player.disconnect(plugin.getSerializer().serialize(getMessages().getMessage("kick-no-server")));
+            player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-server")));
             return;
         }
 
@@ -148,48 +187,37 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public void kick(UUID uuid, Component reason) {
-        var player = plugin.getProxy().getPlayer(uuid);
-        if (player == null) return;
-        player.disconnect(plugin.getSerializer().serialize(reason));
-    }
-
-    @Override
     public CancellableTask delay(Runnable runnable, long delayInMillis) {
-        var task = plugin.getProxy().getScheduler().schedule(plugin, runnable, delayInMillis, TimeUnit.MILLISECONDS);
+        var task = bootstrap.getProxy().getScheduler().schedule(bootstrap, runnable, delayInMillis, TimeUnit.MILLISECONDS);
         return task::cancel;
     }
 
     @Override
     public boolean pluginPresent(String pluginName) {
-        return plugin.getProxy().getPluginManager().getPlugin(pluginName) != null;
+        return bootstrap.getProxy().getPluginManager().getPlugin(pluginName) != null;
     }
 
     @Override
-    protected ImageProjector provideImageProjector() {
+    protected ImageProjector<ProxiedPlayer> provideImageProjector() {
         if (pluginPresent("Protocolize")) {
             getLogger().info("Detected Protocolize, enabling 2FA...");
 
-            return new ProtocolizeImageProjector(this);
+            return new ProtocolizeImageProjector<>(this);
         } else {
             getLogger().warn("Protocolize not found, some features (e.g. 2FA) will not work!");
             return null;
         }
     }
 
-    @Override
-    public UUID getUUIDForPlayer(Object player) {
-        return ((ProxiedPlayer) player).getUniqueId();
-    }
 
     @Override
     public String getVersion() {
-        return plugin.getDescription().getVersion();
+        return bootstrap.getDescription().getVersion();
     }
 
     @Override
     public boolean isPresent(UUID uuid) {
-        return redisBungee != null ? redisBungee.isPlayerOnline(uuid) : plugin.getProxy().getPlayer(uuid) != null;
+        return redisBungee != null ? redisBungee.isPlayerOnline(uuid) : bootstrap.getProxy().getPlayer(uuid) != null;
     }
 
     @Override
@@ -198,8 +226,13 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
+    public ProxiedPlayer getPlayerForUUID(UUID uuid) {
+        return bootstrap.getProxy().getPlayer(uuid);
+    }
+
+    @Override
     protected void initMetrics(CustomChart... charts) {
-        var metrics = new Metrics(plugin, 14805);
+        var metrics = new Metrics(bootstrap, 14805);
 
         for (CustomChart chart : charts) {
             metrics.addCustomChart(chart);
@@ -211,36 +244,26 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium {
     }
 
     @Override
-    public String chooseLobbyDefault() throws NoSuchElementException {
+    public ServerInfo chooseLobbyDefault() throws NoSuchElementException {
         var passThroughServers = getConfiguration().getPassThrough();
 
-        return plugin.getProxy().getServers().values().stream()
+        return bootstrap.getProxy().getServers().values().stream()
                 .filter(server -> passThroughServers.contains(server.getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayers().size()))
-                .orElseThrow().getName();
+                .orElseThrow();
     }
 
     @Override
-    public String chooseLimboDefault() {
+    public ServerInfo chooseLimboDefault() {
         var limbos = getConfiguration().getLimbo();
-        return plugin.getProxy().getServers().values().stream()
+        return bootstrap.getProxy().getServers().values().stream()
                 .filter(server -> limbos.contains(server.getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayers().size()))
-                .orElseThrow().getName();
-    }
-
-    @Override
-    public void sendToServer(String server, Object player) {
-        ((ProxiedPlayer) player).connect(plugin.getProxy().getServerInfo(server));
-    }
-
-    @Override
-    public Object getPlayerForUUID(UUID id) {
-        return plugin.getProxy().getPlayer(id);
+                .orElseThrow();
     }
 
     public Audience getAudienceForSender(CommandSender sender) {
-        return plugin.getAdventure().sender(sender);
+        return adventure.sender(sender);
     }
 
 }

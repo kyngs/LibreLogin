@@ -11,24 +11,24 @@ import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 
 public class Blockers {
 
-    private final AuthorizationProvider authorizationProvider;
+    private final AuthorizationProvider<Player> authorizationProvider;
     private final PluginConfiguration configuration;
 
-    public Blockers(AuthorizationProvider authorizationProvider, PluginConfiguration configuration) {
+    public Blockers(AuthorizationProvider<Player> authorizationProvider, PluginConfiguration configuration) {
         this.authorizationProvider = authorizationProvider;
         this.configuration = configuration;
     }
 
     @Subscribe(order = PostOrder.FIRST)
     public void onChat(PlayerChatEvent event) {
-        if (!authorizationProvider.isAuthorized(event.getPlayer().getUniqueId()) || authorizationProvider.isAwaiting2FA(event.getPlayer().getUniqueId()))
+        if (!authorizationProvider.isAuthorized(event.getPlayer()) || authorizationProvider.isAwaiting2FA(event.getPlayer()))
             event.setResult(PlayerChatEvent.ChatResult.denied());
     }
 
     @Subscribe(order = PostOrder.FIRST)
     public void onCommand(CommandExecuteEvent event) {
         if (!(event.getCommandSource() instanceof Player player)) return;
-        if (authorizationProvider.isAuthorized(player.getUniqueId()) && !authorizationProvider.isAwaiting2FA(player.getUniqueId()))
+        if (authorizationProvider.isAuthorized(player) && !authorizationProvider.isAwaiting2FA(player))
             return;
 
         var command = event.getCommand();
@@ -42,9 +42,7 @@ public class Blockers {
 
     @Subscribe(order = PostOrder.FIRST)
     public void onServerConnect(ServerPreConnectEvent event) {
-        var id = event.getPlayer().getUniqueId();
-
-        if (authorizationProvider.isAwaiting2FA(id)) {
+        if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
             if (!configuration.getLimbo().contains(event.getOriginalServer().getServerInfo().getName())) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
             }

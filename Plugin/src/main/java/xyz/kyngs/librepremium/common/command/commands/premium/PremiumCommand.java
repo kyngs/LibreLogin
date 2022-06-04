@@ -5,8 +5,8 @@ import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.command.commands.authorization.AuthorizationCommand;
 
-public class PremiumCommand extends AuthorizationCommand {
-    public PremiumCommand(AuthenticLibrePremium premium) {
+public class PremiumCommand<P> extends AuthorizationCommand<P> {
+    public PremiumCommand(AuthenticLibrePremium<P, ?> premium) {
         super(premium);
     }
 

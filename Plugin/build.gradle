@@ -60,8 +60,8 @@ dependencies {
     implementation 'com.github.kyngs:EasyDB:a4bdf88ee0'
 
     //ACF
-    implementation 'co.aikar:acf-velocity:0.5.1-SNAPSHOT'
-    implementation 'co.aikar:acf-bungee:0.5.1-SNAPSHOT'
+    implementation 'com.github.kyngs.commands:acf-velocity:2590585deb'
+    implementation 'com.github.kyngs.commands:acf-bungee:2590585deb'
 
     //Utils
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.0'

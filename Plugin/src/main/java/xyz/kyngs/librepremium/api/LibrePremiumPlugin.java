@@ -1,6 +1,5 @@
 package xyz.kyngs.librepremium.api;
 
-import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librepremium.api.configuration.Messages;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
@@ -19,7 +18,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface LibrePremiumPlugin {
+public interface LibrePremiumPlugin<P, S> {
 
     PremiumProvider getPremiumProvider();
 
@@ -29,9 +28,9 @@ public interface LibrePremiumPlugin {
 
     PluginConfiguration getConfiguration();
 
-    AuthorizationProvider getAuthorizationProvider();
+    AuthorizationProvider<P> getAuthorizationProvider();
 
-    EventProvider getEventProvider();
+    EventProvider<P, S> getEventProvider();
 
     Messages getMessages();
 
@@ -43,9 +42,7 @@ public interface LibrePremiumPlugin {
 
     TOTPProvider getTOTPProvider();
 
-    ImageProjector getImageProjector();
-
-    Audience getAudienceForID(UUID uuid);
+    ImageProjector<P> getImageProjector();
 
     void migrate(ReadDatabaseProvider from, WriteDatabaseProvider to);
 
@@ -69,4 +66,7 @@ public interface LibrePremiumPlugin {
 
     boolean validPassword(String password);
 
+    P getPlayerForUUID(UUID uuid);
+
+    PlatformHandle<P, S> getPlatformHandle();
 }

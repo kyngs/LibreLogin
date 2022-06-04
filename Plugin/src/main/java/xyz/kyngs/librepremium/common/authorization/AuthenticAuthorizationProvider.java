@@ -5,59 +5,65 @@ import net.kyori.adventure.title.Title;
 import xyz.kyngs.librepremium.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librepremium.common.AuthenticHandler;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class AuthenticAuthorizationProvider implements AuthorizationProvider {
+public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S> implements AuthorizationProvider<P> {
 
-    private final Map<UUID, Boolean> unAuthorized;
-    private final Set<UUID> awaiting2FA;
-    private final AuthenticLibrePremium plugin;
+    private final Map<P, Boolean> unAuthorized;
+    private final Set<P> awaiting2FA;
 
-    public AuthenticAuthorizationProvider(AuthenticLibrePremium plugin) {
-        this.plugin = plugin;
+    public AuthenticAuthorizationProvider(AuthenticLibrePremium<P, S> plugin) {
+        super(plugin);
         unAuthorized = new HashMap<>();
         awaiting2FA = new HashSet<>();
     }
 
     @Override
-    public boolean isAuthorized(UUID uuid) {
-        return !unAuthorized.containsKey(uuid);
+    public boolean isAuthorized(P player) {
+        return !unAuthorized.containsKey(player);
     }
 
     @Override
-    public boolean isAwaiting2FA(UUID uuid) {
-        return awaiting2FA.contains(uuid);
+    public boolean isAwaiting2FA(P player) {
+        return awaiting2FA.contains(player);
     }
 
     @Override
-    public void authorize(User user, Audience audience) {
-        var uuid = user.getUuid();
-        stopTracking(uuid);
+    public void authorize(User user, P player) {
+        stopTracking(player);
+
+        var audience = platformHandle.getAudienceForPlayer(player);
 
         audience.clearTitle();
-        plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent(user, audience));
-        plugin.authorize(uuid, user, audience);
+        plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin));
+        plugin.authorize(player, user, audience);
     }
 
-    public void startTracking(User user, Audience audience) {
-        unAuthorized.put(user.getUuid(), user.isRegistered());
+    public void startTracking(User user, P player) {
+        var audience = platformHandle.getAudienceForPlayer(player);
+
+        unAuthorized.put(player, user.isRegistered());
 
         plugin.cancelOnExit(plugin.delay(() -> {
-            if (!unAuthorized.containsKey(user.getUuid())) return;
+            if (!unAuthorized.containsKey(player)) return;
             sendInfoMessage(user.isRegistered(), audience);
-        }, 250), user.getUuid());
+        }, 250), player);
 
         var limit = plugin.getConfiguration().secondsToAuthorize();
 
         if (limit > 0) {
             plugin.cancelOnExit(plugin.delay(() -> {
-                if (!unAuthorized.containsKey(user.getUuid())) return;
-                plugin.kick(user.getUuid(), plugin.getMessages().getMessage("kick-time-limit"));
-            }, limit * 1000L), user.getUuid());
+                if (!unAuthorized.containsKey(player)) return;
+                platformHandle.kick(player, plugin.getMessages().getMessage("kick-time-limit"));
+            }, limit * 1000L), player);
         }
     }
 
@@ -80,34 +86,37 @@ public class AuthenticAuthorizationProvider implements AuthorizationProvider {
         ));
     }
 
-    public void stopTracking(UUID uuid) {
-        unAuthorized.remove(uuid);
+    public void stopTracking(P player) {
+        unAuthorized.remove(player);
     }
 
     public void notifyUnauthorized() {
-        var wrong = new HashSet<UUID>();
-        unAuthorized.forEach((uuid, registered) -> {
-            var audience = plugin.getAudienceForID(uuid);
+        var wrong = new HashSet<P>();
+        unAuthorized.forEach((player, registered) -> {
+            var audience = platformHandle.getAudienceForPlayer(player);
 
             if (audience == null) {
-                wrong.add(uuid);
+                wrong.add(player);
                 return;
             }
 
             sendInfoMessage(registered, audience);
+
         });
 
         wrong.forEach(unAuthorized::remove);
     }
 
-    public void onExit(UUID uuid) {
-        stopTracking(uuid);
-        awaiting2FA.remove(uuid);
+    public void onExit(P player) {
+        stopTracking(player);
+        awaiting2FA.remove(player);
     }
 
-    public void beginTwoFactorAuth(UUID id, Audience audience, User user, Object player) {
-        awaiting2FA.add(id);
+    public void beginTwoFactorAuth(User user, P player) {
+        awaiting2FA.add(player);
 
-        plugin.sendToServer(plugin.chooseLimbo(audience, user), player);
+        platformHandle.movePlayer(player, plugin.chooseLimbo(user, player)).whenComplete((t, e) -> {
+            if (t != null || e != null) awaiting2FA.remove(player);
+        });
     }
 }

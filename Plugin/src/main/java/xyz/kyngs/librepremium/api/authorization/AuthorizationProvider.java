@@ -1,18 +1,12 @@
 package xyz.kyngs.librepremium.api.authorization;
 
-import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.database.User;
 
-import java.util.UUID;
+public interface AuthorizationProvider<P> {
 
-public interface AuthorizationProvider {
+    boolean isAuthorized(P player);
 
-    boolean isAuthorized(UUID uuid);
+    boolean isAwaiting2FA(P player);
 
-    boolean isAwaiting2FA(UUID uuid);
-
-    /**
-     * There is <b>no</b> guarantee, that {@link #isAuthorized(UUID)} for the supplied user, returns true.
-     */
-    void authorize(User user, Audience audience);
+    void authorize(User user, P player);
 }

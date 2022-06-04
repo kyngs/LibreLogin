@@ -6,20 +6,18 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
-import java.util.UUID;
-
 @CommandAlias("login|l")
-public class LoginCommand extends AuthorizationCommand {
+public class LoginCommand<P> extends AuthorizationCommand<P> {
 
-    public LoginCommand(AuthenticLibrePremium premium) {
+    public LoginCommand(AuthenticLibrePremium<P, ?> premium) {
         super(premium);
     }
 
     @Default
     @Syntax("<password> [2fa_code]")
     @CommandCompletion("password")
-    public void onLogin(Audience sender, UUID uuid, User user, @Single String password, @Optional Integer code) {
-        checkUnauthorized(user);
+    public void onLogin(Audience sender, P player, User user, @Single String password, @Optional Integer code) {
+        checkUnauthorized(player);
         if (!user.isRegistered()) throw new InvalidCommandArgument(getMessage("error-not-registered"));
 
         sender.sendMessage(getMessage("info-logging-in"));
@@ -31,7 +29,7 @@ public class LoginCommand extends AuthorizationCommand {
 
         if (!crypto.matches(password, hashed)) {
             if (plugin.getConfiguration().kickOnWrongPassword()) {
-                plugin.kick(uuid, getMessage("kick-error-password-wrong"));
+                plugin.getPlatformHandle().kick(player, getMessage("kick-error-password-wrong"));
             }
             throw new InvalidCommandArgument(getMessage("error-password-wrong"));
         }
@@ -46,7 +44,7 @@ public class LoginCommand extends AuthorizationCommand {
 
                 if (!totp.verify(code, secret)) {
                     if (plugin.getConfiguration().kickOnWrongPassword()) {
-                        plugin.kick(uuid, getMessage("kick-error-totp-wrong"));
+                        plugin.getPlatformHandle().kick(player, getMessage("kick-error-totp-wrong"));
                     }
                     throw new InvalidCommandArgument(getMessage("totp-wrong"));
                 }
@@ -54,7 +52,7 @@ public class LoginCommand extends AuthorizationCommand {
         }
 
         sender.sendMessage(getMessage("info-logged-in"));
-        getAuthorizationProvider().authorize(user, sender);
+        getAuthorizationProvider().authorize(user, player);
     }
 
 }

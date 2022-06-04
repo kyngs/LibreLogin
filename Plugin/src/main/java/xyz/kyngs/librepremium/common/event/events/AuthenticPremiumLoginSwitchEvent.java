@@ -1,12 +1,13 @@
 package xyz.kyngs.librepremium.common.event.events;
 
-import net.kyori.adventure.audience.Audience;
+import org.jetbrains.annotations.Nullable;
+import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.event.AuthenticPlayerBasedEvent;
 
-public class AuthenticPremiumLoginSwitchEvent extends AuthenticPlayerBasedEvent implements PremiumLoginSwitchEvent {
-    public AuthenticPremiumLoginSwitchEvent(User user, Audience audience) {
-        super(user, audience, user.getUuid());
+public class AuthenticPremiumLoginSwitchEvent<P, S> extends AuthenticPlayerBasedEvent<P, S> implements PremiumLoginSwitchEvent<P, S> {
+    public AuthenticPremiumLoginSwitchEvent(@Nullable User user, P player, LibrePremiumPlugin<P, S> plugin) {
+        super(user, player, plugin);
     }
 }

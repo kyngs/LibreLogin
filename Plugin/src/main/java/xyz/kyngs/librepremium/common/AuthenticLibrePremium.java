@@ -7,7 +7,6 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.easydb.EasyDB;
@@ -16,6 +15,7 @@ import xyz.kyngs.easydb.provider.mysql.MySQL;
 import xyz.kyngs.easydb.provider.mysql.MySQLConfig;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
+import xyz.kyngs.librepremium.api.PlatformHandle;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.Messages;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
@@ -59,7 +59,7 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
+public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<P, S> {
 
     public static final Gson GSON = new Gson();
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
@@ -67,30 +67,39 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     private final MojangPremiumProvider premiumProvider;
     private final Map<String, CryptoProvider> cryptoProviders;
     private final Map<String, ReadDatabaseProvider> readProviders;
-    private final Multimap<UUID, CancellableTask> cancelOnExit;
-    private final AuthenticEventProvider eventProvider;
+    private final Multimap<P, CancellableTask> cancelOnExit;
+    private final AuthenticEventProvider<P, S> eventProvider;
+    private final PlatformHandle<P, S> platformHandle;
     private TOTPProvider totpProvider;
-    private ImageProjector imageProjector;
+    private ImageProjector<P> imageProjector;
     private FloodgateIntegration floodgateApi;
     private SemanticVersion version;
     private Logger logger;
     private HoconPluginConfiguration configuration;
     private HoconMessages messages;
-    private AuthenticAuthorizationProvider authorizationProvider;
+    private AuthenticAuthorizationProvider<P, S> authorizationProvider;
     private MySQLDatabaseProvider databaseProvider;
-    private CommandProvider commandProvider;
+    private CommandProvider<P, S> commandProvider;
 
     protected AuthenticLibrePremium() {
         premiumProvider = new MojangPremiumProvider();
         cryptoProviders = new HashMap<>();
         readProviders = new HashMap<>();
-        eventProvider = new AuthenticEventProvider(this);
+        eventProvider = new AuthenticEventProvider<>(this);
+        platformHandle = providePlatformHandle();
 
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
         cancelOnExit = HashMultimap.create();
     }
+
+    @Override
+    public PlatformHandle<P, S> getPlatformHandle() {
+        return platformHandle;
+    }
+
+    protected abstract PlatformHandle<P, S> providePlatformHandle();
 
     @Override
     public SemanticVersion getParsedVersion() {
@@ -112,7 +121,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         readProviders.put(id, provider);
     }
 
-    public CommandProvider getCommandProvider() {
+    public CommandProvider<P, S> getCommandProvider() {
         return commandProvider;
     }
 
@@ -132,7 +141,7 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     }
 
     @Override
-    public ImageProjector getImageProjector() {
+    public ImageProjector<P> getImageProjector() {
         return imageProjector;
     }
 
@@ -159,10 +168,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
             shutdownProxy(1);
         } catch (CorruptedConfigurationException e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("""
-                    !! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!
-                    !!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s
-                    """.formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             shutdownProxy(1);
         }
 
@@ -221,8 +228,8 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
         totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
 
 
-        authorizationProvider = new AuthenticAuthorizationProvider(this);
-        commandProvider = new CommandProvider(this);
+        authorizationProvider = new AuthenticAuthorizationProvider<>(this);
+        commandProvider = new CommandProvider<>(this);
 
         if (getVersion().contains("DEVELOPMENT")) {
             logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBREPREMIUM !!");
@@ -378,24 +385,20 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     public abstract CommandManager<?, ?, ?, ?, ?, ?> provideManager();
 
-    public abstract Audience getFromIssuer(CommandIssuer issuer);
+    public abstract P getPlayerFromIssuer(CommandIssuer issuer);
 
     public abstract void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException;
 
-    public abstract void authorize(UUID uuid, User user, Audience audience);
-
-    public abstract void kick(UUID uuid, Component reason);
+    public abstract void authorize(P player, User user, Audience audience);
 
     public abstract CancellableTask delay(Runnable runnable, long delayInMillis);
 
     public abstract boolean pluginPresent(String pluginName);
 
-    protected abstract ImageProjector provideImageProjector();
+    protected abstract ImageProjector<P> provideImageProjector();
 
-    public abstract UUID getUUIDForPlayer(Object player);
-
-    public String chooseLobby(User user, UUID uuid, Audience audience) throws NoSuchElementException {
-        var event = new AuthenticLobbyServerChooseEvent(user, audience, uuid);
+    public S chooseLobby(User user, P player) throws NoSuchElementException {
+        var event = new AuthenticLobbyServerChooseEvent<>(user, player, this);
 
         getEventProvider().fire(LobbyServerChooseEvent.class, event);
 
@@ -417,10 +420,10 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
 
     protected abstract void initMetrics(CustomChart... charts);
 
-    public abstract String chooseLobbyDefault();
+    public abstract S chooseLobbyDefault();
 
     @Override
-    public AuthenticAuthorizationProvider getAuthorizationProvider() {
+    public AuthenticAuthorizationProvider<P, S> getAuthorizationProvider() {
         return authorizationProvider;
     }
 
@@ -448,26 +451,26 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     }
 
     @Override
-    public AuthenticEventProvider getEventProvider() {
+    public AuthenticEventProvider<P, S> getEventProvider() {
         return eventProvider;
     }
 
-    public String chooseLimbo(Audience audience, User user) {
-        var event = new AuthenticLimboServerChooseEvent(user, audience);
+    public S chooseLimbo(User user, P player) {
+        var event = new AuthenticLimboServerChooseEvent<>(user, player, this);
 
         getEventProvider().fire(LimboServerChooseEvent.class, event);
 
         return event.getServer() != null ? event.getServer() : chooseLimboDefault();
     }
 
-    public abstract String chooseLimboDefault();
+    public abstract S chooseLimboDefault();
 
-    public void onExit(UUID uuid) {
-        cancelOnExit.removeAll(uuid).forEach(CancellableTask::cancel);
+    public void onExit(P player) {
+        cancelOnExit.removeAll(player).forEach(CancellableTask::cancel);
     }
 
-    public void cancelOnExit(CancellableTask task, UUID uuid) {
-        cancelOnExit.put(uuid, task);
+    public void cancelOnExit(CancellableTask task, P player) {
+        cancelOnExit.put(player, task);
     }
 
     public boolean floodgateEnabled() {
@@ -477,10 +480,6 @@ public abstract class AuthenticLibrePremium implements LibrePremiumPlugin {
     public boolean fromFloodgate(UUID uuid) {
         return floodgateApi != null && uuid != null && floodgateApi.isFloodgateId(uuid);
     }
-
-    public abstract void sendToServer(String server, Object player);
-
-    public abstract Object getPlayerForUUID(UUID id);
 
     private void shutdownProxy(int code) {
         //noinspection finally

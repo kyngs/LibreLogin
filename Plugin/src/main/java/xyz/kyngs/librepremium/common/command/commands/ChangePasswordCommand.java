@@ -9,19 +9,17 @@ import xyz.kyngs.librepremium.common.command.Command;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.event.events.AuthenticPasswordChangeEvent;
 
-import java.util.UUID;
-
 @CommandAlias("changepassword|changepass|passwd|passch")
-public class ChangePasswordCommand extends Command {
-    public ChangePasswordCommand(AuthenticLibrePremium plugin) {
+public class ChangePasswordCommand<P> extends Command<P> {
+    public ChangePasswordCommand(AuthenticLibrePremium<P, ?> plugin) {
         super(plugin);
     }
 
     @Default
     @Syntax("<oldPassword> <newPassword>")
     @CommandCompletion("oldPassword newPassword")
-    public void onPasswordChange(Audience sender, UUID id, User user, String oldPass, @Single String newPass) {
-        checkAuthorized(user);
+    public void onPasswordChange(Audience sender, P player, User user, String oldPass, @Single String newPass) {
+        checkAuthorized(player);
 
         sender.sendMessage(getMessage("info-editing"));
 
@@ -40,7 +38,7 @@ public class ChangePasswordCommand extends Command {
 
         sender.sendMessage(getMessage("info-edited"));
 
-        plugin.getEventProvider().fire(PasswordChangeEvent.class, new AuthenticPasswordChangeEvent(user, sender, hashed));
+        plugin.getEventProvider().fire(PasswordChangeEvent.class, new AuthenticPasswordChangeEvent<>(user, player, plugin, hashed));
     }
 
 }

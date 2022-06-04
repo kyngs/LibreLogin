@@ -11,7 +11,7 @@ import java.util.UUID;
  *
  * @author kyngs
  */
-public interface PlayerBasedEvent extends Event {
+public interface PlayerBasedEvent<P, S> extends Event<P, S> {
 
     /**
      * Gets the player's UUID
@@ -19,6 +19,14 @@ public interface PlayerBasedEvent extends Event {
      * @return the player's uuid
      */
     UUID getUUID();
+
+    /**
+     * Gets the player
+     *
+     * @return the player
+     */
+    @Nullable
+    P getPlayer();
 
     /**
      * Gets the audience

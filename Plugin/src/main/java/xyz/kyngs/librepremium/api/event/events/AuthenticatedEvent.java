@@ -10,5 +10,5 @@ import xyz.kyngs.librepremium.api.event.PlayerBasedEvent;
  *
  * @author kyngs
  */
-public interface AuthenticatedEvent extends PlayerBasedEvent {
+public interface AuthenticatedEvent<P, S> extends PlayerBasedEvent<P, S> {
 }

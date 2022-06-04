@@ -8,24 +8,20 @@ import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.Command;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
-import java.util.UUID;
-
 @CommandAlias("2fa|2fauth|2fauthcode")
-public class TwoFactorAuthCommand extends Command {
-    public TwoFactorAuthCommand(AuthenticLibrePremium plugin) {
+public class TwoFactorAuthCommand<P> extends Command<P> {
+    public TwoFactorAuthCommand(AuthenticLibrePremium<P, ?> plugin) {
         super(plugin);
     }
 
     @Default
-    public void onTwoFactorAuth(Audience sender, UUID id, User user) {
-        checkAuthorized(user);
+    public void onTwoFactorAuth(Audience sender, P player, User user) {
+        checkAuthorized(player);
         var auth = plugin.getAuthorizationProvider();
 
-        if (auth.isAwaiting2FA(id)) {
+        if (auth.isAwaiting2FA(player)) {
             throw new InvalidCommandArgument(getMessage("totp-show-info"));
         }
-
-        var player = plugin.getPlayerForUUID(id);
 
         if (!plugin.getImageProjector().canProject(player)) {
             throw new InvalidCommandArgument(getMessage("totp-wrong-version",
@@ -34,7 +30,7 @@ public class TwoFactorAuthCommand extends Command {
             ));
         }
 
-        auth.beginTwoFactorAuth(id, sender, user, plugin.getPlayerForUUID(id));
+        auth.beginTwoFactorAuth(user, player);
 
         sender.sendMessage(getMessage("totp-generating"));
 
@@ -48,6 +44,6 @@ public class TwoFactorAuthCommand extends Command {
             plugin.getImageProjector().project(data.qr(), player);
 
             sender.sendMessage(getMessage("totp-show-info"));
-        }, 250), id);
+        }, 250), player);
     }
 }

@@ -6,19 +6,17 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
-import java.util.UUID;
-
 @CommandAlias("register")
-public class RegisterCommand extends AuthorizationCommand {
-    public RegisterCommand(AuthenticLibrePremium premium) {
+public class RegisterCommand<P> extends AuthorizationCommand<P> {
+    public RegisterCommand(AuthenticLibrePremium<P, ?> premium) {
         super(premium);
     }
 
     @Default
     @Syntax("<password> <passwordRepeat>")
     @CommandCompletion("password password")
-    public void onRegister(Audience sender, UUID uuid, User user, @Single String password, String passwordRepeat) {
-        checkUnauthorized(user);
+    public void onRegister(Audience sender, P player, User user, @Single String password, String passwordRepeat) {
+        checkUnauthorized(player);
 
         if (user.isRegistered()) throw new InvalidCommandArgument(getMessage("error-already-registered"));
         if (!password.contentEquals(passwordRepeat))
@@ -36,7 +34,7 @@ public class RegisterCommand extends AuthorizationCommand {
 
         sender.sendMessage(getMessage("info-registered"));
 
-        getAuthorizationProvider().authorize(user, sender);
+        getAuthorizationProvider().authorize(user, player);
 
 
     }

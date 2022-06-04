@@ -1,14 +1,13 @@
 package xyz.kyngs.librepremium.common.command.commands.staff;
 
-import net.kyori.adventure.audience.Audience;
 import org.jetbrains.annotations.NotNull;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.Command;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
-public class StaffCommand extends Command {
-    public StaffCommand(AuthenticLibrePremium plugin) {
+public class StaffCommand<P> extends Command<P> {
+    public StaffCommand(AuthenticLibrePremium<P, ?> plugin) {
         super(plugin);
     }
 
@@ -26,17 +25,17 @@ public class StaffCommand extends Command {
             throw new InvalidCommandArgument(getMessage("error-player-online"));
     }
 
-    protected Audience requireOnline(User user) {
+    protected P requireOnline(User user) {
         if (plugin.multiProxyEnabled())
             throw new InvalidCommandArgument(getMessage("error-not-available-on-multi-proxy"));
-        var audience = plugin.getAudienceForID(user.getUuid());
-        if (audience == null)
+        var player = plugin.getPlayerForUUID(user.getUuid());
+        if (player == null)
             throw new InvalidCommandArgument(getMessage("error-player-offline"));
-        return audience;
+        return player;
     }
 
-    protected void requireUnAuthorized(User user) {
-        if (plugin.getAuthorizationProvider().isAuthorized(user.getUuid()))
+    protected void requireUnAuthorized(P player) {
+        if (plugin.getAuthorizationProvider().isAuthorized(player))
             throw new InvalidCommandArgument(getMessage("error-player-authorized"));
     }
 

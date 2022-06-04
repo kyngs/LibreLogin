@@ -67,7 +67,7 @@ public class MapDataPacket extends AbstractPacket {
             trackingPosition = byteBuf.readBoolean();
         }
 
-        iconData = new IconData[readVarInt(byteBuf)];
+        iconData = new IconData[trackingPosition ? readVarInt(byteBuf) : 0];
 
         for (int i = 0; i < iconData.length; i++) {
             iconData[i] = new IconData(
@@ -112,18 +112,20 @@ public class MapDataPacket extends AbstractPacket {
             byteBuf.writeBoolean(trackingPosition);
         }
 
-        ProtocolUtil.writeVarInt(byteBuf, iconData.length);
+        if (trackingPosition) {
+            ProtocolUtil.writeVarInt(byteBuf, iconData.length);
 
-        for (IconData icon : iconData) {
-            ProtocolUtil.writeVarInt(byteBuf, icon.type);
-            byteBuf.writeByte(icon.x);
-            byteBuf.writeByte(icon.z);
-            byteBuf.writeByte(icon.direction);
-            if (icon.displayName != null) {
-                byteBuf.writeBoolean(true);
-                ProtocolUtil.writeString(byteBuf, icon.displayName);
-            } else {
-                byteBuf.writeBoolean(false);
+            for (IconData icon : iconData) {
+                ProtocolUtil.writeVarInt(byteBuf, icon.type);
+                byteBuf.writeByte(icon.x);
+                byteBuf.writeByte(icon.z);
+                byteBuf.writeByte(icon.direction);
+                if (icon.displayName != null) {
+                    byteBuf.writeBoolean(true);
+                    ProtocolUtil.writeString(byteBuf, icon.displayName);
+                } else {
+                    byteBuf.writeBoolean(false);
+                }
             }
         }
 

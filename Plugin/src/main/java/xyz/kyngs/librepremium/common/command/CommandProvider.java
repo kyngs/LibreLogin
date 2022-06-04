@@ -1,12 +1,14 @@
 package xyz.kyngs.librepremium.common.command;
 
 import co.aikar.commands.CommandManager;
+import co.aikar.commands.MessageKeys;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.common.AuthenticHandler;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.commands.ChangePasswordCommand;
 import xyz.kyngs.librepremium.common.command.commands.TwoFactorAuthCommand;
@@ -22,17 +24,16 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class CommandProvider {
+public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
 
     public static final LegacyComponentSerializer ACF_SERIALIZER = LegacyComponentSerializer.legacySection();
 
-    private final AuthenticLibrePremium plugin;
     private final CommandManager<?, ?, ?, ?, ?, ?> manager;
     private final RateLimiter<UUID> limiter;
     private final Cache<UUID, Object> confirmCache;
 
-    public CommandProvider(AuthenticLibrePremium plugin) {
-        this.plugin = plugin;
+    public CommandProvider(AuthenticLibrePremium<P, S> plugin) {
+        super(plugin);
 
         limiter = new RateLimiter<>(1, TimeUnit.SECONDS);
 
@@ -52,13 +53,41 @@ public class CommandProvider {
         var contexts = manager.getCommandContexts();
 
         contexts.registerIssuerAwareContext(User.class, context -> {
-            var uuid = (UUID) context.getResolvedArg(UUID.class);
+            var player = plugin.getPlayerFromIssuer(context.getIssuer());
 
-            if (uuid == null) return null;
+            if (player == null)
+                throw new co.aikar.commands.InvalidCommandArgument(MessageKeys.NOT_ALLOWED_ON_CONSOLE, false);
+
+            var uuid = plugin.getPlatformHandle().getUUIDForPlayer(player);
 
             if (plugin.fromFloodgate(uuid)) throw new InvalidCommandArgument(getMessage("error-from-floodgate"));
 
             return plugin.getDatabaseProvider().getByUUID(uuid);
+        });
+
+        contexts.registerIssuerAwareContext(Audience.class, context -> {
+            if (limiter.tryAndLimit(context.getIssuer().getUniqueId()))
+                throw new xyz.kyngs.librepremium.common.command.InvalidCommandArgument(plugin.getMessages().getMessage("error-throttle"));
+            return plugin.getPlatformHandle().getAudienceForPlayer(plugin.getPlayerFromIssuer(context.getIssuer()));
+        });
+
+        // Thanks type erasure
+        contexts.registerIssuerAwareContext(Object.class, context -> {
+            var player = plugin.getPlayerFromIssuer(context.getIssuer());
+
+            if (player == null)
+                throw new co.aikar.commands.InvalidCommandArgument(MessageKeys.NOT_ALLOWED_ON_CONSOLE, false);
+
+            return player;
+        });
+
+        contexts.registerIssuerAwareContext(UUID.class, context -> {
+            var player = plugin.getPlayerFromIssuer(context.getIssuer());
+
+            if (player == null)
+                throw new co.aikar.commands.InvalidCommandArgument(MessageKeys.NOT_ALLOWED_ON_CONSOLE, false);
+
+            return plugin.getPlatformHandle().getUUIDForPlayer(player);
         });
 
         manager.setDefaultExceptionHandler((command, registeredCommand, sender, args, t) -> {
@@ -72,7 +101,7 @@ public class CommandProvider {
                 return false;
             }
 
-            plugin.getFromIssuer(sender).sendMessage(ourEx.getUserFuckUp());
+            plugin.getPlatformHandle().getAudienceForPlayer(plugin.getPlayerFromIssuer(sender)).sendMessage(ourEx.getUserFuckUp());
 
             return true;
         }, false);
@@ -81,16 +110,16 @@ public class CommandProvider {
                 .expireAfterWrite(5, TimeUnit.MINUTES)
                 .build();
 
-        manager.registerCommand(new LoginCommand(plugin));
-        manager.registerCommand(new RegisterCommand(plugin));
-        manager.registerCommand(new PremiumEnableCommand(plugin));
-        manager.registerCommand(new PremiumConfirmCommand(plugin));
-        manager.registerCommand(new PremiumDisableCommand(plugin));
-        manager.registerCommand(new ChangePasswordCommand(plugin));
-        manager.registerCommand(new LibrePremiumCommand(plugin));
+        manager.registerCommand(new LoginCommand<>(plugin));
+        manager.registerCommand(new RegisterCommand<>(plugin));
+        manager.registerCommand(new PremiumEnableCommand<>(plugin));
+        manager.registerCommand(new PremiumConfirmCommand<>(plugin));
+        manager.registerCommand(new PremiumDisableCommand<>(plugin));
+        manager.registerCommand(new ChangePasswordCommand<>(plugin));
+        manager.registerCommand(new LibrePremiumCommand<>(plugin));
 
         if (plugin.getTOTPProvider() != null) {
-            manager.registerCommand(new TwoFactorAuthCommand(plugin));
+            manager.registerCommand(new TwoFactorAuthCommand<>(plugin));
         }
 
     }
@@ -99,17 +128,17 @@ public class CommandProvider {
         confirmCache.put(uuid, new Object());
     }
 
-    public void onConfirm(UUID uuid, Audience audience, User user) {
-        if (confirmCache.asMap().remove(uuid) == null)
+    public void onConfirm(P player, Audience audience, User user) {
+        if (confirmCache.asMap().remove(user.getUuid()) == null)
             throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-no-confirm"));
 
         audience.sendMessage(plugin.getMessages().getMessage("info-enabling"));
 
-        LibrePremiumCommand.enablePremium(audience, user, plugin);
+        LibrePremiumCommand.enablePremium(player, user, plugin);
 
         plugin.getDatabaseProvider().updateUser(user);
 
-        plugin.kick(uuid, plugin.getMessages().getMessage("kick-premium-info-enabled"));
+        platformHandle.kick(player, plugin.getMessages().getMessage("kick-premium-info-enabled"));
 
     }
 

@@ -9,17 +9,17 @@ import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import java.util.UUID;
 
 @CommandAlias("premium|autologin")
-public class PremiumEnableCommand extends PremiumCommand {
+public class PremiumEnableCommand<P> extends PremiumCommand<P> {
 
-    public PremiumEnableCommand(AuthenticLibrePremium plugin) {
+    public PremiumEnableCommand(AuthenticLibrePremium<P, ?> plugin) {
         super(plugin);
     }
 
     @Default
     @Syntax("<password>")
     @CommandCompletion("password")
-    public void onPremium(Audience sender, UUID uuid, User user, @Single String password) {
-        checkAuthorized(user);
+    public void onPremium(Audience sender, UUID uuid, P player, User user, @Single String password) {
+        checkAuthorized(player);
         checkCracked(user);
 
         var hashed = user.getHashedPassword();

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author kyngs
  */
-public interface ServerChooseEvent extends PlayerBasedEvent {
+public interface ServerChooseEvent<P, S> extends PlayerBasedEvent<P, S> {
 
     /**
      * Gets the server
@@ -15,13 +15,13 @@ public interface ServerChooseEvent extends PlayerBasedEvent {
      * @return null, if default will be used
      */
     @Nullable
-    String getServer();
+    S getServer();
 
     /**
      * Set the server
      *
      * @param server the server, if null, the default will be used
      */
-    void setServer(@Nullable String server);
+    void setServer(@Nullable S server);
 
 }

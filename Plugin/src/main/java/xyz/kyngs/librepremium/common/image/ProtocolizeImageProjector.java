@@ -13,17 +13,16 @@ import dev.simplix.protocolize.data.ItemType;
 import dev.simplix.protocolize.data.packets.HeldItemChange;
 import dev.simplix.protocolize.data.packets.SetSlot;
 import xyz.kyngs.librepremium.api.image.ImageProjector;
+import xyz.kyngs.librepremium.common.AuthenticHandler;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.image.packet.MapDataPacket;
 
 import java.awt.image.BufferedImage;
 
-public class ProtocolizeImageProjector implements ImageProjector, ProtocolizeModule {
+public class ProtocolizeImageProjector<P, S> extends AuthenticHandler<P, S> implements ImageProjector<P>, ProtocolizeModule {
 
-    private final AuthenticLibrePremium plugin;
-
-    public ProtocolizeImageProjector(AuthenticLibrePremium plugin) {
-        this.plugin = plugin;
+    public ProtocolizeImageProjector(AuthenticLibrePremium<P, S> plugin) {
+        super(plugin);
         Protocolize.getService(ModuleProvider.class).registerModule(this);
     }
 
@@ -34,8 +33,8 @@ public class ProtocolizeImageProjector implements ImageProjector, ProtocolizeMod
      * @param player The player to render the image to.
      */
     @Override
-    public void project(BufferedImage image, Object player) {
-        var id = plugin.getUUIDForPlayer(player);
+    public void project(BufferedImage image, P player) {
+        var id = platformHandle.getUUIDForPlayer(player);
 
         var protocolize = Protocolize.playerProvider().player(id);
         var protocol = protocolize.protocolVersion();
@@ -87,8 +86,8 @@ public class ProtocolizeImageProjector implements ImageProjector, ProtocolizeMod
     }
 
     @Override
-    public boolean canProject(Object player) {
-        var id = plugin.getUUIDForPlayer(player);
+    public boolean canProject(P player) {
+        var id = platformHandle.getUUIDForPlayer(player);
 
         var protocolize = Protocolize.playerProvider().player(id);
 

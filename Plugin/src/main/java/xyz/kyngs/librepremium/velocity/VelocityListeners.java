@@ -7,24 +7,26 @@ import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.player.GameProfileRequestEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
+import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
 import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
 
 import java.util.NoSuchElementException;
 
-public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> {
+public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, Player, RegisteredServer> {
     public VelocityListeners(VelocityLibrePremium plugin) {
         super(plugin);
     }
 
     @Subscribe(order = PostOrder.LAST)
     public void onPostLogin(PostLoginEvent event) {
-        onPostLogin(event.getPlayer().getUniqueId(), event.getPlayer());
+        onPostLogin(event.getPlayer());
     }
 
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
-        onPlayerDisconnect(event.getPlayer().getUniqueId());
+        onPlayerDisconnect(event.getPlayer());
     }
 
     @Subscribe(order = PostOrder.NORMAL)
@@ -64,13 +66,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium> 
     @Subscribe(order = PostOrder.LAST)
     public void chooseServer(PlayerChooseInitialServerEvent event) {
         try {
-            event.setInitialServer(plugin.getServer()
-                    .getServer(
-                            chooseServer(event.getPlayer().getUniqueId(), event.getPlayer())
-                    )
-                    .orElseThrow()
-            );
-
+            event.setInitialServer(chooseServer(event.getPlayer()));
         } catch (NoSuchElementException e) {
             event.getPlayer().disconnect(plugin.getMessages().getMessage("kick-no-server"));
         }

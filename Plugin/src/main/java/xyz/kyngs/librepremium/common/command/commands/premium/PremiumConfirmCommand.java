@@ -6,20 +6,18 @@ import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 
-import java.util.UUID;
-
 @CommandAlias("premiumconfirm|confirmpremium")
-public class PremiumConfirmCommand extends PremiumCommand {
-    public PremiumConfirmCommand(AuthenticLibrePremium plugin) {
+public class PremiumConfirmCommand<P> extends PremiumCommand<P> {
+    public PremiumConfirmCommand(AuthenticLibrePremium<P, ?> plugin) {
         super(plugin);
     }
 
     @Default
-    public void onPremiumConfirm(Audience sender, UUID uuid, User user) {
-        checkAuthorized(user);
+    public void onPremiumConfirm(Audience sender, P player, User user) {
+        checkAuthorized(player);
         checkCracked(user);
 
-        plugin.getCommandProvider().onConfirm(uuid, sender, user);
+        plugin.getCommandProvider().onConfirm(player, sender, user);
     }
 
 }

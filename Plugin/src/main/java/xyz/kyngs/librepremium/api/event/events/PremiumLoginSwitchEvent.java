@@ -8,6 +8,6 @@ import xyz.kyngs.librepremium.api.event.PlayerBasedEvent;
  *
  * @author kyngs
  */
-public interface PremiumLoginSwitchEvent extends PlayerBasedEvent {
+public interface PremiumLoginSwitchEvent<P, S> extends PlayerBasedEvent<P, S> {
 
 }
