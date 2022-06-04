@@ -6,6 +6,11 @@ import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * A user in the database.
+ *
+ * @author kyngs
+ */
 public class User {
 
     private final UUID uuid;

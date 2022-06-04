@@ -38,6 +38,9 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
 
     @Override
     public void authorize(User user, P player) {
+        if (isAuthorized(player)) {
+            throw new IllegalStateException("Player is already authorized");
+        }
         stopTracking(player);
 
         var audience = platformHandle.getAudienceForPlayer(player);

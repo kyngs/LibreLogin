@@ -1,5 +1,10 @@
 package xyz.kyngs.librepremium.api.premium;
 
+/**
+ * An exception that is thrown when fetching premium data fails.
+ *
+ * @author kyngs
+ */
 public class PremiumException extends Exception {
 
     private final Issue issue;

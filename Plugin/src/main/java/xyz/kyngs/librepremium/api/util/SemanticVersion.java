@@ -1,5 +1,14 @@
 package xyz.kyngs.librepremium.api.util;
 
+/**
+ * A basic record to hold semantic version information.
+ *
+ * @param major The major version.
+ * @param minor The minor version.
+ * @param patch The patch version.
+ * @param dev   Whether this is a development version.
+ * @author kyngs
+ */
 public record SemanticVersion(int major, int minor, int patch, boolean dev) {
 
     public static SemanticVersion parse(String version) {

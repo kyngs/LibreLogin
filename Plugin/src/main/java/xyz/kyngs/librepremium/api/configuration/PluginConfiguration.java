@@ -5,8 +5,20 @@ import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import java.io.IOException;
 import java.util.Collection;
 
+/**
+ * This interface manages the plugin configuration.
+ *
+ * @author kyngs
+ */
 public interface PluginConfiguration {
 
+    /**
+     * Reloads the configuration.
+     * @param plugin The plugin.
+     * @return True if new configuration was generated, false otherwise.
+     * @throws IOException If an I/O error occurs.
+     * @throws CorruptedConfigurationException If the configuration is corrupted.
+     */
     boolean reload(LibrePremiumPlugin<?, ?> plugin) throws IOException, CorruptedConfigurationException;
 
     Collection<String> getAllowedCommandsWhileUnauthorized();
