@@ -1,6 +1,6 @@
 name: "LibrePremium"
 author: "kyngs"
-version: 0.8.1
+version: 0.8.2
 main: "xyz.kyngs.librepremium.bungeecord.BungeeCordBootstrap"
 softdepends:
   - "RedisBungee"
