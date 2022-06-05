@@ -193,7 +193,7 @@ public interface LibrePremiumPlugin<P, S> {
 
     /**
      * Gets a player by their UUID.
-     * <b>This cannot be used as a substitute to {@link #isPresent(UUID)} Due to the possibility of multiple proxies.</b>
+     * <b>This cannot be used as a substitute to {@link #isPresent(UUID)} due to the possibility of multiple proxies.</b>
      *
      * @param uuid The UUID of the player
      * @return The player, or null if the player is not present on this proxy

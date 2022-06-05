@@ -1,13 +1,15 @@
 package xyz.kyngs.librepremium.bungeecord;
 
-import co.aikar.commands.*;
+import co.aikar.commands.BungeeCommandIssuer;
+import co.aikar.commands.BungeeCommandManager;
+import co.aikar.commands.CommandIssuer;
+import co.aikar.commands.CommandManager;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bstats.bungeecord.Metrics;
@@ -125,29 +127,14 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
 
     @Override
     public CommandManager<?, ?, ?, ?, ?, ?> provideManager() {
-        var manager = new BungeeCommandManager(bootstrap);
-
-        var contexts = manager.getCommandContexts();
-
-        contexts.registerIssuerAwareContext(Audience.class, context -> {
-            if (getCommandProvider().getLimiter().tryAndLimit(context.getIssuer().getUniqueId()))
-                throw new xyz.kyngs.librepremium.common.command.InvalidCommandArgument(getMessages().getMessage("error-throttle"));
-            return getAudienceForSender(context.getSender());
-        });
-        contexts.registerIssuerAwareContext(UUID.class, context -> {
-            var player = context.getPlayer();
-
-            if (player == null) throw new InvalidCommandArgument(MessageKeys.NOT_ALLOWED_ON_CONSOLE, false);
-
-            return player.getUniqueId();
-        });
-
-        return manager;
+        return new BungeeCommandManager(bootstrap);
     }
 
     @Override
     public ProxiedPlayer getPlayerFromIssuer(CommandIssuer issuer) {
-        return issuer.getIssuer();
+        var bungee = (BungeeCommandIssuer) issuer;
+
+        return bungee.getPlayer();
     }
 
     @Override
@@ -262,8 +249,9 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
                 .orElseThrow();
     }
 
-    public Audience getAudienceForSender(CommandSender sender) {
-        return adventure.sender(sender);
+    @Override
+    public Audience getAudienceFromIssuer(CommandIssuer issuer) {
+        return adventure.sender(issuer.getIssuer());
     }
 
 }

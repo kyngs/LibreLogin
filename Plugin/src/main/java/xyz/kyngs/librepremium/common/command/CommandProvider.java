@@ -68,7 +68,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
         contexts.registerIssuerAwareContext(Audience.class, context -> {
             if (limiter.tryAndLimit(context.getIssuer().getUniqueId()))
                 throw new xyz.kyngs.librepremium.common.command.InvalidCommandArgument(plugin.getMessages().getMessage("error-throttle"));
-            return plugin.getPlatformHandle().getAudienceForPlayer(plugin.getPlayerFromIssuer(context.getIssuer()));
+            return plugin.getAudienceFromIssuer(context.getIssuer());
         });
 
         // Thanks type erasure
@@ -101,7 +101,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
                 return false;
             }
 
-            plugin.getPlatformHandle().getAudienceForPlayer(plugin.getPlayerFromIssuer(sender)).sendMessage(ourEx.getUserFuckUp());
+            plugin.getAudienceFromIssuer(sender).sendMessage(ourEx.getUserFuckUp());
 
             return true;
         }, false);

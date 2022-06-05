@@ -1,6 +1,9 @@
 package xyz.kyngs.librepremium.velocity;
 
-import co.aikar.commands.*;
+import co.aikar.commands.CommandIssuer;
+import co.aikar.commands.CommandManager;
+import co.aikar.commands.VelocityCommandIssuer;
+import co.aikar.commands.VelocityCommandManager;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -79,29 +82,12 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
 
     @Override
     public CommandManager<?, ?, ?, ?, ?, ?> provideManager() {
-        var manager = new VelocityCommandManager(server, this);
-
-        var contexts = manager.getCommandContexts();
-
-        contexts.registerIssuerAwareContext(Audience.class, context -> {
-            if (getCommandProvider().getLimiter().tryAndLimit(context.getIssuer().getUniqueId()))
-                throw new xyz.kyngs.librepremium.common.command.InvalidCommandArgument(getMessages().getMessage("error-throttle"));
-            return context.getSender();
-        });
-        contexts.registerIssuerAwareContext(UUID.class, context -> {
-            var player = context.getPlayer();
-
-            if (player == null) throw new InvalidCommandArgument(MessageKeys.NOT_ALLOWED_ON_CONSOLE, false);
-
-            return player.getUniqueId();
-        });
-
-        return manager;
+        return new VelocityCommandManager(server, this);
     }
 
     @Override
     public Player getPlayerFromIssuer(CommandIssuer issuer) {
-        return issuer.getIssuer();
+        return ((VelocityCommandIssuer) issuer).getPlayer();
     }
 
     @Override
@@ -212,6 +198,11 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
                 .filter(server -> limbos.contains(server.getServerInfo().getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
                 .orElseThrow();
+    }
+
+    @Override
+    public Audience getAudienceFromIssuer(CommandIssuer issuer) {
+        return ((VelocityCommandIssuer) issuer).getIssuer();
     }
 
     @Subscribe

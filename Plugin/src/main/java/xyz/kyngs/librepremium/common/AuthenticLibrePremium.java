@@ -531,4 +531,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             System.exit(code);
         }
     }
+
+    public abstract Audience getAudienceFromIssuer(CommandIssuer issuer);
 }
