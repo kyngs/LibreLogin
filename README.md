@@ -15,7 +15,7 @@ Like JPremium, but free, open-source and multiplatform
 - Name Validation (Including case sensitivity check)
 - Automatic data migration for premium players
 - Migration of a player's data by using one command
-- Geyser support [[Floodgate]]
+- Geyser support [Floodgate](https://github.com/kyngs/LibrePremium/wiki/Floodgate)
 
 ## Considerations
 
