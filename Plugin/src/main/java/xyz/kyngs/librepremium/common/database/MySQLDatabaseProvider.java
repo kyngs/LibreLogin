@@ -59,7 +59,10 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             try {
                 connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN secret VARCHAR(255) NULL DEFAULT NULL")
                         .executeUpdate();
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                if (!e.getSQLState().equals("42S21")) {
+                    throw e;
+                }
             } //FIXME: This is a horrible approach.
 
         });
