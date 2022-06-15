@@ -22,12 +22,11 @@ import static dev.simplix.protocolize.api.util.ProtocolVersions.*;
 public class MapDataPacket extends AbstractPacket {
 
     public static final List<ProtocolIdMapping> MAPPINGS = Arrays.asList(
+            rangedIdMapping(MINECRAFT_1_8, MINECRAFT_1_8, 0x24),
             rangedIdMapping(MINECRAFT_1_13, MINECRAFT_1_14_4, 0x26),
             rangedIdMapping(MINECRAFT_1_15, MINECRAFT_1_15_2, 0x27),
             rangedIdMapping(MINECRAFT_1_16, MINECRAFT_1_16_1, 0x26),
-            rangedIdMapping(MINECRAFT_1_16_2, MINECRAFT_1_16_5, 0x25),
-            rangedIdMapping(MINECRAFT_1_17, MINECRAFT_1_18_2, 0x27),
-            rangedIdMapping(MINECRAFT_1_19, MINECRAFT_1_19, 0x24)
+            rangedIdMapping(MINECRAFT_1_16_2, MINECRAFT_1_16_5, 0x25)
     );
 
     private int mapID;
