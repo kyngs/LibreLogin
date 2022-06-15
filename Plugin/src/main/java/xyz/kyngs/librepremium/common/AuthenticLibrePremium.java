@@ -25,7 +25,6 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
-import xyz.kyngs.librepremium.api.image.ImageProjector;
 import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.api.premium.PremiumUser;
 import xyz.kyngs.librepremium.api.totp.TOTPProvider;
@@ -41,6 +40,7 @@ import xyz.kyngs.librepremium.common.database.MySQLDatabaseProvider;
 import xyz.kyngs.librepremium.common.event.AuthenticEventProvider;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librepremium.common.event.events.AuthenticLobbyServerChooseEvent;
+import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
 import xyz.kyngs.librepremium.common.integration.FloodgateIntegration;
 import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
 import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
@@ -72,7 +72,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     private final PlatformHandle<P, S> platformHandle;
     private final Set<String> forbiddenPasswords;
     private TOTPProvider totpProvider;
-    private ImageProjector<P> imageProjector;
+    private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
     private SemanticVersion version;
     private Logger logger;
@@ -151,7 +151,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     }
 
     @Override
-    public ImageProjector<P> getImageProjector() {
+    public AuthenticImageProjector<P, S> getImageProjector() {
         return imageProjector;
     }
 
@@ -244,10 +244,16 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         checkAndMigrate();
 
         imageProjector = provideImageProjector();
-        if (imageProjector != null && !configuration.totpEnabled()) {
-            imageProjector = null;
-            logger.warn("2FA is disabled in the configuration, aborting...");
+
+        if (imageProjector != null) {
+            if (!configuration.totpEnabled()) {
+                imageProjector = null;
+                logger.warn("2FA is disabled in the configuration, aborting...");
+            } else {
+                imageProjector.enable();
+            }
         }
+
         totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
 
 
@@ -436,7 +442,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
     public abstract boolean pluginPresent(String pluginName);
 
-    protected abstract ImageProjector<P> provideImageProjector();
+    protected abstract AuthenticImageProjector<P, S> provideImageProjector();
 
     public S chooseLobby(User user, P player) throws NoSuchElementException {
         var event = new AuthenticLobbyServerChooseEvent<>(user, player, this);

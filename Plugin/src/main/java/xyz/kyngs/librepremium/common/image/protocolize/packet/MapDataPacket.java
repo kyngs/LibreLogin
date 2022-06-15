@@ -1,11 +1,11 @@
-package xyz.kyngs.librepremium.common.image.packet;
+package xyz.kyngs.librepremium.common.image.protocolize.packet;
 
 import dev.simplix.protocolize.api.PacketDirection;
 import dev.simplix.protocolize.api.mapping.ProtocolIdMapping;
 import dev.simplix.protocolize.api.packet.AbstractPacket;
 import dev.simplix.protocolize.api.util.ProtocolUtil;
 import io.netty.buffer.ByteBuf;
-import xyz.kyngs.librepremium.common.image.MapData;
+import xyz.kyngs.librepremium.common.image.protocolize.MapData;
 
 import java.util.Arrays;
 import java.util.List;

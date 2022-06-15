@@ -1,4 +1,4 @@
-package xyz.kyngs.librepremium.common.image;
+package xyz.kyngs.librepremium.common.image.protocolize;
 
 import dev.simplix.protocolize.api.PacketDirection;
 import dev.simplix.protocolize.api.Protocol;
@@ -13,16 +13,20 @@ import dev.simplix.protocolize.data.ItemType;
 import dev.simplix.protocolize.data.packets.HeldItemChange;
 import dev.simplix.protocolize.data.packets.SetSlot;
 import xyz.kyngs.librepremium.api.image.ImageProjector;
-import xyz.kyngs.librepremium.common.AuthenticHandler;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
-import xyz.kyngs.librepremium.common.image.packet.MapDataPacket;
+import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
+import xyz.kyngs.librepremium.common.image.protocolize.packet.MapDataPacket;
 
 import java.awt.image.BufferedImage;
 
-public class ProtocolizeImageProjector<P, S> extends AuthenticHandler<P, S> implements ImageProjector<P>, ProtocolizeModule {
+public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, S> implements ImageProjector<P>, ProtocolizeModule {
 
     public ProtocolizeImageProjector(AuthenticLibrePremium<P, S> plugin) {
         super(plugin);
+    }
+
+    @Override
+    public void enable() {
         Protocolize.getService(ModuleProvider.class).registerModule(this);
     }
 

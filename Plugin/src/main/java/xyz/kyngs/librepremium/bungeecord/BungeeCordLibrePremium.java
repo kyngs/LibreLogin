@@ -21,9 +21,9 @@ import xyz.kyngs.librepremium.api.PlatformHandle;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
-import xyz.kyngs.librepremium.api.image.ImageProjector;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
-import xyz.kyngs.librepremium.common.image.ProtocolizeImageProjector;
+import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
+import xyz.kyngs.librepremium.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 
 import java.io.File;
@@ -185,7 +185,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
     }
 
     @Override
-    protected ImageProjector<ProxiedPlayer> provideImageProjector() {
+    protected AuthenticImageProjector<ProxiedPlayer, ServerInfo> provideImageProjector() {
         if (pluginPresent("Protocolize")) {
             getLogger().info("Detected Protocolize, enabling 2FA...");
 
