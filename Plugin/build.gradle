@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
 }
 
-version '0.8.3-DEVELOPMENT.2'
+version '0.8.3-DEVELOPMENT.3'
 
 repositories {
     mavenLocal()
@@ -64,11 +64,11 @@ dependencies {
     implementation 'com.github.kyngs.commands:acf-bungee:2590585deb'
 
     //Utils
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.0'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
     implementation 'org.spongepowered:configurate-hocon:4.1.2'
     implementation 'at.favre.lib:bcrypt:0.9.0'
     implementation 'dev.samstevens.totp:totp:1.7.1'
-    compileOnly 'dev.simplix:protocolize-api:2.1.2'
+    compileOnly 'dev.simplix:protocolize-api:2.2.1'
 
     //Geyser
     compileOnly 'org.geysermc.floodgate:api:2.0-SNAPSHOT'

@@ -26,7 +26,8 @@ public class MapDataPacket extends AbstractPacket {
             rangedIdMapping(MINECRAFT_1_15, MINECRAFT_1_15_2, 0x27),
             rangedIdMapping(MINECRAFT_1_16, MINECRAFT_1_16_1, 0x26),
             rangedIdMapping(MINECRAFT_1_16_2, MINECRAFT_1_16_5, 0x25),
-            rangedIdMapping(MINECRAFT_1_17, MINECRAFT_1_18_2, 0x27)
+            rangedIdMapping(MINECRAFT_1_17, MINECRAFT_1_18_2, 0x27),
+            rangedIdMapping(MINECRAFT_1_19, MINECRAFT_1_19, 0x24)
     );
 
     private int mapID;
