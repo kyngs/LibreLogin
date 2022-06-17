@@ -12,8 +12,6 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
 import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
 
-import java.util.NoSuchElementException;
-
 public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, Player, RegisteredServer> {
     public VelocityListeners(VelocityLibrePremium plugin) {
         super(plugin);
@@ -65,10 +63,12 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, 
 
     @Subscribe(order = PostOrder.LAST)
     public void chooseServer(PlayerChooseInitialServerEvent event) {
-        try {
-            event.setInitialServer(chooseServer(event.getPlayer()));
-        } catch (NoSuchElementException e) {
+        var server = chooseServer(event.getPlayer());
+
+        if (server == null) {
             event.getPlayer().disconnect(plugin.getMessages().getMessage("kick-no-server"));
+        } else {
+            event.setInitialServer(chooseServer(event.getPlayer()));
         }
 
     }

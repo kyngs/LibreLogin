@@ -14,7 +14,6 @@ import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEve
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -183,7 +182,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         return user;
     }
 
-    protected S chooseServer(P player) throws NoSuchElementException {
+    protected S chooseServer(P player) {
         var id = platformHandle.getUUIDForPlayer(player);
         var fromFloodgate = plugin.fromFloodgate(id);
 

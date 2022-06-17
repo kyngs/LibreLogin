@@ -1,13 +1,8 @@
 package xyz.kyngs.librepremium.common.image.protocolize;
 
-import dev.simplix.protocolize.api.PacketDirection;
-import dev.simplix.protocolize.api.Protocol;
 import dev.simplix.protocolize.api.Protocolize;
 import dev.simplix.protocolize.api.item.ItemStack;
-import dev.simplix.protocolize.api.module.ProtocolizeModule;
-import dev.simplix.protocolize.api.providers.MappingProvider;
 import dev.simplix.protocolize.api.providers.ModuleProvider;
-import dev.simplix.protocolize.api.providers.ProtocolRegistrationProvider;
 import dev.simplix.protocolize.api.util.ProtocolVersions;
 import dev.simplix.protocolize.data.ItemType;
 import dev.simplix.protocolize.data.packets.HeldItemChange;
@@ -19,7 +14,7 @@ import xyz.kyngs.librepremium.common.image.protocolize.packet.MapDataPacket;
 
 import java.awt.image.BufferedImage;
 
-public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, S> implements ImageProjector<P>, ProtocolizeModule {
+public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, S> implements ImageProjector<P> {
 
     public ProtocolizeImageProjector(AuthenticLibrePremium<P, S> plugin) {
         super(plugin);
@@ -27,7 +22,7 @@ public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, 
 
     @Override
     public void enable() {
-        Protocolize.getService(ModuleProvider.class).registerModule(this);
+        Protocolize.getService(ModuleProvider.class).registerModule(new ProtocolizeImageModule());
     }
 
     /**
@@ -98,13 +93,4 @@ public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, 
         return protocolize.protocolVersion() >= ProtocolVersions.MINECRAFT_1_13 && protocolize.protocolVersion() <= ProtocolVersions.MINECRAFT_1_18;
     }
 
-    @Override
-    public void registerMappings(MappingProvider mappingProvider) {
-
-    }
-
-    @Override
-    public void registerPackets(ProtocolRegistrationProvider protocolRegistrationProvider) {
-        protocolRegistrationProvider.registerPacket(MapDataPacket.MAPPINGS, Protocol.PLAY, PacketDirection.CLIENTBOUND, MapDataPacket.class);
-    }
 }

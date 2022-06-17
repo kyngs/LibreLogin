@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
 }
 
-version '0.8.3-DEVELOPMENT.4'
+version '0.8.3-DEVELOPMENT.5'
 
 repositories {
     mavenLocal()
@@ -75,7 +75,7 @@ dependencies {
 
     //Bungeecord
     compileOnly 'net.md-5:bungeecord-api:1.18-R0.1-SNAPSHOT'
-    implementation 'net.kyori:adventure-platform-bungeecord:4.1.0'
+    implementation 'net.kyori:adventure-platform-bungeecord:4.1.1'
     compileOnly 'com.imaginarycode.minecraft:RedisBungee-API:0.7.0-SNAPSHOT'
 
     //BStats

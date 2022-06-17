@@ -11,7 +11,6 @@ import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
-import java.util.NoSuchElementException;
 
 import static net.md_5.bungee.event.EventPriority.HIGHEST;
 
@@ -87,10 +86,12 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
     public void chooseServer(ServerConnectEvent event) {
         if (!event.getReason().equals(ServerConnectEvent.Reason.JOIN_PROXY)) return;
 
-        try {
-            event.setTarget(chooseServer(event.getPlayer()));
-        } catch (NoSuchElementException e) {
+        var server = chooseServer(event.getPlayer());
+
+        if (server == null) {
             event.getPlayer().disconnect(plugin.getSerializer().serialize(plugin.getMessages().getMessage("kick-no-server")));
+        } else {
+            event.setTarget(server);
         }
     }
 

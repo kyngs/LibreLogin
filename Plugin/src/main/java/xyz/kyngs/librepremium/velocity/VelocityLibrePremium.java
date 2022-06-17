@@ -188,7 +188,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
         return server.getAllServers().stream()
                 .filter(server -> passThroughServers.contains(server.getServerInfo().getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
-                .orElseThrow();
+                .orElse(null);
     }
 
     @Override

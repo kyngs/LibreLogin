@@ -237,7 +237,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
         return bootstrap.getProxy().getServers().values().stream()
                 .filter(server -> passThroughServers.contains(server.getName()))
                 .min(Comparator.comparingInt(o -> o.getPlayers().size()))
-                .orElseThrow();
+                .orElse(null);
     }
 
     @Override
