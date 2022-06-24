@@ -358,10 +358,17 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
-    public static final ConfigurationKey<String> INFO_AUTOMATICALLY_LOGGED_IN = new ConfigurationKey<>(
-            "info-automatically-logged-in",
+    public static final ConfigurationKey<String> INFO_PREMIUM_LOGGED_IN = new ConfigurationKey<>(
+            "info-premium-logged-in",
             "You have been logged in automatically!",
-            "This message is displayed when the player logs in automatically.",
+            "This message is displayed when the player logs in automatically because they have enabled /premium.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_SESSION_LOGGED_IN = new ConfigurationKey<>(
+            "info-session-logged-in",
+            "You have been logged in automatically!",
+            "This message is displayed when the player logs in automatically because of a valid session.",
             ConfigurateHelper::getString
     );
 

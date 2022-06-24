@@ -5,6 +5,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.Messages;
+import xyz.kyngs.librepremium.common.config.migrate.messages.FirstMessagesMigrator;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.io.IOException;
@@ -60,7 +61,8 @@ public class HoconMessages implements Messages {
                           This file contains all of the messages used by the plugin, you are welcome to fit it to your needs.
                           You can find more information about LibrePremium on the github page:
                           https://github.com/kyngs/LibrePremium
-                        """
+                        """,
+                new FirstMessagesMigrator()
         );
 
         var node = adept.getHelper().configuration();
@@ -74,6 +76,5 @@ public class HoconMessages implements Messages {
                     messages.put(str, SERIALIZER.deserialize(string));
                 }
         );
-        return;
     }
 }
