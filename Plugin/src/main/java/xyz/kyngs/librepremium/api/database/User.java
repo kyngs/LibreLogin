@@ -20,8 +20,10 @@ public class User {
     private Timestamp joinDate;
     private Timestamp lastSeen;
     private String secret;
+    private String ip;
+    private Timestamp lastAuthentication;
 
-    public User(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen, String secret) {
+    public User(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen, String secret, String ip, Timestamp lastAuthentication) {
         this.uuid = uuid;
         this.premiumUUID = premiumUUID;
         this.hashedPassword = hashedPassword;
@@ -29,6 +31,16 @@ public class User {
         this.joinDate = joinDate;
         this.lastSeen = lastSeen;
         this.secret = secret;
+        this.ip = ip;
+        this.lastAuthentication = lastAuthentication;
+    }
+
+    public Timestamp getLastAuthentication() {
+        return lastAuthentication;
+    }
+
+    public void setLastAuthentication(Timestamp lastAuthentication) {
+        this.lastAuthentication = lastAuthentication;
     }
 
     public Timestamp getJoinDate() {
@@ -102,5 +114,13 @@ public class User {
 
     public void setSecret(String secret) {
         this.secret = secret;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

@@ -23,6 +23,10 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
         return get(Boolean.class, path);
     }
 
+    public Long getLong(String path) {
+        return get(Long.class, path);
+    }
+
     public <T> T get(Class<T> clazz, String path) {
         return configurationFunction(path, node -> {
             if (node.isList()) throw new CorruptedConfigurationException("Node is a list!");
@@ -84,5 +88,4 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
     public <T> T get(ConfigurationKey<T> key) {
         return key.compute(this);
     }
-
 }

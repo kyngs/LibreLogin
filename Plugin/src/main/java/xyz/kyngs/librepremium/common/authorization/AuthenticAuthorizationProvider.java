@@ -9,7 +9,9 @@ import xyz.kyngs.librepremium.common.AuthenticHandler;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
 
+import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,16 +39,19 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     }
 
     @Override
-    public void authorize(User user, P player) {
+    public void authorize(User user, P player, AuthenticatedEvent.AuthenticationReason reason) {
         if (isAuthorized(player)) {
             throw new IllegalStateException("Player is already authorized");
         }
         stopTracking(player);
 
+        user.setLastAuthentication(Timestamp.valueOf(LocalDateTime.now()));
+        plugin.getDatabaseProvider().updateUser(user);
+
         var audience = platformHandle.getAudienceForPlayer(player);
 
         audience.clearTitle();
-        plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin));
+        plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, reason));
         plugin.authorize(player, user, audience);
     }
 

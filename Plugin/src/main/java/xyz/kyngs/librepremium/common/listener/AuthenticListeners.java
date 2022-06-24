@@ -35,12 +35,23 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         if (plugin.fromFloodgate(uuid)) return;
 
         var user = plugin.getDatabaseProvider().getByUUID(uuid);
+        var sessionTime = plugin.getConfiguration().getSessionTimeout();
+
         if (user.autoLoginEnabled()) {
             plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-automatically-logged-in"));
-            plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin));
-            return;
+            plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.PREMIUM));
+        } else if (sessionTime != null && user.getIp().equals(platformHandle.getIP(player)) && user.getLastSeen().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now())) {
+            plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-automatically-logged-in"));
+            plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.SESSION));
+        } else {
+            plugin.getAuthorizationProvider().startTracking(user, player);
         }
-        plugin.getAuthorizationProvider().startTracking(user, player);
+
+        user.setLastSeen(Timestamp.valueOf(LocalDateTime.now()));
+        user.setIp(platformHandle.getIP(player));
+
+        plugin.getDatabaseProvider().updateUser(user);
+
     }
 
     protected void onPlayerDisconnect(P player) {
@@ -61,7 +72,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
             var message = switch (e.getIssue()) {
                 case THROTTLED -> plugin.getMessages().getMessage("kick-premium-error-throttled");
                 default -> {
-                    plugin.getLogger().error("Encountered an exception while communicating with the mojang API!");
+                    plugin.getLogger().error("Encountered an exception while communicating with the Mojang API!");
                     e.printStackTrace();
                     yield plugin.getMessages().getMessage("kick-premium-error-undefined");
                 }
@@ -81,10 +92,9 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
             //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
             if (user.getPremiumUUID() != null) {
                 user.setPremiumUUID(null);
+                plugin.getDatabaseProvider().updateUser(user);
                 plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, null, plugin));
             }
-
-            plugin.getDatabaseProvider().updateUser(user);
         } else {
             var premiumID = premium.uuid();
             var user = plugin.getDatabaseProvider().getByPremiumUUID(premiumID);
@@ -99,8 +109,6 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
 
                 //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
                 if (userByName.autoLoginEnabled()) return new PreLoginResult(PreLoginState.FORCE_ONLINE, null);
-
-                plugin.getDatabaseProvider().updateUser(userByName);
             } else {
                 User byName;
                 try {
@@ -133,7 +141,6 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         var user = plugin.getDatabaseProvider().getByName(username);
 
         if (user != null) {
-            user.setLastSeen(Timestamp.valueOf(LocalDateTime.now()));
             if (!user.getLastNickname().contentEquals(username)) {
                 throw new InvalidCommandArgument(plugin.getMessages().getMessage("kick-invalid-case-username",
                         "%username%", user.getLastNickname()
@@ -161,6 +168,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                         username,
                         Timestamp.valueOf(LocalDateTime.now()),
                         Timestamp.valueOf(LocalDateTime.now()),
+                        null,
+                        null,
                         null
                 );
             } else {
@@ -171,10 +180,11 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                         username,
                         Timestamp.valueOf(LocalDateTime.now()),
                         Timestamp.valueOf(LocalDateTime.now()),
+                        null,
+                        null,
                         null
                 );
             }
-
 
             plugin.getDatabaseProvider().insertUser(user);
         } else return null;

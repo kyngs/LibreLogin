@@ -1,5 +1,6 @@
 package xyz.kyngs.librepremium.common.config;
 
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.NewUUIDCreator;
@@ -8,6 +9,7 @@ import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
 import xyz.kyngs.librepremium.common.config.migrate.config.FirstConfigurationMigrator;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +18,7 @@ import static xyz.kyngs.librepremium.common.config.DefaultConfiguration.*;
 public class HoconPluginConfiguration implements PluginConfiguration {
 
     private ConfigurateHelper helper;
+    private Duration sessionTimeout;
 
     @Override
     public boolean reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException {
@@ -43,6 +46,10 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         if (!adept.isNewlyCreated() && plugin.getCryptoProvider(helperAdept.get(DEFAULT_CRYPTO_PROVIDER)) == null) {
             throw new CorruptedConfigurationException("Crypto provider not found");
         }
+
+        var timeoutSecs = helperAdept.get(SESSION_TIMEOUT);
+
+        sessionTimeout = timeoutSecs <= 0 ? null : Duration.ofSeconds(timeoutSecs);
 
         helper = helperAdept;
 
@@ -183,6 +190,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     @Override
     public int minimumPasswordLength() {
         return get(MINIMUM_PASSWORD_LENGTH);
+    }
+
+    @Override
+    public @Nullable Duration getSessionTimeout() {
+        return sessionTimeout;
     }
 
     public <T> T get(ConfigurationKey<T> key) {

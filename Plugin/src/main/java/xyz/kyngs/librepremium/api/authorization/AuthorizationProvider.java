@@ -1,6 +1,7 @@
 package xyz.kyngs.librepremium.api.authorization;
 
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 
 /**
  * This interface manages user authorization.
@@ -31,6 +32,7 @@ public interface AuthorizationProvider<P> {
      *
      * @param user   The user.
      * @param player The player.
+     * @param reason The reason for authorization.
      */
-    void authorize(User user, P player);
+    void authorize(User user, P player, AuthenticatedEvent.AuthenticationReason reason);
 }

@@ -61,4 +61,9 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
     public Class<Player> getPlayerClass() {
         return Player.class;
     }
+
+    @Override
+    public String getIP(Player player) {
+        return player.getRemoteAddress().getAddress().getHostAddress();
+    }
 }

@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.Subcommand;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
@@ -83,7 +84,9 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
                 "%premium_uuid%", user.getPremiumUUID() == null ? "N/A" : user.getPremiumUUID().toString(),
                 "%last_seen%", DATE_TIME_FORMATTER.format(user.getLastSeen().toLocalDateTime()),
                 "%joined%", DATE_TIME_FORMATTER.format(user.getJoinDate().toLocalDateTime()),
-                "%2fa%", user.getSecret() != null ? "Enabled" : "Disabled"
+                "%2fa%", user.getSecret() != null ? "Enabled" : "Disabled",
+                "%ip%", user.getIp() == null ? "N/A" : user.getIp(),
+                "%last_authenticated%", user.getLastAuthentication() == null ? "N/A" : DATE_TIME_FORMATTER.format(user.getLastAuthentication().toLocalDateTime())
         ));
     }
 
@@ -212,7 +215,9 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
                 name,
                 Timestamp.valueOf(LocalDateTime.now()),
                 Timestamp.valueOf(LocalDateTime.now()),
-                null
+                null,
+                null,
+                Timestamp.valueOf(LocalDateTime.now())
         );
 
         getDatabaseProvider().insertUser(user);
@@ -233,7 +238,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
         audience.sendMessage(getMessage("info-logging-in"));
 
-        plugin.getAuthorizationProvider().authorize(user, target);
+        plugin.getAuthorizationProvider().authorize(user, target, AuthenticatedEvent.AuthenticationReason.LOGIN);
 
         audience.sendMessage(getMessage("info-logged-in"));
     }

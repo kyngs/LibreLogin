@@ -28,4 +28,6 @@ public interface PlatformHandle<P, S> {
 
     Class<P> getPlayerClass();
 
+    String getIP(P player);
+
 }

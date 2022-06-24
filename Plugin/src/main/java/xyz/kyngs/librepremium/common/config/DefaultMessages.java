@@ -443,6 +443,8 @@ public class DefaultMessages {
                     Last Seen: %last_seen%
                     Joined: %joined%
                     2FA: %2fa%
+                    IP: %ip%
+                    Last Authenticated: %last_authenticated%
                     """,
             "This message is displayed when the player's information is requested.",
             ConfigurateHelper::getString

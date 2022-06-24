@@ -1,8 +1,10 @@
 package xyz.kyngs.librepremium.api.configuration;
 
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collection;
 
 /**
@@ -72,5 +74,13 @@ public interface PluginConfiguration {
     String getTotpLabel();
 
     int minimumPasswordLength();
+
+    /**
+     * Gets the duration in which a session is valid.
+     *
+     * @return The duration, or null if sessions are not used.
+     */
+    @Nullable
+    Duration getSessionTimeout();
 
 }

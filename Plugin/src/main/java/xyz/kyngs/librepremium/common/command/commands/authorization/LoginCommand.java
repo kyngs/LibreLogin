@@ -3,6 +3,7 @@ package xyz.kyngs.librepremium.common.command.commands.authorization;
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
@@ -52,7 +53,7 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
         }
 
         sender.sendMessage(getMessage("info-logged-in"));
-        getAuthorizationProvider().authorize(user, player);
+        getAuthorizationProvider().authorize(user, player, AuthenticatedEvent.AuthenticationReason.LOGIN);
     }
 
 }

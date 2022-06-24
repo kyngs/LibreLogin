@@ -70,4 +70,11 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
     public Class<ProxiedPlayer> getPlayerClass() {
         return ProxiedPlayer.class;
     }
+
+    @Override
+    public String getIP(ProxiedPlayer player) {
+        return player.getAddress().getAddress().getHostAddress();
+    }
+
+
 }
