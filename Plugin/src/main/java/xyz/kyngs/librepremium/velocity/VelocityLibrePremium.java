@@ -30,7 +30,6 @@ import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.SL4JLogger;
 import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
-import xyz.kyngs.librepremium.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 
 import java.io.File;
@@ -140,8 +139,8 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Override
     protected AuthenticImageProjector<Player, RegisteredServer> provideImageProjector() {
         if (pluginPresent("protocolize")) {
-            getLogger().info("Detected Protocolize, enabling 2FA...");
-            return new ProtocolizeImageProjector<>(this);
+            getLogger().info("Detected Protocolize, however, due to a bug in Protocolize for Velocity it cannot be used. This bug will get resolved ASAP.");
+            return null; //new ProtocolizeImageProjector<>(this);
         } else {
             logger.warn("Protocolize not found, some features (e.g. 2FA) will not work!");
             return null;
