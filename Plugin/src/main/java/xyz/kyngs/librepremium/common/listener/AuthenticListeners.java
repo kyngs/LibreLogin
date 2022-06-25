@@ -196,8 +196,11 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         var id = platformHandle.getUUIDForPlayer(player);
         var fromFloodgate = plugin.fromFloodgate(id);
 
+        var sessionTime = plugin.getConfiguration().getSessionTimeout();
+
         var user = fromFloodgate ? null : plugin.getDatabaseProvider().getByUUID(id);
-        if (fromFloodgate || user.autoLoginEnabled()) {
+
+        if (fromFloodgate || user.autoLoginEnabled() || (sessionTime != null && platformHandle.getIP(player).equals(user.getIp()) && user.getLastSeen().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
             return plugin.chooseLobby(user, player);
         } else {
             return plugin.chooseLimbo(user, player);
