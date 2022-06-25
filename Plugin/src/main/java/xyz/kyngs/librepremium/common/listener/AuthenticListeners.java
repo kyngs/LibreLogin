@@ -40,7 +40,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         if (user.autoLoginEnabled()) {
             plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-premium-logged-in"));
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.PREMIUM));
-        } else if (sessionTime != null && user.getIp().equals(platformHandle.getIP(player)) && user.getLastSeen().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now())) {
+        } else if (sessionTime != null && platformHandle.getIP(player).equals(user.getIp()) && user.getLastSeen().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now())) {
             plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-session-logged-in"));
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.SESSION));
         } else {
