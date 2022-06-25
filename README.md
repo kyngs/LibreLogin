@@ -12,6 +12,7 @@ Like JPremium, but free, open-source and multiplatform
 ## Basic set of features
 
 - AutoLogin for premium players
+- Session system
 - Name Validation (Including case sensitivity check)
 - Automatic data migration for premium players
 - Migration of a player's data by using one command
@@ -19,7 +20,7 @@ Like JPremium, but free, open-source and multiplatform
 
 ## Considerations
 
-- The plugin currently does not offer a "session" system, however, it is planned.
+- The plugin does not prevent your players from moving on the limbo. Please look at the limbo section on the wiki.
 
 ## Platforms
 
