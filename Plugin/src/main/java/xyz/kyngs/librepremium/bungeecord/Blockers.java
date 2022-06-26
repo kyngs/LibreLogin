@@ -11,10 +11,10 @@ import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 
 public class Blockers implements Listener {
 
-    private final AuthorizationProvider authorizationProvider;
+    private final AuthorizationProvider<ProxiedPlayer> authorizationProvider;
     private final PluginConfiguration configuration;
 
-    public Blockers(AuthorizationProvider authorizationProvider, PluginConfiguration configuration) {
+    public Blockers(AuthorizationProvider<ProxiedPlayer> authorizationProvider, PluginConfiguration configuration) {
         this.authorizationProvider = authorizationProvider;
         this.configuration = configuration;
     }
@@ -27,7 +27,7 @@ public class Blockers implements Listener {
         }
 
         if (event.getSender() instanceof ProxiedPlayer player) {
-            if (!authorizationProvider.isAuthorized(player.getUniqueId()) || authorizationProvider.isAwaiting2FA(player.getUniqueId())) {
+            if (!authorizationProvider.isAuthorized(player) || authorizationProvider.isAwaiting2FA(player)) {
                 event.setCancelled(true);
             }
         }
@@ -36,7 +36,7 @@ public class Blockers implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCommand(ChatEvent event) {
         if (!(event.getSender() instanceof ProxiedPlayer player)) return;
-        if (authorizationProvider.isAuthorized(player.getUniqueId()) && !authorizationProvider.isAwaiting2FA(player.getUniqueId()))
+        if (authorizationProvider.isAuthorized(player) && !authorizationProvider.isAwaiting2FA(player))
             return;
 
         var command = event.getMessage().substring(1).split(" ")[0];
@@ -50,9 +50,7 @@ public class Blockers implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onServerConnect(ServerConnectEvent event) {
-        var id = event.getPlayer().getUniqueId();
-
-        if (authorizationProvider.isAwaiting2FA(id)) {
+        if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
             if (!configuration.getLimbo().contains(event.getTarget().getName())) {
                 event.setCancelled(true);
             }
