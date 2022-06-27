@@ -46,6 +46,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         stopTracking(player);
 
         user.setLastAuthentication(Timestamp.valueOf(LocalDateTime.now()));
+        user.setIp(platformHandle.getIP(player));
         plugin.getDatabaseProvider().updateUser(user);
 
         var audience = platformHandle.getAudienceForPlayer(player);

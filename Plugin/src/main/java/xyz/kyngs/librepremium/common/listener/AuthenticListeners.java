@@ -48,7 +48,6 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         }
 
         user.setLastSeen(Timestamp.valueOf(LocalDateTime.now()));
-        user.setIp(platformHandle.getIP(player));
 
         plugin.getDatabaseProvider().updateUser(user);
 
