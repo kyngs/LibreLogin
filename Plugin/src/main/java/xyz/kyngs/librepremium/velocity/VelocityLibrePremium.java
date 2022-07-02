@@ -69,6 +69,10 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
         return server;
     }
 
+    static {
+        System.setProperty("auth.forceSecureProfiles", "false");
+    }
+
     @Override
     protected PlatformHandle<Player, RegisteredServer> providePlatformHandle() {
         return new VelocityPlatformHandle(this);
