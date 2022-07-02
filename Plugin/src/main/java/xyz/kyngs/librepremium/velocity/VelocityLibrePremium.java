@@ -114,6 +114,8 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
                     )
                     .connect()
                     .whenComplete((result, throwable) -> {
+                        if(player.getCurrentServer().isEmpty()) return;
+                        if(player.getCurrentServer().get().getServerInfo().getName().equals(result.getAttemptedConnection().getServerInfo().getName())) return;
                         if (throwable != null || !result.isSuccessful())
                             player.disconnect(Component.text("Unable to connect"));
                     });
