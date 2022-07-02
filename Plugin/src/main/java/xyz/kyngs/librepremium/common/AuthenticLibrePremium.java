@@ -232,7 +232,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         logger.info("Validating tables");
 
         try {
-            databaseProvider.validateTables();
+            databaseProvider.validateTables(configuration);
         } catch (Exception e) {
             var cause = GeneralUtil.getFurthestCause(e);
             logger.error("Failed to validate tables! Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
