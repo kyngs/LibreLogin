@@ -13,7 +13,7 @@ public class FloodgateIntegration {
     }
 
     public boolean isFloodgateId(UUID uuid) {
-        return api.isFloodgateId(uuid);
+        return api.isFloodgatePlayer(uuid);
     }
 
 
