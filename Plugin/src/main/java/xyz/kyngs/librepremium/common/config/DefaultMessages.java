@@ -463,14 +463,14 @@ public class DefaultMessages {
 
     public static final ConfigurationKey<String> PROMPT_REGISTER = new ConfigurationKey<>(
             "prompt-register",
-            "Please register using: /register <password> <passwordRepeat>",
+            "Please register using: &e/register &b<password> <password>",
             "This message is displayed when the player is prompted to register.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> PROMPT_LOGIN = new ConfigurationKey<>(
             "prompt-login",
-            "Please login using: /login <password> [2fa_code]",
+            "Please login using: &e/login &b<password> [2fa_code]",
             "This message is displayed when the player is prompted to login.",
             ConfigurateHelper::getString
     );
@@ -488,14 +488,14 @@ public class DefaultMessages {
 
     public static final ConfigurationKey<String> TITLE_REGISTER = new ConfigurationKey<>(
             "title-register",
-            "&bRegister",
+            "&6&lRegister",
             "This title is displayed when the player is prompted to register. Make sure that you have use-titles set to true in the configuration.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> TITLE_LOGIN = new ConfigurationKey<>(
             "title-login",
-            "&bLogin",
+            "&6&lLogin",
             "This title is displayed when the player is prompted to login. Make sure that you have use-titles set to true in the configuration.",
             ConfigurateHelper::getString
     );
@@ -506,14 +506,14 @@ public class DefaultMessages {
 
     public static final ConfigurationKey<String> SUB_TITLE_REGISTER = new ConfigurationKey<>(
             "sub-title-register",
-            "&bRegister",
+            "&e/register &b<password> <password>",
             "This subtitle is displayed when the player is prompted to register. Make sure that you have use-titles set to true in the configuration.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> SUB_TITLE_LOGIN = new ConfigurationKey<>(
             "sub-title-login",
-            "&bLogin",
+            "&e/login &b<password>",
             "This subtitle is displayed when the player is prompted to login. Make sure that you have use-titles set to true in the configuration.",
             ConfigurateHelper::getString
     );
