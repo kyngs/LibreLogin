@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -41,7 +42,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
         );
     }
 
-    public void validateTables() {
+    public void validateTables(PluginConfiguration configuration) {
         easyDB.runTaskSync(connection -> {
             connection.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS librepremium_data(" +
@@ -56,33 +57,19 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                             ")"
             ).executeUpdate();
 
-            try {
-                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN secret VARCHAR(255) NULL DEFAULT NULL")
-                        .executeUpdate();
-            } catch (SQLException e) {
-                if (!e.getSQLState().equals("42S21")) {
-                    throw e;
-                }
-            } //FIXME: This is a horrible approach.
+            ResultSet resultSet = connection.prepareStatement("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='librepremium_data' and TABLE_SCHEMA='" + configuration.getDatabaseName() + "'")
+                .executeQuery();
 
-            try {
-                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN ip VARCHAR(255) NULL DEFAULT NULL")
-                        .executeUpdate();
-            } catch (SQLException e) {
-                if (!e.getSQLState().equals("42S21")) {
-                    throw e;
-                }
-            } //FIXME: This is a horrible approach.
-
-            try {
-                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_authentication TIMESTAMP NULL DEFAULT NULL")
-                        .executeUpdate();
-            } catch (SQLException e) {
-                if (!e.getSQLState().equals("42S21")) {
-                    throw e;
-                }
-            } //FIXME: This is a horrible approach.
-
+            ArrayList<String> columns = new ArrayList<>();
+            while (resultSet.next()) {
+                columns.add(resultSet.getString("column_name"));
+            }
+            if (!columns.contains("secret"))
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN secret VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
+            if (!columns.contains("ip"))
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN ip VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
+            if (!columns.contains("last_authentication"))
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_authentication TIMESTAMP NULL DEFAULT NULL").executeUpdate();
 
         });
     }
