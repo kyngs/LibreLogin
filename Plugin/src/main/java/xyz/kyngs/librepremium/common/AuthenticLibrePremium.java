@@ -46,7 +46,7 @@ import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
 import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
-import xyz.kyngs.librepremium.common.service.mojang.MojangPremiumProvider;
+import xyz.kyngs.librepremium.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librepremium.common.totp.AuthenticTOTPProvider;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
@@ -64,7 +64,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     public static final Gson GSON = new Gson();
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
 
-    private final MojangPremiumProvider premiumProvider;
+    private final AuthenticPremiumProvider premiumProvider;
     private final Map<String, CryptoProvider> cryptoProviders;
     private final Map<String, ReadDatabaseProvider> readProviders;
     private final Multimap<P, CancellableTask> cancelOnExit;
@@ -83,7 +83,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     private CommandProvider<P, S> commandProvider;
 
     protected AuthenticLibrePremium() {
-        premiumProvider = new MojangPremiumProvider();
+        premiumProvider = new AuthenticPremiumProvider();
         cryptoProviders = new HashMap<>();
         readProviders = new HashMap<>();
         eventProvider = new AuthenticEventProvider<>(this);
@@ -141,7 +141,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     }
 
     @Override
-    public MojangPremiumProvider getPremiumProvider() {
+    public AuthenticPremiumProvider getPremiumProvider() {
         return premiumProvider;
     }
 
