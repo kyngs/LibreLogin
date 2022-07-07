@@ -78,7 +78,7 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
                 return null;
             }
 
-            return new ServerPing(players.get().getMax());
+            return new ServerPing(players.get().getMax() == -1 ? Integer.MAX_VALUE : players.get().getMax());
         } catch (InterruptedException | ExecutionException e) {
             return null;
         }

@@ -85,7 +85,7 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
         var ref = new ServerPing[1];
 
         server.ping((result, error) -> {
-            ref[0] = error == null ? new ServerPing(result.getPlayers().getMax()) : null;
+            ref[0] = error == null ? new ServerPing(result.getPlayers().getMax() == -1 ? Integer.MAX_VALUE : result.getPlayers().getMax()) : null;
 
             latch.countDown();
         });
