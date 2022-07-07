@@ -31,7 +31,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
         fetchers = new ArrayList<>(3);
 
-        fetchers.add(this::getUserFromCloudProtected);
+        fetchers.add(this::getUserFromAschon);
         fetchers.add(this::getUserFromMojang);
     }
 
@@ -67,23 +67,18 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         return result;
     }
 
-    private PremiumUser getUserFromCloudProtected(String name) throws PremiumException {
+    private PremiumUser getUserFromAschon(String name) throws PremiumException {
         try {
-            var connection = (HttpURLConnection) new URL("https://mcapi.cloudprotected.net/uuid/" + name).openConnection();
+            var connection = (HttpURLConnection) new URL("https://api.ashcon.app/mojang/v2/user/" + name).openConnection();
 
             if (connection.getResponseCode() == 200) {
                 var data = AuthenticLibrePremium.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
-                var arr = data.get("result").getAsJsonArray();
+                var uuid = data.get("uuid");
 
-                var result = arr.get(0).getAsJsonObject();
-
-                var uuid = result.get("uuid-formatted");
-                var cached = result.get("cached").getAsBoolean();
-
-                if (cached && uuid == null) throw new PremiumException(PremiumException.Issue.UNDEFINED, "Unsuitable");
-
-                return uuid == null ? null : new PremiumUser(UUID.fromString(uuid.getAsString()), result.get("name").getAsString());
+                return new PremiumUser(UUID.fromString(uuid.getAsString()), data.get("name").getAsString());
+            } else if (connection.getResponseCode() == 404) {
+                return null;
             } else {
                 throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             }
