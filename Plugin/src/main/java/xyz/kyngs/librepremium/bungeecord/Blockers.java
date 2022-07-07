@@ -13,10 +13,12 @@ public class Blockers implements Listener {
 
     private final AuthorizationProvider<ProxiedPlayer> authorizationProvider;
     private final PluginConfiguration configuration;
+    private final BungeeCordLibrePremium plugin;
 
-    public Blockers(AuthorizationProvider<ProxiedPlayer> authorizationProvider, PluginConfiguration configuration) {
-        this.authorizationProvider = authorizationProvider;
-        this.configuration = configuration;
+    public Blockers(BungeeCordLibrePremium plugin) {
+        this.authorizationProvider = plugin.getAuthorizationProvider();
+        this.configuration = plugin.getConfiguration();
+        this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -50,7 +52,10 @@ public class Blockers implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onServerConnect(ServerConnectEvent event) {
-        if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
+        if (!authorizationProvider.isAuthorized(event.getPlayer()) && event.getReason() != ServerConnectEvent.Reason.JOIN_PROXY) {
+            event.setCancelled(true);
+            event.getPlayer().disconnect(plugin.getSerializer().serialize(plugin.getMessages().getMessage("kick-no-server")));
+        } else if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
             if (!configuration.getLimbo().contains(event.getTarget().getName())) {
                 event.setCancelled(true);
             }

@@ -72,7 +72,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
 
         super.enable();
 
-        bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new Blockers(getAuthorizationProvider(), getConfiguration()));
+        bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new Blockers(this));
         bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new BungeeCordListener(this));
 
         var millis = getConfiguration().milliSecondsToRefreshNotification();

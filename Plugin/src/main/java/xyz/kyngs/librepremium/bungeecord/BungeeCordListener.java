@@ -70,12 +70,13 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
             field.set(connection, profile.getUuid());
         } catch (NoSuchFieldException e) {
             var logger = super.plugin.getLogger();
-            logger.error("The uuid field was not found in the PendingConnection class, please report this to the developer. And attach the field summary below.");
-            logger.error("-- BEGIN FIELD SUMMARY --");
+            logger.error("The uuid field was not found in the PendingConnection class, please report this to the developer. And attach the class summary below.");
+            logger.error("-- BEGIN CLASS SUMMARY --");
+            logger.error("Class: " + clazz.getName());
             for (Field field : clazz.getDeclaredFields()) {
                 logger.error(field.getType().getName() + ": " + field.getName());
             }
-            logger.error("-- END FIELD SUMMARY --");
+            logger.error("-- END CLASS SUMMARY --");
             event.setCancelled(true);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
