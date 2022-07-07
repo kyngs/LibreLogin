@@ -83,7 +83,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
                 if (cached && uuid == null) throw new PremiumException(PremiumException.Issue.UNDEFINED, "Unsuitable");
 
-                return uuid == null ? null : new PremiumUser(UUID.fromString(uuid.getAsString()), name);
+                return uuid == null ? null : new PremiumUser(UUID.fromString(uuid.getAsString()), result.get("name").getAsString());
             } else {
                 throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             }
