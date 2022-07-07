@@ -47,6 +47,7 @@ import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.premium.AuthenticPremiumProvider;
+import xyz.kyngs.librepremium.common.server.AuthenticServerPinger;
 import xyz.kyngs.librepremium.common.totp.AuthenticTOTPProvider;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
@@ -71,6 +72,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     private final AuthenticEventProvider<P, S> eventProvider;
     private final PlatformHandle<P, S> platformHandle;
     private final Set<String> forbiddenPasswords;
+    private final AuthenticServerPinger<S> serverPinger;
     private TOTPProvider totpProvider;
     private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
@@ -89,6 +91,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         eventProvider = new AuthenticEventProvider<>(this);
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
+        serverPinger = new AuthenticServerPinger<>(this);
 
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
@@ -153,6 +156,11 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     @Override
     public AuthenticImageProjector<P, S> getImageProjector() {
         return imageProjector;
+    }
+
+    @Override
+    public AuthenticServerPinger<S> getServerPinger() {
+        return serverPinger;
     }
 
     protected void enable() {
@@ -240,6 +248,12 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         }
 
         logger.info("Tables validated");
+
+        logger.info("Pinging servers...");
+
+        serverPinger.load();
+
+        logger.info("Pinged servers");
 
         checkAndMigrate();
 

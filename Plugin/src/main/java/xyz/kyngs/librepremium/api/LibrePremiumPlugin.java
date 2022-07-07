@@ -10,6 +10,7 @@ import xyz.kyngs.librepremium.api.database.WriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.event.EventProvider;
 import xyz.kyngs.librepremium.api.image.ImageProjector;
 import xyz.kyngs.librepremium.api.premium.PremiumProvider;
+import xyz.kyngs.librepremium.api.server.ServerPinger;
 import xyz.kyngs.librepremium.api.totp.TOTPProvider;
 import xyz.kyngs.librepremium.api.util.SemanticVersion;
 
@@ -206,4 +207,11 @@ public interface LibrePremiumPlugin<P, S> {
      * @return The platform handle
      */
     PlatformHandle<P, S> getPlatformHandle();
+
+    /**
+     * Gets the server pinger.
+     *
+     * @return The server pinger
+     */
+    ServerPinger<S> getServerPinger();
 }

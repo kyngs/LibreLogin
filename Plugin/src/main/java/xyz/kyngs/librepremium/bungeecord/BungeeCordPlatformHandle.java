@@ -5,7 +5,9 @@ import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import xyz.kyngs.librepremium.api.PlatformHandle;
+import xyz.kyngs.librepremium.api.server.ServerPing;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -74,6 +76,37 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
     @Override
     public String getIP(ProxiedPlayer player) {
         return player.getAddress().getAddress().getHostAddress();
+    }
+
+    @Override
+    public ServerPing ping(ServerInfo server) {
+        // I hate this...
+        var latch = new CountDownLatch(1);
+        var ref = new ServerPing[1];
+
+        server.ping((result, error) -> {
+            ref[0] = error == null ? new ServerPing(result.getPlayers().getMax()) : null;
+
+            latch.countDown();
+        });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            return null;
+        }
+
+        return ref[0];
+    }
+
+    @Override
+    public Collection<ServerInfo> getServers() {
+        return plugin.getBootstrap().getProxy().getServers().values();
+    }
+
+    @Override
+    public String getServerName(ServerInfo server) {
+        return server.getName();
     }
 
 

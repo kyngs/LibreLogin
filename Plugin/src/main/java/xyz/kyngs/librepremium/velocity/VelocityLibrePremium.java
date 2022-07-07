@@ -192,6 +192,11 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
         var passThroughServers = getConfiguration().getPassThrough();
         return server.getAllServers().stream()
                 .filter(server -> passThroughServers.contains(server.getServerInfo().getName()))
+                .filter(server -> {
+                    var ping = getServerPinger().getLatestPing(server);
+
+                    return ping != null && ping.maxPlayers() > server.getPlayersConnected().size();
+                })
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
                 .orElse(null);
     }
@@ -201,8 +206,13 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
         var limbos = getConfiguration().getLimbo();
         return server.getAllServers().stream()
                 .filter(server -> limbos.contains(server.getServerInfo().getName()))
+                .filter(server -> {
+                    var ping = getServerPinger().getLatestPing(server);
+
+                    return ping != null && ping.maxPlayers() > server.getPlayersConnected().size();
+                })
                 .min(Comparator.comparingInt(o -> o.getPlayersConnected().size()))
-                .orElseThrow();
+                .orElse(null);
     }
 
     @Override

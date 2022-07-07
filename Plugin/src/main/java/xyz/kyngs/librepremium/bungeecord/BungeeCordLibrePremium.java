@@ -236,6 +236,11 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
 
         return bootstrap.getProxy().getServers().values().stream()
                 .filter(server -> passThroughServers.contains(server.getName()))
+                .filter(server -> {
+                    var ping = getServerPinger().getLatestPing(server);
+
+                    return ping != null && ping.maxPlayers() > server.getPlayers().size();
+                })
                 .min(Comparator.comparingInt(o -> o.getPlayers().size()))
                 .orElse(null);
     }
@@ -245,8 +250,13 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
         var limbos = getConfiguration().getLimbo();
         return bootstrap.getProxy().getServers().values().stream()
                 .filter(server -> limbos.contains(server.getName()))
+                .filter(server -> {
+                    var ping = getServerPinger().getLatestPing(server);
+
+                    return ping != null && ping.maxPlayers() > server.getPlayers().size();
+                })
                 .min(Comparator.comparingInt(o -> o.getPlayers().size()))
-                .orElseThrow();
+                .orElse(null);
     }
 
     @Override

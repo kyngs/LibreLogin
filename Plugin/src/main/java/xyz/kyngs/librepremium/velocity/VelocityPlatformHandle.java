@@ -5,7 +5,9 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import xyz.kyngs.librepremium.api.PlatformHandle;
+import xyz.kyngs.librepremium.api.server.ServerPing;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -65,5 +67,30 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
     @Override
     public String getIP(Player player) {
         return player.getRemoteAddress().getAddress().getHostAddress();
+    }
+
+    @Override
+    public ServerPing ping(RegisteredServer server) {
+        try {
+            var players = server.ping().get().getPlayers();
+
+            if (players.isEmpty()) {
+                return null;
+            }
+
+            return new ServerPing(players.get().getMax());
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Collection<RegisteredServer> getServers() {
+        return plugin.getServer().getAllServers();
+    }
+
+    @Override
+    public String getServerName(RegisteredServer server) {
+        return server.getServerInfo().getName();
     }
 }
