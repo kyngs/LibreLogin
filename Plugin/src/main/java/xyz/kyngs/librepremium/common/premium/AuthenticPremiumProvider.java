@@ -76,7 +76,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
                 var uuid = data.get("uuid");
 
-                return new PremiumUser(UUID.fromString(uuid.getAsString()), data.get("name").getAsString());
+                return new PremiumUser(UUID.fromString(uuid.getAsString()), data.get("username").getAsString());
             } else if (connection.getResponseCode() == 404) {
                 return null;
             } else {
