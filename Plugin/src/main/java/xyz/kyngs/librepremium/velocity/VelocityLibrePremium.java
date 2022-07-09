@@ -224,7 +224,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     public void onInitialization(ProxyInitializeEvent event) {
         enable();
 
-        server.getEventManager().register(this, new Blockers(getAuthorizationProvider(), getConfiguration()));
+        server.getEventManager().register(this, new Blockers(getAuthorizationProvider(), getConfiguration(), getMessages()));
         server.getEventManager().register(this, new VelocityListeners(this));
 
         var millis = getConfiguration().milliSecondsToRefreshNotification();
