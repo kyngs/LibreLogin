@@ -27,6 +27,7 @@ import xyz.kyngs.librepremium.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librepremium.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.api.premium.PremiumUser;
+import xyz.kyngs.librepremium.api.server.ServerPinger;
 import xyz.kyngs.librepremium.api.totp.TOTPProvider;
 import xyz.kyngs.librepremium.api.util.SemanticVersion;
 import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
@@ -48,6 +49,7 @@ import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
 import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librepremium.common.server.AuthenticServerPinger;
+import xyz.kyngs.librepremium.common.server.DummyServerPinger;
 import xyz.kyngs.librepremium.common.totp.AuthenticTOTPProvider;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
@@ -72,7 +74,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     private final AuthenticEventProvider<P, S> eventProvider;
     private final PlatformHandle<P, S> platformHandle;
     private final Set<String> forbiddenPasswords;
-    private final AuthenticServerPinger<S> serverPinger;
+    private ServerPinger<S> serverPinger;
     private TOTPProvider totpProvider;
     private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
@@ -91,7 +93,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         eventProvider = new AuthenticEventProvider<>(this);
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
-        serverPinger = new AuthenticServerPinger<>(this);
+        ;
 
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
@@ -159,7 +161,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     }
 
     @Override
-    public AuthenticServerPinger<S> getServerPinger() {
+    public ServerPinger<S> getServerPinger() {
         return serverPinger;
     }
 
@@ -250,9 +252,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         logger.info("Tables validated");
 
         logger.info("Pinging servers...");
-
-        serverPinger.load();
-
+        serverPinger = configuration.pingServers() ? new AuthenticServerPinger<>(this) : new DummyServerPinger<>();
         logger.info("Pinged servers");
 
         checkAndMigrate();

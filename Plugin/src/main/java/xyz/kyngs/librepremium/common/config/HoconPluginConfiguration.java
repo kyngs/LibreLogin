@@ -197,6 +197,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return sessionTimeout;
     }
 
+    @Override
+    public boolean pingServers() {
+        return get(PING_SERVERS);
+    }
+
     public <T> T get(ConfigurationKey<T> key) {
         return helper.get(key);
     }

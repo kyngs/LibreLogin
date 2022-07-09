@@ -83,4 +83,6 @@ public interface PluginConfiguration {
     @Nullable
     Duration getSessionTimeout();
 
+    boolean pingServers();
+
 }
