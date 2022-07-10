@@ -5,7 +5,8 @@ import co.aikar.commands.CommandManager;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.charts.CustomChart;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +30,7 @@ import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.api.premium.PremiumUser;
 import xyz.kyngs.librepremium.api.server.ServerPinger;
 import xyz.kyngs.librepremium.api.totp.TOTPProvider;
+import xyz.kyngs.librepremium.api.util.Release;
 import xyz.kyngs.librepremium.api.util.SemanticVersion;
 import xyz.kyngs.librepremium.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librepremium.common.command.CommandProvider;
@@ -315,26 +317,49 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         logger.info("Checking for updates...");
 
         try {
-            var connection = new URL("https://api.github.com/repos/kyngs/LibrePremium/releases/latest").openConnection();
+            var connection = new URL("https://api.github.com/repos/kyngs/LibrePremium/releases").openConnection();
 
             connection.setRequestProperty("User-Agent", "LibrePremium");
 
             var in = connection.getInputStream();
 
-            var root = GSON.fromJson(new InputStreamReader(in), JsonObject.class);
+            var root = GSON.fromJson(new InputStreamReader(in), JsonArray.class);
 
             in.close(); //Not the safest way, but a slight leak isn't a big deal
 
-            var version = SemanticVersion.parse(root.get("tag_name").getAsString());
+            List<Release> behind = new ArrayList<>();
+            SemanticVersion latest = null;
 
-            switch (this.version.compare(version)) {
-                case 0, 1 -> logger.info("You are running the latest version of LibrePremium");
-                case -1 -> {
-                    logger.warn("!! YOU ARE RUNNING AN OUTDATED VERSION OF LIBREPREMIUM !!");
-                    logger.info("You are running version %s, the latest version is %s".formatted(getVersion(), version));
-                    logger.info("Latest version name: %s".formatted(root.get("name").getAsString()));
-                    logger.warn("!! PLEASE UPDATE TO THE LATEST VERSION !!");
+            for (JsonElement raw : root) {
+                var release = raw.getAsJsonObject();
+
+                var version = SemanticVersion.parse(release.get("tag_name").getAsString());
+
+                if (latest == null) latest = version;
+
+                var shouldBreak = switch (this.version.compare(version)) {
+                    case 0, 1 -> true;
+                    default -> {
+                        behind.add(new Release(version, release.get("name").getAsString()));
+                        yield false;
+                    }
+                };
+
+                if (shouldBreak) {
+                    break;
                 }
+            }
+
+            if (behind.isEmpty()) {
+                logger.info("You are running the latest version of LibrePremium");
+            } else {
+                Collections.reverse(behind);
+                logger.warn("!! YOU ARE RUNNING AN OUTDATED VERSION OF LIBREPREMIUM !!");
+                logger.info("You are running version %s, the latest version is %s. You are running %s versions behind. Newer versions:".formatted(getVersion(), latest, behind.size()));
+                for (Release release : behind) {
+                    logger.info("- %s".formatted(release.name()));
+                }
+                logger.warn("!! PLEASE UPDATE TO THE LATEST VERSION !!");
             }
         } catch (Exception e) {
             e.printStackTrace();
