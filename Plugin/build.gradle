@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
 }
 
-version '0.10.4'
+version '0.11.0-DEVELOPMENT'
 
 repositories {
     mavenLocal()
