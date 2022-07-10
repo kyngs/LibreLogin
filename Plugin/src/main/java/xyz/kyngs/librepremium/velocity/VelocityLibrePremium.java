@@ -5,6 +5,7 @@ import co.aikar.commands.CommandManager;
 import co.aikar.commands.VelocityCommandIssuer;
 import co.aikar.commands.VelocityCommandManager;
 import com.google.inject.Inject;
+import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
@@ -20,6 +21,7 @@ import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.PlatformHandle;
@@ -48,7 +50,8 @@ import java.util.concurrent.TimeUnit;
         authors = "kyngs",
         dependencies = {
                 @Dependency(id = "floodgate", optional = true),
-                @Dependency(id = "protocolize", optional = true)
+                @Dependency(id = "protocolize", optional = true),
+                @Dependency(id = "redisbungee", optional = true)
         }
 )
 public class VelocityLibrePremium extends AuthenticLibrePremium<Player, RegisteredServer> implements LibrePremiumProvider<Player, RegisteredServer> {
@@ -64,6 +67,8 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     private Metrics.Factory factory;
     @Inject
     private PluginDescription description;
+    @Nullable
+    private RedisBungeeAPI redisBungee;
 
     public ProxyServer getServer() {
         return server;
@@ -153,6 +158,13 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
         }
     }
 
+    @Override
+    protected void enable() {
+        if (pluginPresent("redisbungee")) {
+            redisBungee = RedisBungeeAPI.getRedisBungeeApi();
+        }
+        super.enable();
+    }
 
     @Override
     public String getVersion() {
@@ -161,12 +173,12 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
 
     @Override
     public boolean isPresent(UUID uuid) {
-        return getPlayerForUUID(uuid) != null;
+        return redisBungee != null ? redisBungee.isPlayerOnline(uuid) : getPlayerForUUID(uuid) != null;
     }
 
     @Override
     public boolean multiProxyEnabled() {
-        return false;
+        return redisBungee != null;
     }
 
     @Override

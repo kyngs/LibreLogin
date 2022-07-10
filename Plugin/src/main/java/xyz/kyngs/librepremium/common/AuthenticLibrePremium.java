@@ -272,7 +272,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
         totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
 
-
         authorizationProvider = new AuthenticAuthorizationProvider<>(this);
         commandProvider = new CommandProvider<>(this);
 
