@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
 }
 
-version '0.9.0'
+version '0.11.0-DEVELOPMENT'
 
 repositories {
     mavenLocal()
@@ -67,7 +67,7 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
     implementation 'org.spongepowered:configurate-hocon:4.1.2'
     implementation 'at.favre.lib:bcrypt:0.9.0'
-    implementation 'dev.samstevens.totp:totp:1.7.2'
+    implementation 'dev.samstevens.totp:totp:1.7.1'
     compileOnly 'dev.simplix:protocolize-api:2.2.1'
 
     //Geyser

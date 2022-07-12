@@ -5,7 +5,6 @@ import co.aikar.commands.CommandManager;
 import co.aikar.commands.VelocityCommandIssuer;
 import co.aikar.commands.VelocityCommandManager;
 import com.google.inject.Inject;
-import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
@@ -68,7 +67,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Inject
     private PluginDescription description;
     @Nullable
-    private RedisBungeeAPI redisBungee;
+    private VelocityRedisBungeeIntegration redisBungee;
 
     public ProxyServer getServer() {
         return server;
@@ -161,7 +160,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Override
     protected void enable() {
         if (pluginPresent("redisbungee")) {
-            redisBungee = RedisBungeeAPI.getRedisBungeeApi();
+            redisBungee = new VelocityRedisBungeeIntegration();
         }
         super.enable();
     }
