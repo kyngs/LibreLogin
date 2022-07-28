@@ -116,14 +116,17 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Override
     public void authorize(Player player, User user, Audience audience) {
         try {
+            var lobby = chooseLobby(user, player);
+            if (lobby == null) throw new NoSuchElementException();
             player
                     .createConnectionRequest(
-                            chooseLobby(user, player)
+                            lobby
                     )
                     .connect()
                     .whenComplete((result, throwable) -> {
-                        if(player.getCurrentServer().isEmpty()) return;
-                        if(player.getCurrentServer().get().getServerInfo().getName().equals(result.getAttemptedConnection().getServerInfo().getName())) return;
+                        if (player.getCurrentServer().isEmpty()) return;
+                        if (player.getCurrentServer().get().getServerInfo().getName().equals(result.getAttemptedConnection().getServerInfo().getName()))
+                            return;
                         if (throwable != null || !result.isSuccessful())
                             player.disconnect(Component.text("Unable to connect"));
                     });
