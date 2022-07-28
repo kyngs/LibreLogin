@@ -31,8 +31,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
         fetchers = new ArrayList<>(3);
 
-        fetchers.add(this::getUserFromAschon);
         fetchers.add(this::getUserFromMojang);
+        fetchers.add(this::getUserFromAschon);
     }
 
     @Override
@@ -48,6 +48,11 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 try {
                     return fetcher.run(x);
                 } catch (PremiumException e) {
+                    if (i == 0 && e.getIssue() == PremiumException.Issue.UNDEFINED) {
+                        ex[0] = e;
+                        break;
+                    }
+
                     if (i == fetchers.size() - 1) {
                         ex[0] = e;
                     }
