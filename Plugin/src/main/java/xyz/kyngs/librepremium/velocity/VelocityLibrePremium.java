@@ -152,7 +152,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Override
     protected AuthenticImageProjector<Player, RegisteredServer> provideImageProjector() {
         if (pluginPresent("protocolize")) {
-            getLogger().info("Detected Protocolize, however, due to a bug in Protocolize for Velocity it cannot be used. This bug will get resolved ASAP.");
+            getLogger().info("Detected Protocolize, however, due to a bug in Velocity it cannot be used. This bug will get resolved ASAP.");
             return null; //new ProtocolizeImageProjector<>(this);
         } else {
             logger.warn("Protocolize not found, some features (e.g. 2FA) will not work!");
