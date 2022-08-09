@@ -3,9 +3,11 @@ package xyz.kyngs.librepremium.common.config;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
+import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.Messages;
 import xyz.kyngs.librepremium.common.config.migrate.messages.FirstMessagesMigrator;
+import xyz.kyngs.librepremium.common.config.migrate.messages.SecondMessagesMigrator;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.io.IOException;
@@ -17,8 +19,10 @@ public class HoconMessages implements Messages {
     private final static LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
 
     private final Map<String, TextComponent> messages;
+    private final Logger logger;
 
-    public HoconMessages() {
+    public HoconMessages(Logger logger) {
+        this.logger = logger;
         messages = new HashMap<>();
     }
 
@@ -62,7 +66,9 @@ public class HoconMessages implements Messages {
                           You can find more information about LibrePremium on the github page:
                           https://github.com/kyngs/LibrePremium
                         """,
-                new FirstMessagesMigrator()
+                logger,
+                new FirstMessagesMigrator(),
+                new SecondMessagesMigrator()
         );
 
         var node = adept.getHelper().configuration();

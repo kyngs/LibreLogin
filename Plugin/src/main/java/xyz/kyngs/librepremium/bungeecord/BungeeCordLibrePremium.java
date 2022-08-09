@@ -187,8 +187,12 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
     @Override
     protected AuthenticImageProjector<ProxiedPlayer, ServerInfo> provideImageProjector() {
         if (pluginPresent("Protocolize")) {
+            var projector = new ProtocolizeImageProjector<>(this);
+            if (!projector.compatible()) {
+                getLogger().warn("Detected protocolize, however with incompatible version (2.2.2), please upgrade or downgrade.");
+                return null;
+            }
             getLogger().info("Detected Protocolize, enabling 2FA...");
-
             return new ProtocolizeImageProjector<>(this);
         } else {
             getLogger().warn("Protocolize not found, some features (e.g. 2FA) will not work!");

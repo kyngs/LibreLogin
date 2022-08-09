@@ -21,12 +21,12 @@ import java.io.IOException;
 
 public class AuthenticTOTPProvider implements TOTPProvider {
 
-    private final AuthenticLibrePremium plugin;
+    private final AuthenticLibrePremium<?, ?> plugin;
     private final SecretGenerator secretGenerator;
     private final QrGenerator qrGenerator;
     private final CodeVerifier verifier;
 
-    public AuthenticTOTPProvider(AuthenticLibrePremium plugin) {
+    public AuthenticTOTPProvider(AuthenticLibrePremium<?, ?> plugin) {
         this.plugin = plugin;
         secretGenerator = new DefaultSecretGenerator();
         qrGenerator = new ZxingPngQrGenerator();

@@ -68,7 +68,7 @@ public class MapDataPacket extends AbstractPacket {
             trackingPosition = byteBuf.readBoolean();
         }
 
-        iconData = new IconData[trackingPosition ? readVarInt(byteBuf) : 0];
+        iconData = new IconData[(protocol < MINECRAFT_1_17 || trackingPosition) ? readVarInt(byteBuf) : 0];
 
         for (int i = 0; i < iconData.length; i++) {
             iconData[i] = new IconData(
@@ -113,7 +113,7 @@ public class MapDataPacket extends AbstractPacket {
             byteBuf.writeBoolean(trackingPosition);
         }
 
-        if (trackingPosition) {
+        if (protocol < MINECRAFT_1_17 || trackingPosition) {
             ProtocolUtil.writeVarInt(byteBuf, iconData.length);
 
             for (IconData icon : iconData) {

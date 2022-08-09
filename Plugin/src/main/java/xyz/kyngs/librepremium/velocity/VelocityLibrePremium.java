@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginDescription;
@@ -31,6 +32,7 @@ import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.SL4JLogger;
 import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
+import xyz.kyngs.librepremium.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
 
 import java.io.File;
@@ -152,8 +154,30 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Override
     protected AuthenticImageProjector<Player, RegisteredServer> provideImageProjector() {
         if (pluginPresent("protocolize")) {
-            getLogger().info("Detected Protocolize, however, due to a bug in Velocity it cannot be used. This bug will get resolved ASAP.");
-            return null; //new ProtocolizeImageProjector<>(this);
+            var projector = new ProtocolizeImageProjector<>(this);
+            var maxProtocol = ProtocolVersion.MAXIMUM_VERSION.getProtocol();
+
+            if (maxProtocol == 760) {
+                // I hate this so much
+                try {
+                    var split = server.getVersion().getVersion().split("-");
+                    var build = Integer.parseInt(split[split.length - 1].replace("b", ""));
+
+                    if (build < 172) {
+                        logger.warn("Detected protocolize, but in order for the integration to work properly, you must be running Velocity build 172 or newer!");
+                        return null;
+                    }
+                } catch (Exception e) {
+                    // I guess it's probably fine
+                }
+            }
+
+            if (!projector.compatible()) {
+                getLogger().warn("Detected protocolize, however, with incompatible version (2.2.2), please upgrade or downgrade.");
+                return null;
+            }
+            getLogger().info("Detected Protocolize, enabling 2FA...");
+            return projector;
         } else {
             logger.warn("Protocolize not found, some features (e.g. 2FA) will not work!");
             return null;

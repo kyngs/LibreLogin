@@ -4,6 +4,7 @@ import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
 import xyz.kyngs.librepremium.common.config.migrate.ConfigurationMigrator;
@@ -18,7 +19,7 @@ public class ConfigurateConfiguration {
     private final boolean newlyCreated;
     private final HoconConfigurationLoader loader;
 
-    public ConfigurateConfiguration(File dataFolder, String name, Class<?> defaultKeys, String comment, ConfigurationMigrator... migrators) throws IOException, CorruptedConfigurationException {
+    public ConfigurateConfiguration(File dataFolder, String name, Class<?> defaultKeys, String comment, Logger logger, ConfigurationMigrator... migrators) throws IOException, CorruptedConfigurationException {
         var revision = migrators.length;
         var file = new File(dataFolder, name);
 
@@ -77,7 +78,7 @@ public class ConfigurateConfiguration {
 
         if (presentRevision < revision) {
             for (int i = presentRevision; i < revision; i++) {
-                migrators[i].migrate(helper);
+                migrators[i].migrate(helper, logger);
             }
         }
 

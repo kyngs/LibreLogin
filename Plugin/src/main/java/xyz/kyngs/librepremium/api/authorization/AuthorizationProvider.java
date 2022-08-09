@@ -35,4 +35,13 @@ public interface AuthorizationProvider<P> {
      * @param reason The reason for authorization.
      */
     void authorize(User user, P player, AuthenticatedEvent.AuthenticationReason reason);
+
+    /**
+     * Finishes the 2FA enabling process.
+     *
+     * @param player The player.
+     * @param code   The code.
+     * @return whether the code is valid.
+     */
+    boolean confirmTwoFactorAuth(P player, Integer code, User user);
 }

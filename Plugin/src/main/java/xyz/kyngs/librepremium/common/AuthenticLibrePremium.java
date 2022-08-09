@@ -95,7 +95,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         eventProvider = new AuthenticEventProvider<>(this);
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
-        ;
 
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
@@ -175,7 +174,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
         checkDataFolder();
 
-        configuration = new HoconPluginConfiguration();
+        configuration = new HoconPluginConfiguration(logger);
 
         try {
             if (configuration.reload(this)) {
@@ -199,7 +198,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
         logger.info("Loading messages...");
 
-        messages = new HoconMessages();
+        messages = new HoconMessages(logger);
 
         try {
             messages.reload(this);

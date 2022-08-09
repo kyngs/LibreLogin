@@ -1,4 +1,4 @@
-package xyz.kyngs.librepremium.common.command.commands;
+package xyz.kyngs.librepremium.common.command.commands.tfa;
 
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
@@ -30,17 +30,13 @@ public class TwoFactorAuthCommand<P> extends Command<P> {
             ));
         }
 
-        auth.beginTwoFactorAuth(user, player);
-
         sender.sendMessage(getMessage("totp-generating"));
 
+        var data = plugin.getTOTPProvider().generate(user);
+
+        auth.beginTwoFactorAuth(user, player, data);
+
         plugin.cancelOnExit(plugin.delay(() -> {
-            var data = plugin.getTOTPProvider().generate(user);
-
-            user.setSecret(data.secret());
-
-            plugin.getDatabaseProvider().updateUser(user);
-
             plugin.getImageProjector().project(data.qr(), player);
 
             sender.sendMessage(getMessage("totp-show-info"));

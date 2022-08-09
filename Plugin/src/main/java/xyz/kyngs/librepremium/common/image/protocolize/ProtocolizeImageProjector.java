@@ -20,6 +20,10 @@ public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, 
         super(plugin);
     }
 
+    public boolean compatible() {
+        return !Protocolize.version().equals("2.2.2");
+    }
+
     @Override
     public void enable() {
         Protocolize.getService(ModuleProvider.class).registerModule(new ProtocolizeImageModule());

@@ -15,7 +15,8 @@ public class DefaultConfiguration {
             List.of(
                     "login",
                     "register",
-                    "2fa"
+                    "2fa",
+                    "2faconfirm"
             ),
             "Commands that are allowed while the user is not authorized.",
             ConfigurateHelper::getStringList

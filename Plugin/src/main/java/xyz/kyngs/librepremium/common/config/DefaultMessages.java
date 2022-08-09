@@ -25,8 +25,7 @@ public class DefaultMessages {
             "There was some issue while communicating with Mojang, if the problem persists, contact the server administrators!",
             """
                     This message is displayed when there was an unknown issue while communicating with Mojang, therefore we cannot verify whether there is an account with the given username.
-                    The error will be printed to the console
-                    """,
+                    The error will be printed to the console""",
             ConfigurateHelper::getString
     );
 
@@ -53,8 +52,7 @@ public class DefaultMessages {
             "Please, change your username to &c%username%",
             """
                     This message is displayed when the player's username is not in the correct case.
-                    See https://github.com/kyngs/LibrePremium/wiki/Name-Validation for more information.
-                    """,
+                    See https://github.com/kyngs/LibrePremium/wiki/Name-Validation for more information.""",
             ConfigurateHelper::getString
     );
 
@@ -62,8 +60,7 @@ public class DefaultMessages {
             "kick-occupied-username",
             "Please, change your username to &c%username%",
             """
-                    This message is displayed when the player's username is already taken.
-                    """,
+                    This message is displayed when the player's username is already taken.""",
             ConfigurateHelper::getString
     );
 
@@ -72,8 +69,7 @@ public class DefaultMessages {
             "You have illegal characters in your username or/and your username is longer than 16 characters!",
             """
                     This message is displayed when the player's username is not allowed.
-                    See https://github.com/kyngs/LibrePremium/wiki/Name-Validation for more information.
-                    """,
+                    See https://github.com/kyngs/LibrePremium/wiki/Name-Validation for more information.""",
             ConfigurateHelper::getString
     );
 
@@ -82,8 +78,7 @@ public class DefaultMessages {
             "Oh no! It looks like an premium user with activated auto login changed their nickname to %nickname%, therefore there are 2 colliding accounts. Please contact support immediately.",
             """
                     This occurs, when there is a profile conflict.
-                    See https://github.com/kyngs/LibrePremium/wiki/Profile-Conflicts for more information.
-                    """,
+                    See https://github.com/kyngs/LibrePremium/wiki/Profile-Conflicts for more information.""",
             ConfigurateHelper::getString
     );
 
@@ -109,6 +104,13 @@ public class DefaultMessages {
             "kick-error-password-wrong",
             "Wrong password!",
             "This message is displayed when the player is kicked because they authorize with wrong password.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> KICK_2FA_ENABLED = new ConfigurationKey<>(
+            "kick-2fa-enabled",
+            "Two-factor has been enabled! Please reconnect.",
+            "This message is displayed when the player enables 2FA.",
             ConfigurateHelper::getString
     );
 
@@ -189,7 +191,14 @@ public class DefaultMessages {
     public static final ConfigurationKey<String> TOTP_WRONG = new ConfigurationKey<>(
             "totp-wrong",
             "Wrong 2FA code!",
-            "This message is displayed when the player tries to authorize with wrong 2FA code.",
+            "This message is displayed when the player tries to authorize, or finish the 2FA enablement, with a wrong 2FA code.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> TOTP_NOT_AWAITING = new ConfigurationKey<>(
+            "totp-not-awaiting",
+            "You are currently not in the process of enabling 2FA! Please type /2fa to begin the process.",
+            "This message is displayed when the player attempts to finish the 2FA process, but they are not in the process of enabling 2FA.",
             ConfigurateHelper::getString
     );
 
@@ -226,8 +235,7 @@ public class DefaultMessages {
             "There was an unknown error while communicating with the mojang API, please check console for further details!",
             """
                     This message is displayed when there was an unknown issue while communicating with Mojang, therefore we cannot verify whether there is an account with the given username.
-                    The error will be printed to the console
-                    """,
+                    The error will be printed to the console""",
             ConfigurateHelper::getString
     );
 
@@ -451,8 +459,7 @@ public class DefaultMessages {
                     Joined: %joined%
                     2FA: %2fa%
                     IP: %ip%
-                    Last Authenticated: %last_authenticated%
-                    """,
+                    Last Authenticated: %last_authenticated%""",
             "This message is displayed when the player's information is requested.",
             ConfigurateHelper::getString
     );
@@ -524,7 +531,10 @@ public class DefaultMessages {
 
     public static final ConfigurationKey<String> TOTP_SHOW_INFO = new ConfigurationKey<>(
             "totp-show-info",
-            "Please scan the QR code on the map into your 2FA app. For example, Google Authenticator. When you are complete, please disconnect.",
+            """
+                    Please scan the QR code on the map into your 2FA app. For example, Google Authenticator or Authy.
+                    When you are complete, please execute the /2faconfirm <code> command to finish the process.
+                    Disconnect to abort.""",
             "This message is displayed when the player is prompted to scan the 2FA QR code.",
             ConfigurateHelper::getString
     );

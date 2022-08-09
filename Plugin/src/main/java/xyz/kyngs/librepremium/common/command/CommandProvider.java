@@ -11,13 +11,14 @@ import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.AuthenticHandler;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.commands.ChangePasswordCommand;
-import xyz.kyngs.librepremium.common.command.commands.TwoFactorAuthCommand;
 import xyz.kyngs.librepremium.common.command.commands.authorization.LoginCommand;
 import xyz.kyngs.librepremium.common.command.commands.authorization.RegisterCommand;
 import xyz.kyngs.librepremium.common.command.commands.premium.PremiumConfirmCommand;
 import xyz.kyngs.librepremium.common.command.commands.premium.PremiumDisableCommand;
 import xyz.kyngs.librepremium.common.command.commands.premium.PremiumEnableCommand;
 import xyz.kyngs.librepremium.common.command.commands.staff.LibrePremiumCommand;
+import xyz.kyngs.librepremium.common.command.commands.tfa.TwoFactorAuthCommand;
+import xyz.kyngs.librepremium.common.command.commands.tfa.TwoFactorConfirmCommand;
 import xyz.kyngs.librepremium.common.util.RateLimiter;
 
 import java.util.HashMap;
@@ -120,6 +121,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
 
         if (plugin.getTOTPProvider() != null) {
             manager.registerCommand(new TwoFactorAuthCommand<>(plugin));
+            manager.registerCommand(new TwoFactorConfirmCommand<>(plugin));
         }
 
     }

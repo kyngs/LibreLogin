@@ -5,6 +5,7 @@ import net.kyori.adventure.title.Title;
 import xyz.kyngs.librepremium.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librepremium.api.totp.TOTPData;
 import xyz.kyngs.librepremium.common.AuthenticHandler;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
@@ -15,17 +16,16 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S> implements AuthorizationProvider<P> {
 
     private final Map<P, Boolean> unAuthorized;
-    private final Set<P> awaiting2FA;
+    private final Map<P, String> awaiting2FA;
 
     public AuthenticAuthorizationProvider(AuthenticLibrePremium<P, S> plugin) {
         super(plugin);
         unAuthorized = new HashMap<>();
-        awaiting2FA = new HashSet<>();
+        awaiting2FA = new HashMap<>();
     }
 
     @Override
@@ -35,7 +35,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
 
     @Override
     public boolean isAwaiting2FA(P player) {
-        return awaiting2FA.contains(player);
+        return awaiting2FA.containsKey(player);
     }
 
     @Override
@@ -54,6 +54,17 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         audience.clearTitle();
         plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, reason));
         plugin.authorize(player, user, audience);
+    }
+
+    @Override
+    public boolean confirmTwoFactorAuth(P player, Integer code, User user) {
+        var secret = awaiting2FA.get(player);
+        if (plugin.getTOTPProvider().verify(code, secret)) {
+            user.setSecret(secret);
+            plugin.getDatabaseProvider().updateUser(user);
+            return true;
+        }
+        return false;
     }
 
     public void startTracking(User user, P player) {
@@ -121,8 +132,8 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         awaiting2FA.remove(player);
     }
 
-    public void beginTwoFactorAuth(User user, P player) {
-        awaiting2FA.add(player);
+    public void beginTwoFactorAuth(User user, P player, TOTPData data) {
+        awaiting2FA.put(player, data.secret());
 
         platformHandle.movePlayer(player, plugin.chooseLimbo(user, player)).whenComplete((t, e) -> {
             if (t != null || e != null) awaiting2FA.remove(player);

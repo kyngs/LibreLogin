@@ -2,11 +2,13 @@ package xyz.kyngs.librepremium.common.config;
 
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
+import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.api.configuration.NewUUIDCreator;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
 import xyz.kyngs.librepremium.common.config.migrate.config.FirstConfigurationMigrator;
+import xyz.kyngs.librepremium.common.config.migrate.config.SecondConfigurationMigrator;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -19,6 +21,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
 
     private ConfigurateHelper helper;
     private Duration sessionTimeout;
+    private final Logger logger;
+
+    public HoconPluginConfiguration(Logger logger) {
+        this.logger = logger;
+    }
 
     @Override
     public boolean reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException {
@@ -38,7 +45,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
                           You can find more information about LibrePremium on the github page:
                           https://github.com/kyngs/LibrePremium
                         """,
-                new FirstConfigurationMigrator()
+                logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator()
         );
 
         var helperAdept = adept.getHelper();
