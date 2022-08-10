@@ -87,4 +87,5 @@ public interface PluginConfiguration {
 
     boolean rememberLastServer();
 
+    int maxLifeTime();
 }

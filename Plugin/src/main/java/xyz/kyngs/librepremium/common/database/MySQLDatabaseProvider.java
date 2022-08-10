@@ -27,13 +27,16 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger) {
         this.logger = logger;
 
+        var mySQLConfig = new MySQLConfig()
+                .setUsername(configuration.getDatabaseUser())
+                .setPassword(configuration.getDatabasePassword())
+                .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true&zeroDateTimeBehavior=convertToNull".formatted(configuration.getDatabaseHost(), configuration.getDatabasePort(), configuration.getDatabaseName()));
+
+        mySQLConfig.getHikariConfig().setMaxLifetime(configuration.maxLifeTime());
         easyDB = new EasyDB<>(
                 new EasyDBConfig<>(
                         new MySQL(
-                                new MySQLConfig()
-                                        .setUsername(configuration.getDatabaseUser())
-                                        .setPassword(configuration.getDatabasePassword())
-                                        .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true&zeroDateTimeBehavior=convertToNull".formatted(configuration.getDatabaseHost(), configuration.getDatabasePort(), configuration.getDatabaseName()))
+                                mySQLConfig
                         )
                 )
                         .setExceptionHandler(this::handleException)

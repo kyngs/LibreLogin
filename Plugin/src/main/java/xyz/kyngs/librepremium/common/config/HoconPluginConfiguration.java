@@ -214,6 +214,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return get(REMEMBER_LAST_SERVER);
     }
 
+    @Override
+    public int maxLifeTime() {
+        return get(MAX_LIFE_TIME);
+    }
+
     public <T> T get(ConfigurationKey<T> key) {
         return helper.get(key);
     }
