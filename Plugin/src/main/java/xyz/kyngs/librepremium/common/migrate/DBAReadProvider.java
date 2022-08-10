@@ -69,8 +69,8 @@ public class DBAReadProvider extends MySQLReadProvider {
                                     rs.getTimestamp("lastjoin"),
                                     null,
                                     null,
-                                    null
-                            )
+                                    null,
+                                    null)
                     );
 
                 } catch (Exception e) {

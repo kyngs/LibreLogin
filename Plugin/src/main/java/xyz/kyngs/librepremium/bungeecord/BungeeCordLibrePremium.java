@@ -163,7 +163,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
 
     @Override
     public void authorize(ProxiedPlayer player, User user, Audience audience) {
-        var serverInfo = chooseLobby(user, player);
+        var serverInfo = chooseLobby(user, player, true);
 
         if (serverInfo == null) {
             player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-server")));

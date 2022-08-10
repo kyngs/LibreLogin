@@ -93,4 +93,14 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
     public String getServerName(RegisteredServer server) {
         return server.getServerInfo().getName();
     }
+
+    @Override
+    public int getConnectedPlayers(RegisteredServer server) {
+        return server.getPlayersConnected().size();
+    }
+
+    @Override
+    public String getPlayersServerName(Player player) {
+        return getServerName(player.getCurrentServer().get().getServer());
+    }
 }

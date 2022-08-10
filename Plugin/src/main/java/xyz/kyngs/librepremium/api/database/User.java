@@ -22,8 +22,9 @@ public class User {
     private String secret;
     private String ip;
     private Timestamp lastAuthentication;
+    private String lastServer;
 
-    public User(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen, String secret, String ip, Timestamp lastAuthentication) {
+    public User(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen, String secret, String ip, Timestamp lastAuthentication, String lastServer) {
         this.uuid = uuid;
         this.premiumUUID = premiumUUID;
         this.hashedPassword = hashedPassword;
@@ -33,6 +34,7 @@ public class User {
         this.secret = secret;
         this.ip = ip;
         this.lastAuthentication = lastAuthentication;
+        this.lastServer = lastServer;
     }
 
     public Timestamp getLastAuthentication() {
@@ -122,5 +124,13 @@ public class User {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getLastServer() {
+        return lastServer;
+    }
+
+    public void setLastServer(String lastServer) {
+        this.lastServer = lastServer;
     }
 }

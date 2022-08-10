@@ -109,5 +109,15 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
         return server.getName();
     }
 
+    @Override
+    public int getConnectedPlayers(ServerInfo server) {
+        return server.getPlayers().size();
+    }
+
+    @Override
+    public String getPlayersServerName(ProxiedPlayer player) {
+        return getServerName(player.getServer().getInfo());
+    }
+
 
 }

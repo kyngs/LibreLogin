@@ -266,4 +266,11 @@ public class DefaultConfiguration {
             ConfigurateHelper::getBoolean
     );
 
+    public static final ConfigurationKey<Boolean> REMEMBER_LAST_SERVER = new ConfigurationKey<>(
+            "remember-last-server",
+            false,
+            "Should we remember the last server a player was on? This is not recommended for large networks.",
+            ConfigurateHelper::getBoolean
+    );
+
 }

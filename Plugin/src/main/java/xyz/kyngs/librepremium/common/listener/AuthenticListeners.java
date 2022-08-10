@@ -169,8 +169,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                         Timestamp.valueOf(LocalDateTime.now()),
                         null,
                         null,
-                        null
-                );
+                        null,
+                        null);
             } else {
                 user = new User(
                         newID,
@@ -181,8 +181,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                         Timestamp.valueOf(LocalDateTime.now()),
                         null,
                         null,
-                        null
-                );
+                        null,
+                        null);
             }
 
             plugin.getDatabaseProvider().insertUser(user);
@@ -200,7 +200,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         var user = fromFloodgate ? null : plugin.getDatabaseProvider().getByUUID(id);
 
         if (fromFloodgate || user.autoLoginEnabled() || (sessionTime != null && user.getLastAuthentication() != null && platformHandle.getIP(player).equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
-            return plugin.chooseLobby(user, player);
+            return plugin.chooseLobby(user, player, true);
         } else {
             return plugin.chooseLimbo(user, player);
         }

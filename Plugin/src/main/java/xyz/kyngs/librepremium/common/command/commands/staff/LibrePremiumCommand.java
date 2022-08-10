@@ -217,7 +217,8 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
                 Timestamp.valueOf(LocalDateTime.now()),
                 null,
                 null,
-                Timestamp.valueOf(LocalDateTime.now())
+                Timestamp.valueOf(LocalDateTime.now()),
+                null
         );
 
         getDatabaseProvider().insertUser(user);

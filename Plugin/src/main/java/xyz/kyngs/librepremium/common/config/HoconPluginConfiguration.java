@@ -209,6 +209,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return get(PING_SERVERS);
     }
 
+    @Override
+    public boolean rememberLastServer() {
+        return get(REMEMBER_LAST_SERVER);
+    }
+
     public <T> T get(ConfigurationKey<T> key) {
         return helper.get(key);
     }

@@ -118,7 +118,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Override
     public void authorize(Player player, User user, Audience audience) {
         try {
-            var lobby = chooseLobby(user, player);
+            var lobby = chooseLobby(user, player, true);
             if (lobby == null) throw new NoSuchElementException();
             player
                     .createConnectionRequest(

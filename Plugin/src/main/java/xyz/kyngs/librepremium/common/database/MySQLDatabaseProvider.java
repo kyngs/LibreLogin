@@ -53,7 +53,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                             "algo VARCHAR(255)," +
                             "last_nickname VARCHAR(255) NOT NULL," +
                             "joined TIMESTAMP NULL DEFAULT NULL," +
-                            "last_seen TIMESTAMP NULL DEFAULT NULL" +
+                            "last_seen TIMESTAMP NULL DEFAULT NULL," +
+                            "last_server VARCHAR(255)" +
                             ")"
             ).executeUpdate();
 
@@ -70,6 +71,9 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                 connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN ip VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
             if (!columns.contains("last_authentication"))
                 connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_authentication TIMESTAMP NULL DEFAULT NULL").executeUpdate();
+            if (!columns.contains("last_server")) {
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_server VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
+            }
 
         });
     }
@@ -127,6 +131,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                 var secret = rs.getString("secret");
                 var ip = rs.getString("ip");
                 var lastAuthentication = rs.getTimestamp("last_authentication");
+                var lastServer = rs.getString("last_server");
 
                 return new User(
                         id,
@@ -141,8 +146,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                         lastSeen,
                         secret,
                         ip,
-                        lastAuthentication
-                );
+                        lastAuthentication,
+                        lastServer);
             } else return null;
 
         });
@@ -186,14 +191,15 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                     lastSeen,
                     rs.getString("secret"),
                     rs.getString("ip"),
-                    rs.getTimestamp("last_authentication"));
+                    rs.getTimestamp("last_authentication"),
+                    rs.getString("last_server"));
         } else return null;
     }
 
     @Override
     public void insertUser(User user) {
         easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             insertToStatement(ps, user);
 
@@ -228,12 +234,13 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
         ps.setString(9, user.getSecret());
         ps.setString(10, user.getIp());
         ps.setTimestamp(11, user.getLastAuthentication());
+        ps.setString(12, user.getLastServer());
     }
 
     @Override
     public void updateUser(User user) {
         easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("UPDATE librepremium_data SET premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=?, secret=?, ip=?, last_authentication=? WHERE uuid=?");
+            var ps = connection.prepareStatement("UPDATE librepremium_data SET premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=?, secret=?, ip=?, last_authentication=?, last_server=? WHERE uuid=?");
 
             ps.setString(1, user.getPremiumUUID() == null ? null : user.getPremiumUUID().toString());
             ps.setString(2, user.getHashedPassword() == null ? null : user.getHashedPassword().hash());
@@ -245,7 +252,8 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             ps.setString(8, user.getSecret());
             ps.setString(9, user.getIp());
             ps.setTimestamp(10, user.getLastAuthentication());
-            ps.setString(11, user.getUuid().toString());
+            ps.setString(11, user.getLastServer());
+            ps.setString(12, user.getUuid().toString());
             ps.executeUpdate();
         });
     }

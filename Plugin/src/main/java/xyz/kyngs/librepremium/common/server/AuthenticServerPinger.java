@@ -20,6 +20,8 @@ public class AuthenticServerPinger<S> implements ServerPinger<S> {
         var handle = plugin.getPlatformHandle();
         handle.getServers().parallelStream()
                 .filter(server -> {
+                    if (plugin.getConfiguration().rememberLastServer()) return true;
+
                     var name = handle.getServerName(server);
 
                     return plugin.getConfiguration().getLimbo().contains(name) || plugin.getConfiguration().getPassThrough().contains(name);

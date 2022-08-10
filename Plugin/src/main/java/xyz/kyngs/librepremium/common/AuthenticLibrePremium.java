@@ -481,7 +481,22 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
     protected abstract AuthenticImageProjector<P, S> provideImageProjector();
 
-    public S chooseLobby(User user, P player) throws NoSuchElementException {
+    public S chooseLobby(User user, P player, boolean remember) throws NoSuchElementException {
+
+        if (remember && configuration.rememberLastServer()) {
+            var last = user.getLastServer();
+
+            if (last != null) {
+                var server = platformHandle.getServer(last);
+                if (server != null) {
+                    var ping = serverPinger.getLatestPing(server);
+                    if (ping != null && ping.maxPlayers() > platformHandle.getConnectedPlayers(server)) {
+                        return server;
+                    }
+                }
+            }
+        }
+
         var event = new AuthenticLobbyServerChooseEvent<>(user, player, this);
 
         getEventProvider().fire(LobbyServerChooseEvent.class, event);
@@ -551,6 +566,13 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
     public void onExit(P player) {
         cancelOnExit.removeAll(player).forEach(CancellableTask::cancel);
+        if (configuration.rememberLastServer()) {
+            var user = databaseProvider.getByUUID(platformHandle.getUUIDForPlayer(player));
+            if (user != null) {
+                user.setLastServer(platformHandle.getPlayersServerName(player));
+                databaseProvider.updateUser(user);
+            }
+        }
     }
 
     public void cancelOnExit(CancellableTask task, P player) {
