@@ -3,6 +3,7 @@ package xyz.kyngs.librepremium.bungeecord;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -58,6 +59,18 @@ public class Blockers implements Listener {
         } else if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
             if (!configuration.getLimbo().contains(event.getTarget().getName())) {
                 event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onServerKick(ServerKickEvent event) {
+        if (!authorizationProvider.isAuthorized(event.getPlayer()) || authorizationProvider.isAwaiting2FA(event.getPlayer())) {
+            var reason = event.getKickReasonComponent();
+            if (reason == null) {
+                event.getPlayer().disconnect("Limbo shutdown");
+            } else {
+                event.getPlayer().disconnect(reason);
             }
         }
     }

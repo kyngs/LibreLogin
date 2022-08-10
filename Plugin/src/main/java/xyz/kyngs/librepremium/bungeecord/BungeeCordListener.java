@@ -12,6 +12,7 @@ import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
 
+import static net.md_5.bungee.event.EventPriority.HIGH;
 import static net.md_5.bungee.event.EventPriority.HIGHEST;
 
 public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremium, ProxiedPlayer, ServerInfo> implements Listener {
@@ -93,6 +94,30 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
             event.getPlayer().disconnect(plugin.getSerializer().serialize(plugin.getMessages().getMessage("kick-no-server")));
         } else {
             event.setTarget(server);
+        }
+    }
+
+    @EventHandler(priority = HIGH)
+    public void onKick(ServerKickEvent event) {
+        var reason = plugin.getSerializer().deserialize(event.getKickReasonComponent());
+        var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
+        var player = event.getPlayer();
+        var audience = platformHandle.getAudienceForPlayer(event.getPlayer());
+
+        if (event.getState() == ServerKickEvent.State.CONNECTED) {
+            var server = plugin.chooseLobby(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player);
+
+            if (server == null) {
+                event.setKickReasonComponent(plugin.getSerializer().serialize(message));
+                event.setCancelled(false);
+            } else {
+                event.setCancelled(true);
+                event.setCancelServer(server);
+
+                audience.sendMessage(message);
+            }
+        } else {
+            audience.sendMessage(message);
         }
     }
 

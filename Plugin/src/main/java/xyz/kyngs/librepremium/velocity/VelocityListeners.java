@@ -6,10 +6,12 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.player.GameProfileRequestEvent;
+import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
+import net.kyori.adventure.text.Component;
 import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
 
 public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, Player, RegisteredServer> {
@@ -72,6 +74,25 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, 
             event.setInitialServer(server);
         }
 
+    }
+
+    @Subscribe(order = PostOrder.LATE)
+    public void onKick(KickedFromServerEvent event) {
+        var reason = event.getServerKickReason().orElse(Component.text("null"));
+        var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
+        var player = event.getPlayer();
+
+        if (event.kickedDuringServerConnect()) {
+            event.setResult(KickedFromServerEvent.Notify.create(message));
+        } else {
+            var server = plugin.chooseLobby(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player);
+
+            if (server == null) {
+                event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
+            } else {
+                event.setResult(KickedFromServerEvent.RedirectPlayer.create(server, message));
+            }
+        }
     }
 
 

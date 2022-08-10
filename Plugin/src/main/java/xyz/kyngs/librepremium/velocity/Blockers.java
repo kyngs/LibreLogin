@@ -56,8 +56,8 @@ public class Blockers {
 
     @Subscribe(order = PostOrder.FIRST)
     public void onServerKick(KickedFromServerEvent event) {
-        if (!authorizationProvider.isAuthorized(event.getPlayer())) {
-            event.getPlayer().disconnect(event.getServerKickReason().orElse(Component.text("Server shutdown")));
+        if (!authorizationProvider.isAuthorized(event.getPlayer()) || authorizationProvider.isAwaiting2FA(event.getPlayer())) {
+            event.getPlayer().disconnect(event.getServerKickReason().orElse(Component.text("Limbo shutdown")));
         }
     }
 

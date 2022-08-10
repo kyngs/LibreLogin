@@ -352,6 +352,13 @@ public class DefaultMessages {
     General information messages
      */
 
+    public static final ConfigurationKey<String> INFO_KICK = new ConfigurationKey<>(
+            "info-kick",
+            "You have been kicked from the server for the following reason: %reason%",
+            "This message is displayed when the player is kicked from a server.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> INFO_LOGGING_IN = new ConfigurationKey<>(
             "info-logging-in",
             "Logging in...",

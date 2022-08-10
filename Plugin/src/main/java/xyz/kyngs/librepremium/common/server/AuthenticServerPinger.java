@@ -14,7 +14,7 @@ public class AuthenticServerPinger<S> implements ServerPinger<S> {
 
     public AuthenticServerPinger(AuthenticLibrePremium<?, S> plugin) {
         this.pingCache = Caffeine.newBuilder()
-                .refreshAfterWrite(15, TimeUnit.SECONDS)
+                .refreshAfterWrite(10, TimeUnit.SECONDS)
                 .build(server -> Optional.ofNullable(plugin.getPlatformHandle().ping(server)));
 
         var handle = plugin.getPlatformHandle();
