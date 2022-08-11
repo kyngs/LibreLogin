@@ -567,9 +567,11 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     public void onExit(P player) {
         cancelOnExit.removeAll(player).forEach(CancellableTask::cancel);
         if (configuration.rememberLastServer()) {
+            var server = platformHandle.getPlayersServerName(player);
+            if (server == null) return;
             var user = databaseProvider.getByUUID(platformHandle.getUUIDForPlayer(player));
             if (user != null) {
-                user.setLastServer(platformHandle.getPlayersServerName(player));
+                user.setLastServer(server);
                 databaseProvider.updateUser(user);
             }
         }
