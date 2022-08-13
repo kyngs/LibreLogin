@@ -104,7 +104,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @CommandPermission("librepremium.user.migrate")
     @Syntax("<name> <newName>")
     @CommandCompletion("@players newName")
-    public void onUserMigrate(Audience audience, P player, String name, String newName) {
+    public void onUserMigrate(Audience audience, String name, String newName) {
         var user = getUserOtherWiseInform(name);
         var colliding = getDatabaseProvider().getByName(newName);
 
@@ -120,7 +120,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
         user.setLastNickname(newName);
         if (user.getPremiumUUID() != null) {
             user.setPremiumUUID(null);
-            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
+            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, null, plugin));
         }
         getDatabaseProvider().updateUser(user);
 
@@ -164,14 +164,14 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @CommandPermission("librepremium.user.premium")
     @Syntax("<name>")
     @CommandCompletion("@players")
-    public void onUserPremium(Audience audience, P player, String name) {
+    public void onUserPremium(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
         requireOffline(user);
 
         audience.sendMessage(getMessage("info-editing"));
 
-        enablePremium(player, user, plugin);
+        enablePremium(null, user, plugin);
 
         getDatabaseProvider().updateUser(user);
 
