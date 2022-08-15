@@ -219,6 +219,10 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return get(MAX_LIFE_TIME);
     }
 
+    public boolean fallback() {
+        return get(FALLBACK);
+    }
+
     public <T> T get(ConfigurationKey<T> key) {
         return helper.get(key);
     }

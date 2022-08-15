@@ -279,4 +279,11 @@ public class DefaultConfiguration {
             "The maximum lifetime of a database connection in milliseconds. Don't touch this if you don't know what you're doing.",
             ConfigurateHelper::getInt
     );
+
+    public static final ConfigurationKey<Boolean> FALLBACK = new ConfigurationKey<>(
+            "fallback",
+            true,
+            "Should we fallback players to lobby servers if the server they are on shutdowns? If set to false, they will be kicked.",
+            ConfigurateHelper::getBoolean
+    );
 }

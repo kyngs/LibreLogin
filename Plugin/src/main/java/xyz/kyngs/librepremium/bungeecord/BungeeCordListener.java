@@ -105,16 +105,21 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
         var audience = platformHandle.getAudienceForPlayer(event.getPlayer());
 
         if (event.getState() == ServerKickEvent.State.CONNECTED) {
-            var server = plugin.chooseLobby(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
-
-            if (server == null) {
+            if (!plugin.getConfiguration().fallback()) {
                 event.setKickReasonComponent(plugin.getSerializer().serialize(message));
                 event.setCancelled(false);
             } else {
-                event.setCancelled(true);
-                event.setCancelServer(server);
+                var server = plugin.chooseLobby(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
 
-                audience.sendMessage(message);
+                if (server == null) {
+                    event.setKickReasonComponent(plugin.getSerializer().serialize(message));
+                    event.setCancelled(false);
+                } else {
+                    event.setCancelled(true);
+                    event.setCancelServer(server);
+
+                    audience.sendMessage(message);
+                }
             }
         } else {
             audience.sendMessage(message);
