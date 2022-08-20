@@ -219,6 +219,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
         return get(MAX_LIFE_TIME);
     }
 
+    @Override
+    public boolean debug() {
+        return get(DEBUG);
+    }
+
     public boolean fallback() {
         return get(FALLBACK);
     }

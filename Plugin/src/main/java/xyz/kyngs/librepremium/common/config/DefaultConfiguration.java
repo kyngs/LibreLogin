@@ -280,6 +280,13 @@ public class DefaultConfiguration {
             ConfigurateHelper::getInt
     );
 
+    public static final ConfigurationKey<Boolean> DEBUG = new ConfigurationKey<>(
+            "debug",
+            false,
+            "Should we enable debug mode? This will print out debug messages to the console.",
+            ConfigurateHelper::getBoolean
+    );
+
     public static final ConfigurationKey<Boolean> FALLBACK = new ConfigurationKey<>(
             "fallback",
             true,

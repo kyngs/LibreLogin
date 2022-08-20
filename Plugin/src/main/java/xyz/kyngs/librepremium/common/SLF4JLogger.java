@@ -2,12 +2,16 @@ package xyz.kyngs.librepremium.common;
 
 import xyz.kyngs.librepremium.api.Logger;
 
-public class SL4JLogger implements Logger {
+import java.util.function.Supplier;
+
+public class SLF4JLogger implements Logger {
 
     private final org.slf4j.Logger slf4j;
+    private final Supplier<Boolean> debug;
 
-    public SL4JLogger(org.slf4j.Logger slf4j) {
+    public SLF4JLogger(org.slf4j.Logger slf4j, Supplier<Boolean> debug) {
         this.slf4j = slf4j;
+        this.debug = debug;
     }
 
     @Override
@@ -23,5 +27,12 @@ public class SL4JLogger implements Logger {
     @Override
     public void error(String message) {
         slf4j.error(message);
+    }
+
+    @Override
+    public void debug(String message) {
+        if (debug.get()) {
+            slf4j.info("[DEBUG] " + message);
+        }
     }
 }

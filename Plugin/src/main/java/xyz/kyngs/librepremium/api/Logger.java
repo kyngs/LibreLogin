@@ -28,4 +28,11 @@ public interface Logger {
      */
     void error(String message);
 
+    /**
+     * Logs a message at the DEBUG level.
+     *
+     * @param message The message to log.
+     */
+    void debug(String message);
+
 }

@@ -122,6 +122,13 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
             public void error(String message) {
                 bootstrap.getLogger().log(Level.SEVERE, message);
             }
+
+            @Override
+            public void debug(String message) {
+                if (getConfiguration().debug()) {
+                    bootstrap.getLogger().log(Level.INFO, "[DEBUG] " + message);
+                }
+            }
         };
     }
 

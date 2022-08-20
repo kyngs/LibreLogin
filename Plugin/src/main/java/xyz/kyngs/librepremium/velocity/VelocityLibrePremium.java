@@ -30,7 +30,7 @@ import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.provider.LibrePremiumProvider;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
-import xyz.kyngs.librepremium.common.SL4JLogger;
+import xyz.kyngs.librepremium.common.SLF4JLogger;
 import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
 import xyz.kyngs.librepremium.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
@@ -86,7 +86,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
 
     @Override
     protected Logger provideLogger() {
-        return new SL4JLogger(logger);
+        return new SLF4JLogger(logger, () -> getConfiguration().debug());
     }
 
     @Override

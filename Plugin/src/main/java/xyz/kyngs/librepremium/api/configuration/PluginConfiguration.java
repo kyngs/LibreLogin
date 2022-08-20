@@ -89,5 +89,7 @@ public interface PluginConfiguration {
 
     int maxLifeTime();
 
+    boolean debug();
+
     boolean fallback();
 }
