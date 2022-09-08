@@ -213,7 +213,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public void insertUsers(Collection<User> users) {
         easyDB.runTaskSync(connection -> {
-            var ps = connection.prepareStatement("INSERT IGNORE INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            var ps = connection.prepareStatement("INSERT IGNORE INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             for (User user : users) {
                 insertToStatement(ps, user);

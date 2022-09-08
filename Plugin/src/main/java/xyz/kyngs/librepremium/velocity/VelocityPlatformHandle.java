@@ -80,6 +80,7 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
 
             return new ServerPing(players.get().getMax() == -1 ? Integer.MAX_VALUE : players.get().getMax());
         } catch (InterruptedException | ExecutionException e) {
+            plugin.getLogger().debug("Failed to ping server " + e.getMessage());
             return null;
         }
     }
