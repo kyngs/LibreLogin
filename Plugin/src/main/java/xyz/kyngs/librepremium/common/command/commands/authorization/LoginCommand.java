@@ -7,7 +7,7 @@ import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
-@CommandAlias("login|l")
+@CommandAlias("login|l|log")
 public class LoginCommand<P> extends AuthorizationCommand<P> {
 
     public LoginCommand(AuthenticLibrePremium<P, ?> premium) {

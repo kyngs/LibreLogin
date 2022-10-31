@@ -7,7 +7,7 @@ import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 
-@CommandAlias("register")
+@CommandAlias("register|reg")
 public class RegisterCommand<P> extends AuthorizationCommand<P> {
     public RegisterCommand(AuthenticLibrePremium<P, ?> premium) {
         super(premium);
