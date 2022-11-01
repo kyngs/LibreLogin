@@ -1,5 +1,6 @@
 package xyz.kyngs.librepremium.api.configuration;
 
+import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 
@@ -33,7 +34,7 @@ public interface PluginConfiguration {
 
     String getDatabaseName();
 
-    Collection<String> getPassThrough();
+    Multimap<String, String> getPassThrough();
 
     Collection<String> getLimbo();
 

@@ -155,9 +155,9 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
             throw new CorruptedConfigurationException("No pass-through servers defined!");
         }
 
-        for (String server : configuration.getPassThrough()) {
+        for (String server : configuration.getPassThrough().values()) {
             if (!serverMap.containsKey(server)) {
-                throw new CorruptedConfigurationException("The supplied pass-through server is not configured in the proxy configuration!");
+                throw new CorruptedConfigurationException("The supplied pass-through server %s is not configured in the proxy configuration!".formatted(server));
             }
         }
 
@@ -242,11 +242,17 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
     }
 
     @Override
-    public ServerInfo chooseLobbyDefault() throws NoSuchElementException {
+    public ServerInfo chooseLobbyDefault(ProxiedPlayer player) throws NoSuchElementException {
         var passThroughServers = getConfiguration().getPassThrough();
+        var virt = player.getPendingConnection().getVirtualHost();
+        var servers = virt == null ? passThroughServers.get("root") : passThroughServers.get(virt.getHostName());
+
+        if (servers.isEmpty()) servers = passThroughServers.get("root");
+
+        final var finalServers = servers;
 
         return bootstrap.getProxy().getServers().values().stream()
-                .filter(server -> passThroughServers.contains(server.getName()))
+                .filter(server -> finalServers.contains(server.getName()))
                 .filter(server -> {
                     var ping = getServerPinger().getLatestPing(server);
 

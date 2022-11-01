@@ -1,5 +1,7 @@
 package xyz.kyngs.librepremium.common.config;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
 
 import java.util.List;
@@ -29,15 +31,22 @@ public class DefaultConfiguration {
             ConfigurateHelper::getStringList
     );
 
-    public static final ConfigurationKey<List<String>> PASS_THROUGH = new ConfigurationKey<>(
+    public static final Multimap<String, String> PASS_THROUGH_DEFAULT = HashMultimap.create();
+    public static final ConfigurationKey<Multimap<String, String>> PASS_THROUGH = new ConfigurationKey<>(
             "pass-through",
-            List.of(
-                    "lobby0",
-                    "lobby1"
-            ),
-            "The server, player should be sent to, after they're authenticated. THIS SERVER MUST BE REGISTERED IN THE PROXY CONFIG",
-            ConfigurateHelper::getStringList
+            PASS_THROUGH_DEFAULT,
+            """
+                    The servers player should be sent to when they are authenticated. THE SERVERS MUST BE REGISTERED IN THE PROXY CONFIG.
+                    The configuration allows to configure forced hosts, the servers under "root" are used from the root domain. Use § instead of dots.
+                    See: https://github.com/kyngs/LibrePremium/wiki/Configuring-Forced-Hosts
+                    """,
+            ConfigurateHelper::getServerMap
     );
+
+    static {
+        PASS_THROUGH_DEFAULT.put("root", "lobby0");
+        PASS_THROUGH_DEFAULT.put("root", "lobby1");
+    }
 
     public static final ConfigurationKey<String> DEFAULT_CRYPTO_PROVIDER = new ConfigurationKey<>(
             "default-crypto-provider",

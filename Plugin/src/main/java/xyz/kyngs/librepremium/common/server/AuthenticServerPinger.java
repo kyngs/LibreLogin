@@ -30,7 +30,7 @@ public class AuthenticServerPinger<S> implements ServerPinger<S> {
 
                     var name = handle.getServerName(server);
 
-                    return plugin.getConfiguration().getLimbo().contains(name) || plugin.getConfiguration().getPassThrough().contains(name);
+                    return plugin.getConfiguration().getLimbo().contains(name) || plugin.getConfiguration().getPassThrough().containsValue(name);
                 })
                 .forEach(this::getLatestPing);
     }

@@ -1,5 +1,6 @@
 package xyz.kyngs.librepremium.common.config;
 
+import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
@@ -9,10 +10,10 @@ import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
 import xyz.kyngs.librepremium.common.config.migrate.config.FirstConfigurationMigrator;
 import xyz.kyngs.librepremium.common.config.migrate.config.SecondConfigurationMigrator;
+import xyz.kyngs.librepremium.common.config.migrate.config.ThirdConfigurationMigrator;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collection;
 import java.util.List;
 
 import static xyz.kyngs.librepremium.common.config.DefaultConfiguration.*;
@@ -45,7 +46,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
                           You can find more information about LibrePremium on the github page:
                           https://github.com/kyngs/LibrePremium
                         """,
-                logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator()
+                logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator(), new ThirdConfigurationMigrator()
         );
 
         var helperAdept = adept.getHelper();
@@ -89,7 +90,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     }
 
     @Override
-    public Collection<String> getPassThrough() {
+    public Multimap<String, String> getPassThrough() {
         return get(PASS_THROUGH);
     }
 

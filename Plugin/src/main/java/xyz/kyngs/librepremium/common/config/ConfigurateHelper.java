@@ -1,13 +1,17 @@
 package xyz.kyngs.librepremium.common.config;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import xyz.kyngs.easydb.scheduler.ThrowableFunction;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librepremium.common.config.key.ConfigurationKey;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public record ConfigurateHelper(CommentedConfigurationNode configuration) {
 
@@ -45,6 +49,28 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
         });
     }
 
+    public Multimap<String, String> getServerMap(String path) {
+        return configurationFunction(path, node -> {
+            if (!node.isMap()) throw new CorruptedConfigurationException("Node is not a map!");
+
+            var map = HashMultimap.<String, String>create();
+
+            for (Map.Entry<Object, CommentedConfigurationNode> entry : node.childrenMap().entrySet()) {
+                if (!entry.getValue().isList()) throw new CorruptedConfigurationException("Node is not a list!");
+
+                var list = entry.getValue().getList(String.class);
+
+                if (list == null) throw new CorruptedConfigurationException("List is null!");
+
+                for (String s : list) {
+                    map.put(entry.getKey().toString().replace('§', '.'), s);
+                }
+            }
+
+            return map;
+        });
+    }
+
     public void set(String path, Object value) {
         try {
             resolve(path)
@@ -74,7 +100,16 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
 
             var defaultValue = key.defaultValue();
 
-            if (defaultValue != null) node.set(defaultValue);
+            if (defaultValue != null) {
+                if (key.defaultValue() instanceof Multimap<?, ?> multimap) {
+                    for (Map.Entry<?, ? extends Collection<?>> entry : multimap.asMap().entrySet()) {
+                        node.node(entry.getKey().toString()).set(entry.getValue());
+                    }
+                } else {
+                    node.set(defaultValue);
+                }
+
+            }
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }

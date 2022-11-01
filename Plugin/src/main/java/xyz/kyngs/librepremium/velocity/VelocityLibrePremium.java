@@ -105,9 +105,9 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
             throw new CorruptedConfigurationException("No limbo servers defined!");
         if (configuration.getPassThrough().isEmpty())
             throw new CorruptedConfigurationException("No pass-through servers defined!");
-        for (String server : configuration.getPassThrough()) {
+        for (String server : configuration.getPassThrough().values()) {
             if (this.server.getServer(server).isEmpty())
-                throw new CorruptedConfigurationException("The supplied pass-through server is not configured in the proxy configuration!");
+                throw new CorruptedConfigurationException("The supplied pass-through server %s is not configured in the proxy configuration!".formatted(server));
         }
         for (String server : configuration.getLimbo()) {
             if (this.server.getServer(server).isEmpty())
@@ -226,10 +226,17 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     }
 
     @Override
-    public RegisteredServer chooseLobbyDefault() throws NoSuchElementException {
+    public RegisteredServer chooseLobbyDefault(Player player) throws NoSuchElementException {
         var passThroughServers = getConfiguration().getPassThrough();
+        var virt = player.getVirtualHost().orElse(null);
+        var servers = virt == null ? passThroughServers.get("root") : passThroughServers.get(virt.getHostName());
+
+        if (servers.isEmpty()) servers = passThroughServers.get("root");
+
+        final var finalServers = servers;
+
         return server.getAllServers().stream()
-                .filter(server -> passThroughServers.contains(server.getServerInfo().getName()))
+                .filter(server -> finalServers.contains(server.getServerInfo().getName()))
                 .filter(server -> {
                     var ping = getServerPinger().getLatestPing(server);
 

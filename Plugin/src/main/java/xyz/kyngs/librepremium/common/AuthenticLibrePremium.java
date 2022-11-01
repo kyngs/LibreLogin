@@ -501,7 +501,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
         getEventProvider().fire(LobbyServerChooseEvent.class, event);
 
-        return event.getServer() != null ? event.getServer() : chooseLobbyDefault();
+        return event.getServer() != null ? event.getServer() : chooseLobbyDefault(player);
     }
 
     public PremiumUser getUserOrThrowICA(String username) throws InvalidCommandArgument {
@@ -519,7 +519,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
     protected abstract void initMetrics(CustomChart... charts);
 
-    public abstract S chooseLobbyDefault();
+    public abstract S chooseLobbyDefault(P player);
 
     @Override
     public AuthenticAuthorizationProvider<P, S> getAuthorizationProvider() {
