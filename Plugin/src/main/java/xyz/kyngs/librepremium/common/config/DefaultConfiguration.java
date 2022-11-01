@@ -37,7 +37,7 @@ public class DefaultConfiguration {
             PASS_THROUGH_DEFAULT,
             """
                     The servers player should be sent to when they are authenticated. THE SERVERS MUST BE REGISTERED IN THE PROXY CONFIG.
-                    The configuration allows to configure forced hosts, the servers under "root" are used from the root domain. Use § instead of dots.
+                    The configuration allows configuring forced hosts; the servers are used when players do not connect from a forced host. Use § instead of dots.
                     See: https://github.com/kyngs/LibrePremium/wiki/Configuring-Forced-Hosts
                     """,
             ConfigurateHelper::getServerMap
