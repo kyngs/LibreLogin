@@ -245,6 +245,9 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
     public ServerInfo chooseLobbyDefault(ProxiedPlayer player) throws NoSuchElementException {
         var passThroughServers = getConfiguration().getPassThrough();
         var virt = player.getPendingConnection().getVirtualHost();
+
+        getLogger().debug("Virtual host for player " + player.getDisplayName() + " is " + virt);
+
         var servers = virt == null ? passThroughServers.get("root") : passThroughServers.get(virt.getHostName());
 
         if (servers.isEmpty()) servers = passThroughServers.get("root");
