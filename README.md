@@ -1,8 +1,4 @@
 # LibrePremium
-
-*This plugin was originally made for BeeGames, however they stepped down after the work was done. They are **forbidden**
-to use this plugin.*
-
 Like JPremium, but free, open-source and multiplatform
 
 # Quick information
