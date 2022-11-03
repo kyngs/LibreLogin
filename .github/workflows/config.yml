@@ -26,11 +26,14 @@ jobs:
         with:
           arguments: "shadowJar"
 
+      - name: "Setup Velocity environment"
+        run: "mkdir -P velocity/plugins"
+
       - name: "Copy plugin"
         run: "cp Plugin/build/libs/LibrePremium.jar velocity/plugins/"
 
       - name: "Setup Velocity"
-        run: "mkdir -p velocity && cd velocity && curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/184/downloads/velocity-3.1.2-SNAPSHOT-184.jar -o velocity.jar"
+        run: "cd velocity && curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/184/downloads/velocity-3.1.2-SNAPSHOT-184.jar -o velocity.jar"
 
       - name: "Run Velocity"
         run: "cd velocity && java -jar velocity.jar"
