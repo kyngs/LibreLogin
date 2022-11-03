@@ -5,6 +5,7 @@ import xyz.kyngs.easydb.provider.mysql.MySQL;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.common.database.AuthenticUser;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -60,7 +61,7 @@ public class DBAReadProvider extends MySQLReadProvider {
                     } else password = null;
 
                     users.add(
-                            new User(
+                            new AuthenticUser(
                                     uuid,
                                     rs.getBoolean("premium") ? uuid : null,
                                     password,

@@ -5,6 +5,7 @@ import xyz.kyngs.easydb.provider.mysql.MySQL;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.common.database.AuthenticUser;
 import xyz.kyngs.librepremium.common.util.CryptoUtil;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
@@ -72,7 +73,7 @@ public class AuthMeReadProvider extends MySQLReadProvider {
                     }
 
                     users.add(
-                            new User(
+                            new AuthenticUser(
                                     GeneralUtil.getCrackedUUIDFromName(nickname),
                                     null,
                                     password,

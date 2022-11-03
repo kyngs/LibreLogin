@@ -3,7 +3,6 @@ package xyz.kyngs.librepremium.api.database;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 
 import java.sql.Timestamp;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -11,126 +10,48 @@ import java.util.UUID;
  *
  * @author kyngs
  */
-public class User {
+public interface User {
 
-    private final UUID uuid;
-    private UUID premiumUUID;
-    private HashedPassword hashedPassword;
-    private String lastNickname;
-    private Timestamp joinDate;
-    private Timestamp lastSeen;
-    private String secret;
-    private String ip;
-    private Timestamp lastAuthentication;
-    private String lastServer;
+    String getSecret();
 
-    public User(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen, String secret, String ip, Timestamp lastAuthentication, String lastServer) {
-        this.uuid = uuid;
-        this.premiumUUID = premiumUUID;
-        this.hashedPassword = hashedPassword;
-        this.lastNickname = lastNickname;
-        this.joinDate = joinDate;
-        this.lastSeen = lastSeen;
-        this.secret = secret;
-        this.ip = ip;
-        this.lastAuthentication = lastAuthentication;
-        this.lastServer = lastServer;
-    }
+    void setSecret(String secret);
 
-    public Timestamp getLastAuthentication() {
-        return lastAuthentication;
-    }
+    String getIp();
 
-    public void setLastAuthentication(Timestamp lastAuthentication) {
-        this.lastAuthentication = lastAuthentication;
-    }
+    void setIp(String ip);
 
-    public Timestamp getJoinDate() {
-        return joinDate;
-    }
+    String getLastServer();
 
-    public void setJoinDate(Timestamp joinDate) {
-        this.joinDate = joinDate;
-    }
+    void setLastServer(String lastServer);
 
-    public Timestamp getLastSeen() {
-        return lastSeen;
-    }
+    Timestamp getLastAuthentication();
 
-    public void setLastSeen(Timestamp lastSeen) {
-        this.lastSeen = lastSeen;
-    }
+    void setLastAuthentication(Timestamp lastAuthentication);
 
-    public HashedPassword getHashedPassword() {
-        return hashedPassword;
-    }
+    Timestamp getJoinDate();
 
-    public void setHashedPassword(HashedPassword hashedPassword) {
-        this.hashedPassword = hashedPassword;
-    }
+    void setJoinDate(Timestamp joinDate);
 
-    public UUID getUuid() {
-        return uuid;
-    }
+    Timestamp getLastSeen();
 
-    public UUID getPremiumUUID() {
-        return premiumUUID;
-    }
+    void setLastSeen(Timestamp lastSeen);
 
-    public void setPremiumUUID(UUID premiumUUID) {
-        this.premiumUUID = premiumUUID;
-    }
+    HashedPassword getHashedPassword();
 
-    public String getLastNickname() {
-        return lastNickname;
-    }
+    void setHashedPassword(HashedPassword hashedPassword);
 
-    public void setLastNickname(String lastNickname) {
-        this.lastNickname = lastNickname;
-    }
+    UUID getUuid();
 
-    public boolean isRegistered() {
-        return hashedPassword != null;
-    }
+    UUID getPremiumUUID();
 
-    public boolean autoLoginEnabled() {
-        return premiumUUID != null;
-    }
+    void setPremiumUUID(UUID premiumUUID);
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return uuid.equals(user.uuid);
-    }
+    String getLastNickname();
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(uuid);
-    }
+    void setLastNickname(String lastNickname);
 
-    public String getSecret() {
-        return secret;
-    }
+    boolean isRegistered();
 
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
+    boolean autoLoginEnabled();
 
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public String getLastServer() {
-        return lastServer;
-    }
-
-    public void setLastServer(String lastServer) {
-        this.lastServer = lastServer;
-    }
 }

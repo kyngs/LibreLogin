@@ -5,6 +5,7 @@ import xyz.kyngs.easydb.provider.mysql.MySQL;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.common.database.AuthenticUser;
 import xyz.kyngs.librepremium.common.util.CryptoUtil;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
@@ -69,7 +70,7 @@ public class JPremiumReadProvider extends MySQLReadProvider {
                         }
                     };
 
-                    users.add(new User(
+                    users.add(new AuthenticUser(
                             GeneralUtil.fromUnDashedUUID(uniqueIdString),
                             premiumIdString == null ? null : GeneralUtil.fromUnDashedUUID(premiumIdString),
                             password,

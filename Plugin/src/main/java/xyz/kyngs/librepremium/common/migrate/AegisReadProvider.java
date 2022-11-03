@@ -5,6 +5,7 @@ import xyz.kyngs.easydb.provider.mysql.MySQL;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.common.database.AuthenticUser;
 import xyz.kyngs.librepremium.common.util.CryptoUtil;
 
 import java.sql.Connection;
@@ -63,7 +64,7 @@ public class AegisReadProvider extends MySQLReadProvider {
                         }
                     }
 
-                    users.add(new User(
+                    users.add(new AuthenticUser(
                             uuid,
                             onlineID == null || !rs.getBoolean("premium") ? null : UUID.fromString(onlineID.replace(".", "")), //Aegis at it again, this time with a dot.
                             password,

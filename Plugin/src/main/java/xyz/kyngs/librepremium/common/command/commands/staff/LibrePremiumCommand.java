@@ -11,6 +11,7 @@ import xyz.kyngs.librepremium.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librepremium.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
+import xyz.kyngs.librepremium.common.database.AuthenticUser;
 import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
 import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
@@ -208,7 +209,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
             throw new InvalidCommandArgument(getMessage("error-occupied-user"));
         }
 
-        user = new User(
+        user = new AuthenticUser(
                 plugin.generateNewUUID(name, plugin.getUserOrThrowICA(name).uuid()),
                 null,
                 plugin.getDefaultCryptoProvider().createHash(password),

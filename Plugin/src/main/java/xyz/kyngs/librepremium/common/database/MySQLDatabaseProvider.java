@@ -136,7 +136,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
                 var lastAuthentication = rs.getTimestamp("last_authentication");
                 var lastServer = rs.getString("last_server");
 
-                return new User(
+                return new AuthenticUser(
                         id,
                         premiumUUID == null ? null : UUID.fromString(premiumUUID),
                         hashedPassword == null ? null : new HashedPassword(
@@ -181,7 +181,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
             var joinDate = rs.getTimestamp("joined");
             var lastSeen = rs.getTimestamp("last_seen");
 
-            return new User(
+            return new AuthenticUser(
                     id,
                     premiumUUID == null ? null : UUID.fromString(premiumUUID),
                     hashedPassword == null ? null : new HashedPassword(

@@ -9,6 +9,7 @@ import xyz.kyngs.librepremium.api.premium.PremiumException;
 import xyz.kyngs.librepremium.api.premium.PremiumUser;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
+import xyz.kyngs.librepremium.common.database.AuthenticUser;
 import xyz.kyngs.librepremium.common.event.events.AuthenticAuthenticatedEvent;
 import xyz.kyngs.librepremium.common.event.events.AuthenticPremiumLoginSwitchEvent;
 
@@ -160,7 +161,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
             }
 
             if (premiumID != null && plugin.getConfiguration().autoRegister()) {
-                user = new User(
+                user = new AuthenticUser(
                         newID,
                         premiumID,
                         null,
@@ -172,7 +173,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                         null,
                         null);
             } else {
-                user = new User(
+                user = new AuthenticUser(
                         newID,
                         null,
                         null,
