@@ -27,7 +27,7 @@ jobs:
           arguments: "shadowJar"
 
       - name: "Setup Velocity environment"
-        run: "mkdir -P velocity/plugins"
+        run: "mkdir -p velocity/plugins"
 
       - name: "Copy plugin"
         run: "cp Plugin/build/libs/LibrePremium.jar velocity/plugins/"
