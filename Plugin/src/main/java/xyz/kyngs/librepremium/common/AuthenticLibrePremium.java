@@ -170,6 +170,8 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         version = SemanticVersion.parse(getVersion());
         logger = provideLogger();
 
+        checkDataFolder();
+
         logger.info("Loading messages...");
 
         messages = new HoconMessages(logger);
@@ -190,8 +192,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         logger.info("Messages loaded");
 
         logger.info("Loading configuration...");
-
-        checkDataFolder();
 
         configuration = new HoconPluginConfiguration(logger);
 
