@@ -170,6 +170,25 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         version = SemanticVersion.parse(getVersion());
         logger = provideLogger();
 
+        logger.info("Loading messages...");
+
+        messages = new HoconMessages(logger);
+
+        try {
+            messages.reload(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.info("An unknown exception occurred while attempting to load the messages, this most likely isn't your fault");
+            shutdownProxy(1);
+        } catch (CorruptedConfigurationException e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            shutdownProxy(1);
+        }
+
+        logger.info("Messages loaded");
+
         logger.info("Loading configuration...");
 
         checkDataFolder();
@@ -195,25 +214,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         }
 
         logger.info("Configuration loaded");
-
-        logger.info("Loading messages...");
-
-        messages = new HoconMessages(logger);
-
-        try {
-            messages.reload(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.info("An unknown exception occurred while attempting to load the messages, this most likely isn't your fault");
-            shutdownProxy(1);
-        } catch (CorruptedConfigurationException e) {
-            var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
-            logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            shutdownProxy(1);
-        }
-
-        logger.info("Messages loaded");
 
         logger.info("Loading forbidden passwords...");
 
