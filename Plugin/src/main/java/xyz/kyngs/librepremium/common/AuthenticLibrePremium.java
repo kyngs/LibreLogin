@@ -18,7 +18,6 @@ import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.PlatformHandle;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
-import xyz.kyngs.librepremium.api.configuration.Messages;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.crypto.CryptoProvider;
 import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
@@ -454,7 +453,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     }
 
     @Override
-    public Messages getMessages() {
+    public HoconMessages getMessages() {
         return messages;
     }
 

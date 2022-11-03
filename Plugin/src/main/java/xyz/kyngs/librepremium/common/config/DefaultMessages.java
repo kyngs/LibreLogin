@@ -560,5 +560,206 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    /*
+    Commands Syntax
+     */
 
+    public static final ConfigurationKey<?> SYNTAX = ConfigurationKey.comment(
+            "syntax",
+            "This section contains syntax for commands. It is pretty large, so most people leave the defaults."
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_LOGIN = new ConfigurationKey<>(
+            "syntax.login",
+            "<password> [2fa_code]",
+            "This message is displayed when the player attempts to login with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_REGISTER = new ConfigurationKey<>(
+            "syntax.register",
+            "<password> <passwordRepeat>",
+            "This message is displayed when the player attempts to register with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_PREMIUM = new ConfigurationKey<>(
+            "syntax.premium",
+            "<password>",
+            "This message is displayed when the player attempts to enable premium autologin with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_INFO = new ConfigurationKey<>(
+            "syntax.user-info",
+            "<name>",
+            "This message is displayed when the player attempts to get user info with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_MIGRATE = new ConfigurationKey<>(
+            "syntax.user-migrate",
+            "<name> <newName>",
+            "This message is displayed when the player attempts to migrate user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_UNREGISTER = new ConfigurationKey<>(
+            "syntax.user-unregister",
+            "<name>",
+            "This message is displayed when the player attempts to unregister user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_DELETE = new ConfigurationKey<>(
+            "syntax.user-delete",
+            "<name>",
+            "This message is displayed when the player attempts to delete user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_PREMIUM = new ConfigurationKey<>(
+            "syntax.user-premium",
+            "<name>",
+            "This message is displayed when the player attempts to enable premium autologin for other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_CRACKED = new ConfigurationKey<>(
+            "syntax.user-cracked",
+            "<name>",
+            "This message is displayed when the player attempts to disable premium autologin for other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_REGISTER = new ConfigurationKey<>(
+            "syntax.user-register",
+            "<name> <password>",
+            "This message is displayed when the player attempts to register other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_LOGIN = new ConfigurationKey<>(
+            "syntax.user-login",
+            "<name>",
+            "This message is displayed when the player attempts to login other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_2FA_OFF = new ConfigurationKey<>(
+            "syntax.user-2fa-off",
+            "<name>",
+            "This message is displayed when the player attempts to disable 2FA for other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_2FA_CONFIRM = new ConfigurationKey<>(
+            "syntax.2fa-confirm",
+            "<code>",
+            "This message is displayed when the player attempts to confirm 2FA with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_CHANGE_PASSWORD = new ConfigurationKey<>(
+            "syntax.change-password",
+            "<oldPassword> <newPassword>",
+            "This message is displayed when the player attempts to change password with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    /*
+    Commands autocomplete // Not yet supported by ACF
+     */
+
+    /*public static final ConfigurationKey<?> AUTOCOMPLETE = ConfigurationKey.comment(
+            "autocomplete",
+            """
+                    This section contains autocompletes for commands. It is pretty large, so most people leave the defaults.
+                    !!DO NOT TRANSLATE @players!! It is used to hint out all players online.
+                    """
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_LOGIN = new ConfigurationKey<>(
+            "autocomplete.login",
+            "password",
+            "This hint is displayed when the player starts typing the /login command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_REGISTER = new ConfigurationKey<>(
+            "autocomplete.register",
+            "password password",
+            "This hint is displayed when the player starts typing the /register command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_PREMIUM = new ConfigurationKey<>(
+            "autocomplete.premium",
+            "password",
+            "This hint is displayed when the player starts typing the /premium command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_INFO = new ConfigurationKey<>(
+            "autocomplete.user-info",
+            "@players",
+            "This hint is displayed when the player starts typing the /librepremium user info command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_MIGRATE = new ConfigurationKey<>(
+            "autocomplete.user-migrate",
+            "@players newName",
+            "This hint is displayed when the player starts typing the /librepremium user migrate command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_UNREGISTER = new ConfigurationKey<>(
+            "autocomplete.user-unregister",
+            "@players",
+            "This hint is displayed when the player starts typing the /librepremium user unregister command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_DELETE = new ConfigurationKey<>(
+            "autocomplete.user-delete",
+            "@players",
+            "This hint is displayed when the player starts typing the /librepremium user delete command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_PREMIUM = new ConfigurationKey<>(
+            "autocomplete.user-premium",
+            "@players",
+            "This hint is displayed when the player starts typing the /librepremium user premium command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_CRACKED = new ConfigurationKey<>(
+            "autocomplete.user-cracked",
+            "@players",
+            "This hint is displayed when the player starts typing the /librepremium user cracked command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_REGISTER = new ConfigurationKey<>(
+            "autocomplete.user-register",
+            "@players password",
+            "This hint is displayed when the player starts typing the /librepremium user register command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_LOGIN = new ConfigurationKey<>(
+            "autocomplete.user-login",
+            "@players",
+            "This hint is displayed when the player starts typing the /librepremium user login command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_2FA_OFF = new ConfigurationKey<>(
+            "autocomplete.user-2fa-off",
+            "@players",
+            "This hint is displayed when the player starts typing the /librepremium user 2fa-off command.",
+            ConfigurateHelper::getString
+    );*/
 }

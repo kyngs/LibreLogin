@@ -40,16 +40,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
 
         manager = plugin.provideManager();
 
-        var locales = manager.getLocales();
-
-        var localeMap = new HashMap<String, String>();
-
-        localeMap.put("acf-core.permission_denied", getMessageAsString("error-no-permission"));
-        localeMap.put("acf-core.permission_denied_parameter", getMessageAsString("error-no-permission"));
-        localeMap.put("acf-core.invalid_syntax", getMessageAsString("error-invalid-syntax"));
-        localeMap.put("acf-core.unknown_command", getMessageAsString("error-unknown-command"));
-
-        locales.addMessageStrings(locales.getDefaultLocale(), localeMap);
+        injectMessages();
 
         var contexts = manager.getCommandContexts();
 
@@ -155,4 +146,24 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
     public RateLimiter<UUID> getLimiter() {
         return limiter;
     }
+
+    public void injectMessages() {
+        var locales = manager.getLocales();
+
+        var localeMap = new HashMap<String, String>();
+
+        localeMap.put("acf-core.permission_denied", getMessageAsString("error-no-permission"));
+        localeMap.put("acf-core.permission_denied_parameter", getMessageAsString("error-no-permission"));
+        localeMap.put("acf-core.invalid_syntax", getMessageAsString("error-invalid-syntax"));
+        localeMap.put("acf-core.unknown_command", getMessageAsString("error-unknown-command"));
+
+        plugin.getMessages().getMessages().forEach((key, value) -> {
+            if (key.startsWith("autocomplete") || key.startsWith("syntax")) {
+                localeMap.put(key, ACF_SERIALIZER.serialize(value));
+            }
+        });
+
+        locales.addMessageStrings(locales.getDefaultLocale(), localeMap);
+    }
+
 }

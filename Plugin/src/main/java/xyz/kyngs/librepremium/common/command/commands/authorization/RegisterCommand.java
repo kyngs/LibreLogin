@@ -14,7 +14,7 @@ public class RegisterCommand<P> extends AuthorizationCommand<P> {
     }
 
     @Default
-    @Syntax("<password> <passwordRepeat>")
+    @Syntax("{@@syntax.register}")
     @CommandCompletion("password password")
     public void onRegister(Audience sender, P player, User user, @Single String password, String passwordRepeat) {
         checkUnauthorized(player);

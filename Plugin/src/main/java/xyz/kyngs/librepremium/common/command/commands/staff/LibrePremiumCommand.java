@@ -69,13 +69,15 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
             );
         }
 
+        plugin.getCommandProvider().injectMessages();
+
         audience.sendMessage(getMessage("info-reloaded"));
 
     }
 
     @Subcommand("user info")
     @CommandPermission("librepremium.user.info")
-    @Syntax("<name>")
+    @Syntax("{@@syntax.user-info}")
     @CommandCompletion("@players")
     public void onUserInfo(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
@@ -103,7 +105,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user migrate")
     @CommandPermission("librepremium.user.migrate")
-    @Syntax("<name> <newName>")
+    @Syntax("{@@syntax.user-migrate}")
     @CommandCompletion("@players newName")
     public void onUserMigrate(Audience audience, String name, String newName) {
         var user = getUserOtherWiseInform(name);
@@ -130,7 +132,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user unregister")
     @CommandPermission("librepremium.user.unregister")
-    @Syntax("<name>")
+    @Syntax("{@@syntax.user-unregister}")
     @CommandCompletion("@players")
     public void onUserUnregister(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
@@ -147,7 +149,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user delete")
     @CommandPermission("librepremium.user.delete")
-    @Syntax("<name>")
+    @Syntax("{@@syntax.user-delete}")
     @CommandCompletion("@players")
     public void onUserDelete(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
@@ -163,7 +165,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user premium")
     @CommandPermission("librepremium.user.premium")
-    @Syntax("<name>")
+    @Syntax("{@@syntax.user-premium}")
     @CommandCompletion("@players")
     public void onUserPremium(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
@@ -181,7 +183,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user cracked")
     @CommandPermission("librepremium.user.cracked")
-    @Syntax("<name>")
+    @Syntax("{@@syntax.user-cracked}")
     @CommandCompletion("@players")
     public void onUserCracked(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
@@ -198,7 +200,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user register")
     @CommandPermission("librepremium.user.register")
-    @Syntax("<name> <password>")
+    @Syntax("{@@syntax.user-register}")
     @CommandCompletion("@players password")
     public void onUserRegister(Audience audience, String name, String password) {
         audience.sendMessage(getMessage("info-registering"));
@@ -229,7 +231,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user login")
     @CommandPermission("librepremium.user.login")
-    @Syntax("<name>")
+    @Syntax("{@@syntax.user-login}")
     @CommandCompletion("@players")
     public void onUserLogin(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
@@ -247,7 +249,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
 
     @Subcommand("user 2faoff")
     @CommandPermission("librepremium.user.2faoff")
-    @Syntax("<name>")
+    @Syntax("{@@syntax.user-2fa-off}")
     @CommandCompletion("@players")
     public void onUser2FAOff(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);

@@ -15,7 +15,7 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
     }
 
     @Default
-    @Syntax("<password> [2fa_code]")
+    @Syntax("{@@syntax.login}")
     @CommandCompletion("password")
     public void onLogin(Audience sender, P player, User user, @Single String password, @Optional Integer code) {
         checkUnauthorized(player);

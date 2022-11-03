@@ -16,7 +16,7 @@ public class PremiumEnableCommand<P> extends PremiumCommand<P> {
     }
 
     @Default
-    @Syntax("<password>")
+    @Syntax("{@@syntax.premium}")
     @CommandCompletion("password")
     public void onPremium(Audience sender, UUID uuid, P player, User user, @Single String password) {
         checkAuthorized(player);

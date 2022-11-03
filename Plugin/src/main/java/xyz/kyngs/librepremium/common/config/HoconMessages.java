@@ -2,6 +2,7 @@ package xyz.kyngs.librepremium.common.config;
 
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.spongepowered.configurate.CommentedConfigurationNode;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.CorruptedConfigurationException;
@@ -17,13 +18,16 @@ import java.util.Map;
 public class HoconMessages implements Messages {
 
     private final static LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
-
     private final Map<String, TextComponent> messages;
     private final Logger logger;
 
     public HoconMessages(Logger logger) {
         this.logger = logger;
         messages = new HashMap<>();
+    }
+
+    public Map<String, TextComponent> getMessages() {
+        return messages;
     }
 
     @Override
@@ -71,16 +75,22 @@ public class HoconMessages implements Messages {
                 new SecondMessagesMigrator()
         );
 
-        var node = adept.getHelper().configuration();
+        extractKeys("", adept.getHelper().configuration());
+    }
 
+    private void extractKeys(String prefix, CommentedConfigurationNode node) {
         node.childrenMap().forEach((key, value) -> {
-                    if (!(key instanceof String str)) return;
-                    var string = value.getString();
+            if (!(key instanceof String str)) return;
 
-                    if (string == null) return;
+            if (value.childrenMap().isEmpty()) {
+                var string = value.getString();
 
-                    messages.put(str, SERIALIZER.deserialize(string));
-                }
-        );
+                if (string == null) return;
+
+                messages.put(prefix + str, SERIALIZER.deserialize(string));
+            } else {
+                extractKeys(prefix + str + ".", value);
+            }
+        });
     }
 }

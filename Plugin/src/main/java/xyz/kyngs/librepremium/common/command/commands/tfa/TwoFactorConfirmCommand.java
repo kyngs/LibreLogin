@@ -16,7 +16,7 @@ public class TwoFactorConfirmCommand<P> extends Command<P> {
     }
 
     @Default
-    @Syntax("<code>")
+    @Syntax("{@@syntax.2fa-confirm}")
     public void onTwoFactorConfirm(Audience sender, P player, User user, Integer code) {
         checkAuthorized(player);
         var auth = plugin.getAuthorizationProvider();
