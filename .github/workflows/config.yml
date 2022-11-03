@@ -45,4 +45,4 @@ jobs:
           path: "wiki"
 
       - name: "Update wiki"
-        run: "cd wiki && echo '```hocon' > Configuration.md && cat ../velocity/plugins/LibrePremium/config.conf >> Configuration.md && echo '```' >> Configuration.md"
+        run: "cd wiki && echo '```hocon' > Config.md && cat ../velocity/plugins/librepremium/config.conf >> Config.md && echo '```' >> Config.md"
