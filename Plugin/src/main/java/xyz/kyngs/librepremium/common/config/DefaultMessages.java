@@ -653,6 +653,13 @@ public class DefaultMessages {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_USER_CHANGE_PASSWORD = new ConfigurationKey<>(
+            "syntax.user-pass-change",
+            "<name> <newPassword>",
+            "This message is displayed when the player attempts to change password for other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> SYNTAX_2FA_CONFIRM = new ConfigurationKey<>(
             "syntax.2fa-confirm",
             "<code>",

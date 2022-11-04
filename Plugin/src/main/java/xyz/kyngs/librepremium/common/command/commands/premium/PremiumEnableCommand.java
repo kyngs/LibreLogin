@@ -19,7 +19,6 @@ public class PremiumEnableCommand<P> extends PremiumCommand<P> {
     @Syntax("{@@syntax.premium}")
     @CommandCompletion("password")
     public void onPremium(Audience sender, UUID uuid, P player, User user, @Single String password) {
-        checkAuthorized(player);
         checkCracked(user);
 
         var hashed = user.getHashedPassword();

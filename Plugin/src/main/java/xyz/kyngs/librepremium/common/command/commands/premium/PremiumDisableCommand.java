@@ -17,7 +17,6 @@ public class PremiumDisableCommand<P> extends PremiumCommand<P> {
 
     @Default
     public void onCracked(Audience sender, P player, User user) {
-        checkAuthorized(player);
         checkPremium(user);
 
         sender.sendMessage(getMessage("info-disabling"));

@@ -263,4 +263,22 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
         audience.sendMessage(getMessage("info-edited"));
     }
 
+    @Subcommand("user pass-change")
+    @CommandPermission("librepremium.user.pass-change")
+    @Syntax("{@@syntax.user-pass-change}")
+    @CommandCompletion("@players password")
+    public void onUserPasswordChange(Audience audience, String name, String password) {
+        var user = getUserOtherWiseInform(name);
+
+        audience.sendMessage(getMessage("info-editing"));
+
+        var defaultProvider = plugin.getDefaultCryptoProvider();
+
+        user.setHashedPassword(defaultProvider.createHash(password));
+
+        getDatabaseProvider().updateUser(user);
+
+        audience.sendMessage(getMessage("info-edited"));
+    }
+
 }

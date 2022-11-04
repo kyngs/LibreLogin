@@ -14,7 +14,6 @@ public class PremiumConfirmCommand<P> extends PremiumCommand<P> {
 
     @Default
     public void onPremiumConfirm(Audience sender, P player, User user) {
-        checkAuthorized(player);
         checkCracked(user);
 
         plugin.getCommandProvider().onConfirm(player, sender, user);
