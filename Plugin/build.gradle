@@ -55,7 +55,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-proxy:3.0.1'
 
     //MySQL
-    implementation 'mysql:mysql-connector-java:8.0.29'
+    implementation 'mysql:mysql-connector-java:8.0.30'
     implementation 'com.zaxxer:HikariCP:5.0.1'
     implementation 'com.github.kyngs:EasyDB:a4bdf88ee0'
 
@@ -67,7 +67,7 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
     implementation 'org.spongepowered:configurate-hocon:4.1.2'
     implementation 'at.favre.lib:bcrypt:0.9.0'
-    implementation 'dev.samstevens.totp:totp:1.7.1'
+    implementation 'dev.samstevens.totp:totp:1.7.2'
     compileOnly 'dev.simplix:protocolize-api:2.2.2'
 
     //Geyser
@@ -75,7 +75,7 @@ dependencies {
 
     //Bungeecord
     compileOnly 'net.md-5:bungeecord-api:1.18-R0.1-SNAPSHOT'
-    implementation 'net.kyori:adventure-platform-bungeecord:4.1.1'
+    implementation 'net.kyori:adventure-platform-bungeecord:4.1.2'
     compileOnly 'com.github.limework.redisbungee:RedisBungee-API:0.7.2'
 
     //BStats
