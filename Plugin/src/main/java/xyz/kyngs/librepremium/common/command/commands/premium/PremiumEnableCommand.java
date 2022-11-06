@@ -17,7 +17,7 @@ public class PremiumEnableCommand<P> extends PremiumCommand<P> {
 
     @Default
     @Syntax("{@@syntax.premium}")
-    @CommandCompletion("password")
+    @CommandCompletion("%autocomplete.premium")
     public void onPremium(Audience sender, UUID uuid, P player, User user, @Single String password) {
         checkCracked(user);
 

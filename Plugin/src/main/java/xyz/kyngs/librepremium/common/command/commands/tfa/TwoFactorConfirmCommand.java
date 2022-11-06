@@ -1,6 +1,7 @@
 package xyz.kyngs.librepremium.common.command.commands.tfa;
 
 import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Syntax;
 import net.kyori.adventure.audience.Audience;
@@ -17,6 +18,7 @@ public class TwoFactorConfirmCommand<P> extends Command<P> {
 
     @Default
     @Syntax("{@@syntax.2fa-confirm}")
+    @CommandCompletion("%autocomplete.2fa-confirm")
     public void onTwoFactorConfirm(Audience sender, P player, User user, Integer code) {
         checkAuthorized(player);
         var auth = plugin.getAuthorizationProvider();

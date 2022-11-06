@@ -16,7 +16,7 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
 
     @Default
     @Syntax("{@@syntax.login}")
-    @CommandCompletion("password")
+    @CommandCompletion("%autocomplete.login")
     public void onLogin(Audience sender, P player, User user, @Single String password, @Optional Integer code) {
         checkUnauthorized(player);
         if (!user.isRegistered()) throw new InvalidCommandArgument(getMessage("error-not-registered"));

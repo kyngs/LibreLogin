@@ -675,10 +675,10 @@ public class DefaultMessages {
     );
 
     /*
-    Commands autocomplete // Not yet supported by ACF
+    Commands autocomplete
      */
 
-    /*public static final ConfigurationKey<?> AUTOCOMPLETE = ConfigurationKey.comment(
+    public static final ConfigurationKey<?> AUTOCOMPLETE = ConfigurationKey.comment(
             "autocomplete",
             """
                     This section contains autocompletes for commands. It is pretty large, so most people leave the defaults.
@@ -768,5 +768,26 @@ public class DefaultMessages {
             "@players",
             "This hint is displayed when the player starts typing the /librepremium user 2fa-off command.",
             ConfigurateHelper::getString
-    );*/
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_CHANGE_PASSWORD = new ConfigurationKey<>(
+            "autocomplete.user-pass-change",
+            "@players newPassword",
+            "This hint is displayed when the player starts typing the /librepremium user pass-change command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_2FA_CONFIRM = new ConfigurationKey<>(
+            "autocomplete.2fa-confirm",
+            "code",
+            "This hint is displayed when the player starts typing the /2fa-confirm command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_CHANGE_PASSWORD = new ConfigurationKey<>(
+            "autocomplete.change-password",
+            "oldPassword newPassword",
+            "This hint is displayed when the player starts typing the /changepassword command.",
+            ConfigurateHelper::getString
+    );
 }

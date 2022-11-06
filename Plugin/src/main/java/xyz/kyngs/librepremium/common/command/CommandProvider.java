@@ -149,7 +149,6 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
 
     public void injectMessages() {
         var locales = manager.getLocales();
-
         var localeMap = new HashMap<String, String>();
 
         localeMap.put("acf-core.permission_denied", getMessageAsString("error-no-permission"));
@@ -158,8 +157,10 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
         localeMap.put("acf-core.unknown_command", getMessageAsString("error-unknown-command"));
 
         plugin.getMessages().getMessages().forEach((key, value) -> {
-            if (key.startsWith("autocomplete") || key.startsWith("syntax")) {
+            if (key.startsWith("syntax")) {
                 localeMap.put(key, ACF_SERIALIZER.serialize(value));
+            } else if (key.startsWith("autocomplete")) {
+                manager.getCommandReplacements().addReplacement(key, ACF_SERIALIZER.serialize(value));
             }
         });
 

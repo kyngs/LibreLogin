@@ -17,7 +17,7 @@ public class ChangePasswordCommand<P> extends Command<P> {
 
     @Default
     @Syntax("{@@syntax.change-password}")
-    @CommandCompletion("oldPassword newPassword")
+    @CommandCompletion("%autocomplete.change-password")
     public void onPasswordChange(Audience sender, P player, User user, String oldPass, @Single String newPass) {
         sender.sendMessage(getMessage("info-editing"));
 

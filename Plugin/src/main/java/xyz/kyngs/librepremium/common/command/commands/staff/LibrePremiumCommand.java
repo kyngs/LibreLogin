@@ -78,7 +78,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user info")
     @CommandPermission("librepremium.user.info")
     @Syntax("{@@syntax.user-info}")
-    @CommandCompletion("@players")
+    @CommandCompletion("%autocomplete.user-info")
     public void onUserInfo(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
@@ -106,7 +106,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user migrate")
     @CommandPermission("librepremium.user.migrate")
     @Syntax("{@@syntax.user-migrate}")
-    @CommandCompletion("@players newName")
+    @CommandCompletion("%autocomplete.user-migrate")
     public void onUserMigrate(Audience audience, String name, String newName) {
         var user = getUserOtherWiseInform(name);
         var colliding = getDatabaseProvider().getByName(newName);
@@ -133,7 +133,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user unregister")
     @CommandPermission("librepremium.user.unregister")
     @Syntax("{@@syntax.user-unregister}")
-    @CommandCompletion("@players")
+    @CommandCompletion("%autocomplete.user-unregister")
     public void onUserUnregister(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
@@ -150,7 +150,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user delete")
     @CommandPermission("librepremium.user.delete")
     @Syntax("{@@syntax.user-delete}")
-    @CommandCompletion("@players")
+    @CommandCompletion("%autocomplete.user-delete")
     public void onUserDelete(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
@@ -166,7 +166,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user premium")
     @CommandPermission("librepremium.user.premium")
     @Syntax("{@@syntax.user-premium}")
-    @CommandCompletion("@players")
+    @CommandCompletion("%autocomplete.user-premium")
     public void onUserPremium(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
@@ -184,7 +184,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user cracked")
     @CommandPermission("librepremium.user.cracked")
     @Syntax("{@@syntax.user-cracked}")
-    @CommandCompletion("@players")
+    @CommandCompletion("%autocomplete.user-cracked")
     public void onUserCracked(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
@@ -201,7 +201,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user register")
     @CommandPermission("librepremium.user.register")
     @Syntax("{@@syntax.user-register}")
-    @CommandCompletion("@players password")
+    @CommandCompletion("%autocomplete.user-register")
     public void onUserRegister(Audience audience, String name, String password) {
         audience.sendMessage(getMessage("info-registering"));
 
@@ -232,7 +232,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user login")
     @CommandPermission("librepremium.user.login")
     @Syntax("{@@syntax.user-login}")
-    @CommandCompletion("@players")
+    @CommandCompletion("%autocomplete.user-login")
     public void onUserLogin(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
@@ -250,7 +250,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user 2faoff")
     @CommandPermission("librepremium.user.2faoff")
     @Syntax("{@@syntax.user-2fa-off}")
-    @CommandCompletion("@players")
+    @CommandCompletion("%autocomplete.user-2fa-off")
     public void onUser2FAOff(Audience audience, String name) {
         var user = getUserOtherWiseInform(name);
 
@@ -266,7 +266,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
     @Subcommand("user pass-change")
     @CommandPermission("librepremium.user.pass-change")
     @Syntax("{@@syntax.user-pass-change}")
-    @CommandCompletion("@players password")
+    @CommandCompletion("%autocomplete.user-pass-change")
     public void onUserPasswordChange(Audience audience, String name, String password) {
         var user = getUserOtherWiseInform(name);
 
