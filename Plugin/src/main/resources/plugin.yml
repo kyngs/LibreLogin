@@ -1,0 +1,4 @@
+name: "LibrePremium"
+author: "kyngs"
+version: 0.13.0-DEVELOPMENT
+main: "xyz.kyngs.librepremium.paper.PaperBootstrap"

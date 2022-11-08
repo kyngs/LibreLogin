@@ -27,7 +27,7 @@ public class DefaultConfiguration {
     public static final ConfigurationKey<List<String>> LIMBO = new ConfigurationKey<>(
             "limbo",
             List.of("limbo0", "limbo1"),
-            "The limbos, players should be sent to, when not authenticated. THIS SERVER MUST BE REGISTERED IN THE PROXY CONFIG",
+            "The authentication servers/worlds, players should be sent to, when not authenticated. On Paper, players will be spawned on the world spawn. THIS SERVERS MUST BE REGISTERED IN THE PROXY CONFIG. IN CASE OF PAPER, THE WORLDS MUST EXIST.",
             ConfigurateHelper::getStringList
     );
 
@@ -36,8 +36,11 @@ public class DefaultConfiguration {
             "pass-through",
             PASS_THROUGH_DEFAULT,
             """
-                    The servers player should be sent to when they are authenticated. THE SERVERS MUST BE REGISTERED IN THE PROXY CONFIG.
-                    The configuration allows configuring forced hosts; the servers in "root" are used when players do not connect from a forced host. Use § instead of dots.
+                    !!WHEN USING PAPER, PUT ALL WORLDS UNDER "root"!!
+                    On Paper, players will be spawned on the world spawn.
+                                        
+                    The servers/worlds player should be sent to when they are authenticated. THE SERVERS MUST BE REGISTERED IN THE PROXY CONFIG. IN CASE OF PAPER, THE WORLDS MUST EXIST.
+                    The configuration allows configuring forced hosts; the servers/worlds in "root" are used when players do not connect from a forced host. Use § instead of dots.
                     See: https://github.com/kyngs/LibrePremium/wiki/Configuring-Forced-Hosts
                     """,
             ConfigurateHelper::getServerMap
@@ -271,14 +274,14 @@ public class DefaultConfiguration {
     public static final ConfigurationKey<Boolean> PING_SERVERS = new ConfigurationKey<>(
             "ping-servers",
             true,
-            "Should we ping servers to check if they are online, and get their player count? If you disable this, the pinging servers message will still appear in the console, even though the servers will not be pinged.",
+            "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Should we ping servers to check if they are online, and get their player count? If you disable this, the pinging servers message will still appear in the console, even though the servers will not be pinged.",
             ConfigurateHelper::getBoolean
     );
 
     public static final ConfigurationKey<Boolean> REMEMBER_LAST_SERVER = new ConfigurationKey<>(
             "remember-last-server",
             false,
-            "Should we remember the last server a player was on? This is not recommended for large networks.",
+            "Should we remember the last server/world a player was on? This is not recommended for large networks.",
             ConfigurateHelper::getBoolean
     );
 
@@ -299,7 +302,7 @@ public class DefaultConfiguration {
     public static final ConfigurationKey<Boolean> FALLBACK = new ConfigurationKey<>(
             "fallback",
             true,
-            "Should we fallback players to lobby servers if the server they are on shutdowns? If set to false, they will be kicked.",
+            "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Should we fallback players to lobby servers if the server they are on shutdowns? If set to false, they will be kicked.",
             ConfigurateHelper::getBoolean
     );
 }

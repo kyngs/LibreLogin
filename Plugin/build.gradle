@@ -14,6 +14,7 @@ repositories {
     maven { url = "https://nexus.velocitypowered.com/repository/maven-public/" }
     maven { url = "https://hub.spigotmc.org/nexus/" }
     maven { url = "https://mvn.exceptionflug.de/repository/exceptionflug-public/" }
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
 }
 
 blossom {
@@ -30,16 +31,16 @@ shadowJar {
         exclude(dependency('com.google.protobuf:.*:.*'))
     }
 
-    relocate 'co.aikar', 'xyz.librepremium.lib.acf'
-    relocate 'com.github.benmanes.caffeine', 'xyz.librepremium.lib.caffeine'
-    relocate 'com.typesafe.config', 'xyz.librepremium.lib.hocon'
-    relocate 'com.zaxxer.hikari', 'xyz.librepremium.lib.hikari'
-    relocate 'com.mysql', 'xyz.librepremium.lib.mysql'
-    relocate 'org.bstats', 'xyz.librepremium.lib.metrics'
-    relocate 'org.intellij', 'xyz.librepremium.lib.intellij'
-    relocate 'org.jetbrains', 'xyz.librepremium.lib.jetbrains'
-    relocate 'io.leangen.geantyref', 'xyz.librepremium.lib.reflect'
-    relocate 'org.spongepowered.configurate', 'xyz.librepremium.lib.configurate'
+    relocate 'co.aikar.acf', 'xyz.kyngs.librepremiumlib.acf'
+    relocate 'com.github.benmanes.caffeine', 'xyz.kyngs.librepremiumlib.caffeine'
+    relocate 'com.typesafe.config', 'xyz.kyngs.librepremiumlib.hocon'
+    relocate 'com.zaxxer.hikari', 'xyz.kyngs.librepremiumlib.hikari'
+    relocate 'com.mysql', 'xyz.kyngs.librepremiumlib.mysql'
+    relocate 'org.bstats', 'xyz.kyngs.librepremiumlib.metrics'
+    relocate 'org.intellij', 'xyz.kyngs.librepremiumlib.intellij'
+    relocate 'org.jetbrains', 'xyz.kyngs.librepremiumlib.jetbrains'
+    relocate 'io.leangen.geantyref', 'xyz.kyngs.librepremiumlib.reflect'
+    relocate 'org.spongepowered.configurate', 'xyz.kyngs.librepremiumlib.configurate'
 }
 
 java {
@@ -62,6 +63,7 @@ dependencies {
     //ACF
     implementation 'com.github.kyngs.commands:acf-velocity:object-fix-SNAPSHOT'
     implementation 'com.github.kyngs.commands:acf-bungee:object-fix-SNAPSHOT'
+    implementation 'com.github.kyngs.commands:acf-paper:object-fix-SNAPSHOT'
 
     //Utils
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
@@ -81,4 +83,8 @@ dependencies {
     //BStats
     implementation 'org.bstats:bstats-velocity:3.0.0'
     implementation 'org.bstats:bstats-bungeecord:3.0.0'
+    implementation 'org.bstats:bstats-bukkit:3.0.0'
+
+    //Paper
+    compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
 }

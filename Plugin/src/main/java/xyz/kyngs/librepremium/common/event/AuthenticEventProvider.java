@@ -21,7 +21,7 @@ public class AuthenticEventProvider<P, S> extends AuthenticHandler<P, S> impleme
     }
 
     @Override
-    public <E extends Event<P, S>> void subscribe(Class<E> clazz, Consumer<E> handler) {
+    public <E extends Event<P, S>> void subscribe(Class<? extends E> clazz, Consumer<E> handler) {
         if (!clazz.isInterface())
             throw new IllegalArgumentException("You must subscribe to the event, not its implementation");
         listeners.computeIfAbsent(clazz, x -> new HashSet<>()).add((Consumer<Event<P, S>>) handler);

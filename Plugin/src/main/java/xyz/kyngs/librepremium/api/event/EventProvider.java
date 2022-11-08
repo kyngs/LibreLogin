@@ -18,7 +18,7 @@ public interface EventProvider<P, S> {
      * @param handler The handler to call when the event is fired
      * @param <E>     The event type
      */
-    <E extends Event<P, S>> void subscribe(Class<E> clazz, Consumer<E> handler);
+    <E extends Event<P, S>> void subscribe(Class<? extends E> clazz, Consumer<E> handler);
 
     /**
      * Allows you to fire an event.
