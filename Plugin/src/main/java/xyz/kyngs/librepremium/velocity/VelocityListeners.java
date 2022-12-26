@@ -76,7 +76,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, 
 
     }
 
-    @Subscribe(order = PostOrder.LATE)
+    @Subscribe(order = PostOrder.EARLY)
     public void onKick(KickedFromServerEvent event) {
         var reason = event.getServerKickReason().orElse(Component.text("null"));
         var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
