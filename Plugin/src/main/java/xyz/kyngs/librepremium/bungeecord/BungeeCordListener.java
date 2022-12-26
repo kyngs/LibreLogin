@@ -12,8 +12,8 @@ import xyz.kyngs.librepremium.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
 
-import static net.md_5.bungee.event.EventPriority.HIGH;
 import static net.md_5.bungee.event.EventPriority.HIGHEST;
+import static net.md_5.bungee.event.EventPriority.LOW;
 
 public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremium, ProxiedPlayer, ServerInfo> implements Listener {
 
@@ -97,7 +97,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
         }
     }
 
-    @EventHandler(priority = HIGH)
+    @EventHandler(priority = LOW)
     public void onKick(ServerKickEvent event) {
         var reason = plugin.getSerializer().deserialize(event.getKickReasonComponent());
         var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
