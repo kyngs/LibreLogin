@@ -99,16 +99,13 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
 
     @EventHandler(priority = LOW)
     public void onKick(ServerKickEvent event) {
-        var reason = plugin.getSerializer().deserialize(event.getKickReasonComponent());
-        var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
-        var player = event.getPlayer();
-        var audience = platformHandle.getAudienceForPlayer(event.getPlayer());
+        if (plugin.getConfiguration().fallback()) {
+            var reason = plugin.getSerializer().deserialize(event.getKickReasonComponent());
+            var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
+            var player = event.getPlayer();
+            var audience = platformHandle.getAudienceForPlayer(event.getPlayer());
 
-        if (event.getState() == ServerKickEvent.State.CONNECTED) {
-            if (!plugin.getConfiguration().fallback()) {
-                event.setKickReasonComponent(plugin.getSerializer().serialize(message));
-                event.setCancelled(false);
-            } else {
+            if (event.getState() == ServerKickEvent.State.CONNECTED) {
                 var server = plugin.chooseLobby(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
 
                 if (server == null) {
@@ -120,9 +117,9 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
 
                     audience.sendMessage(message);
                 }
+            } else {
+                audience.sendMessage(message);
             }
-        } else {
-            audience.sendMessage(message);
         }
     }
 

@@ -78,15 +78,13 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, 
 
     @Subscribe(order = PostOrder.EARLY)
     public void onKick(KickedFromServerEvent event) {
-        var reason = event.getServerKickReason().orElse(Component.text("null"));
-        var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
-        var player = event.getPlayer();
+        if (plugin.getConfiguration().fallback()) {
+            var reason = event.getServerKickReason().orElse(Component.text("null"));
+            var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
+            var player = event.getPlayer();
 
-        if (event.kickedDuringServerConnect()) {
-            event.setResult(KickedFromServerEvent.Notify.create(message));
-        } else {
-            if (!plugin.getConfiguration().fallback()) {
-                event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
+            if (event.kickedDuringServerConnect()) {
+                event.setResult(KickedFromServerEvent.Notify.create(message));
             } else {
                 var server = plugin.chooseLobby(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
 
