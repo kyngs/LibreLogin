@@ -1,6 +1,7 @@
 package xyz.kyngs.librepremium.common.util;
 
-import xyz.kyngs.librepremium.api.BiHolder;
+import java.util.AbstractMap.SimpleEntry;
+
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 
 public class CryptoUtil {
@@ -23,10 +24,10 @@ public class CryptoUtil {
         );
     }
 
-    public static BiHolder<String, String> convertHash(String hash) {
+    public static SimpleEntry<String, String> convertHash(String hash) {
         var split = hash.split("\\$");
 
-        return new BiHolder<>(
+        return new SimpleEntry<>(
                 split[0],
                 split[1]
         );
@@ -36,9 +37,9 @@ public class CryptoUtil {
         var extracted = convertHash(password.hash());
         return "$%s$%s$%s%s".formatted(
                 password.algo().replace("BCrypt-", "").toLowerCase(),
-                extracted.key(),
+                extracted.getKey(),
                 password.salt(),
-                extracted.value()
+                extracted.getValue()
         );
     }
 
