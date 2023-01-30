@@ -76,16 +76,21 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         try {
             var connection = (HttpURLConnection) new URL("https://api.ashcon.app/mojang/v2/user/" + name).openConnection();
 
-            if (connection.getResponseCode() == 200) {
-                var data = AuthenticLibrePremium.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+            switch (connection.getResponseCode()) {
+                case 200 -> {
+                    var data = AuthenticLibrePremium.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
-                var uuid = data.get("uuid");
+                    var uuid = data.get("uuid");
 
-                return new PremiumUser(UUID.fromString(uuid.getAsString()), data.get("username").getAsString());
-            } else if (connection.getResponseCode() == 404) {
-                return null;
-            } else {
-                throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+                    return new PremiumUser(UUID.fromString(uuid.getAsString()), data.get("username").getAsString());
+                }
+                case 404 -> {
+                    return null;
+                }
+                case 429 ->
+                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             }
         } catch (IOException e) {
             throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
@@ -99,8 +104,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
             return switch (connection.getResponseCode()) {
                 case 429 ->
                         throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
-                case 204 -> null;
-                case 400 ->
+                case 204, 404 -> null;
+                default ->
                         throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 200 -> {
                     var data = AuthenticLibrePremium.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
@@ -113,7 +118,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                             data.get("name").getAsString()
                     );
                 }
-                default ->
+                case 500 ->
                         throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
             };
         } catch (IOException e) {
