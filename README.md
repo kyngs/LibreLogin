@@ -20,7 +20,7 @@ Like JPremium, but free, open-source and multiplatform
 
 - [x] Velocity
 - [x] BungeeCord
-- [ ] Spigot
+- [x] Paper
 
 ## Wiki
 
