@@ -1,0 +1,27 @@
+name: "Publish build artifact"
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: Allow gradlew execution
+        run: chmod +x gradlew
+
+      - name: Build
+        run: |
+          ./gradlew shadowJar
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: LibrePremium
+          path: ./Plugin/build/libs/LibrePremium.jar
