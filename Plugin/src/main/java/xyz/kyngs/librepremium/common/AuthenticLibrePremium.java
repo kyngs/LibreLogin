@@ -569,7 +569,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             var server = platformHandle.getPlayersServerName(player);
             if (server == null) return;
             var user = databaseProvider.getByUUID(platformHandle.getUUIDForPlayer(player));
-            if (user != null) {
+            if (user != null && !getConfiguration().getLimbo().contains(server)) {
                 user.setLastServer(server);
                 databaseProvider.updateUser(user);
             }

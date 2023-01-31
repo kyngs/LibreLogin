@@ -29,3 +29,9 @@ Please check our wiki for guides, features and other things.
 # Contact
 
 [Please join our discord](https://discord.gg/HP3CSfCv2v).
+
+# Special thanks
+
+- [Raixo](https://github.com/RAIXOCZ) - for developing the original bungeecord port
+- [FastLogin contributors](https://github.com/games647/FastLogin) - for their work, which was used as a base for the
+  paper port

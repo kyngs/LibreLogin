@@ -24,9 +24,14 @@ import xyz.kyngs.librepremium.common.util.CancellableTask;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Comparator;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
+    public PaperBootstrap getBootstrap() {
+        return bootstrap;
+    }
+
     private final PaperBootstrap bootstrap;
 
     public PaperLibrePremium(PaperBootstrap bootstrap) {
@@ -100,6 +105,9 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
             var player = (Player) event.getPlayer(); //Not optimal
             player.setInvisible(false);
         });
+
+        Bukkit.getPluginManager().registerEvents(new PaperListeners(this), bootstrap);
+        Bukkit.getPluginManager().registerEvents(new Blockers(this), bootstrap);
     }
 
     @Override
@@ -121,7 +129,13 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
 
     @Override
     public void authorize(Player player, User user, Audience audience) {
-
+        try {
+            var lobby = chooseLobby(user, player, true);
+            if (lobby == null) throw new NoSuchElementException();
+            player.teleportAsync(lobby.getSpawnLocation());
+        } catch (NoSuchElementException e) {
+            player.kick(getMessages().getMessage("kick-no-server"));
+        }
     }
 
     @Override

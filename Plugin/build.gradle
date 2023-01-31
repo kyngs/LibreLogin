@@ -19,6 +19,7 @@ repositories {
     maven { url = "https://hub.spigotmc.org/nexus/" }
     maven { url = "https://mvn.exceptionflug.de/repository/exceptionflug-public/" }
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
+    maven { url = "https://repo.dmulloy2.net/repository/public/" }
 }
 
 blossom {
@@ -91,4 +92,10 @@ dependencies {
 
     //Paper
     compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT'
+    compileOnly 'io.netty:netty-transport:4.1.79.Final'
+    compileOnly 'com.mojang:datafixerupper:5.0.28' //I hate this so much
+
+    //Libby
+    implementation 'net.byteflux:libby-bukkit:1.1.5'
 }

@@ -31,7 +31,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         platformHandle = plugin.getPlatformHandle();
     }
 
-    protected void onPostLogin(P player) {
+    protected void onPostLogin(P player, @Nullable String ip) {
+        if (ip == null) ip = platformHandle.getIP(player);
         var uuid = platformHandle.getUUIDForPlayer(player);
         if (plugin.fromFloodgate(uuid)) return;
 
@@ -41,7 +42,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         if (user.autoLoginEnabled()) {
             plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-premium-logged-in"));
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.PREMIUM));
-        } else if (sessionTime != null && user.getLastAuthentication() != null && platformHandle.getIP(player).equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now())) {
+        } else if (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now())) {
             plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-session-logged-in"));
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.SESSION));
         } else {
@@ -61,7 +62,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
 
     protected PreLoginResult onPreLogin(String username) {
         if (username.length() > 16 || !NAME_PATTERN.matcher(username).matches()) {
-            return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-illegal-username"));
+            return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-illegal-username"), null);
         }
 
         PremiumUser premium;
@@ -78,7 +79,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                 }
             };
 
-            return new PreLoginResult(PreLoginState.DENIED, message);
+            return new PreLoginResult(PreLoginState.DENIED, message, null);
         }
 
         if (premium == null) {
@@ -86,7 +87,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
             try {
                 user = checkAndValidateByName(username, null, true);
             } catch (InvalidCommandArgument e) {
-                return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
+                return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
             }
 
             //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
@@ -104,24 +105,25 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                 try {
                     userByName = checkAndValidateByName(username, premiumID, true);
                 } catch (InvalidCommandArgument e) {
-                    return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
+                    return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
                 }
 
                 //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
-                if (userByName.autoLoginEnabled()) return new PreLoginResult(PreLoginState.FORCE_ONLINE, null);
+                if (userByName.autoLoginEnabled())
+                    return new PreLoginResult(PreLoginState.FORCE_ONLINE, null, userByName);
             } else {
                 User byName;
                 try {
                     byName = checkAndValidateByName(username, premiumID, false);
                 } catch (InvalidCommandArgument e) {
-                    return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp());
+                    return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
                 }
 
                 if (byName != null && !user.equals(byName)) {
                     // Oh, no
                     return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-name-mismatch",
                             "%nickname%", username
-                    ));
+                    ), null);
                 }
 
                 if (!user.getLastNickname().contentEquals(premium.name())) {
@@ -130,11 +132,11 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
                     plugin.getDatabaseProvider().updateUser(user);
                 }
 
-                return new PreLoginResult(PreLoginState.FORCE_ONLINE, null);
+                return new PreLoginResult(PreLoginState.FORCE_ONLINE, null, user);
             }
         }
 
-        return new PreLoginResult(PreLoginState.FORCE_OFFLINE, null);
+        return new PreLoginResult(PreLoginState.FORCE_OFFLINE, null, null);
     }
 
     private User checkAndValidateByName(String username, @Nullable UUID premiumID, boolean generate) throws InvalidCommandArgument {
@@ -192,7 +194,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         return user;
     }
 
-    protected S chooseServer(P player) {
+    protected S chooseServer(P player, @Nullable String ip) {
         var id = platformHandle.getUUIDForPlayer(player);
         var fromFloodgate = plugin.fromFloodgate(id);
 
@@ -200,7 +202,11 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
 
         var user = fromFloodgate ? null : plugin.getDatabaseProvider().getByUUID(id);
 
-        if (fromFloodgate || user.autoLoginEnabled() || (sessionTime != null && user.getLastAuthentication() != null && platformHandle.getIP(player).equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
+        if (ip == null) {
+            ip = platformHandle.getIP(player);
+        }
+
+        if (fromFloodgate || user.autoLoginEnabled() || (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
             return plugin.chooseLobby(user, player, true);
         } else {
             return plugin.chooseLimbo(user, player);

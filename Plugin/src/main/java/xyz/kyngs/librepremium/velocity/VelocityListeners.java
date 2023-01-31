@@ -21,7 +21,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, 
 
     @Subscribe(order = PostOrder.LAST)
     public void onPostLogin(PostLoginEvent event) {
-        onPostLogin(event.getPlayer());
+        onPostLogin(event.getPlayer(), null);
     }
 
     @Subscribe
@@ -65,7 +65,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, 
 
     @Subscribe(order = PostOrder.LAST)
     public void chooseServer(PlayerChooseInitialServerEvent event) {
-        var server = chooseServer(event.getPlayer());
+        var server = chooseServer(event.getPlayer(), null);
 
         if (server == null) {
             event.getPlayer().disconnect(plugin.getMessages().getMessage("kick-no-server"));
