@@ -16,6 +16,9 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.byteflux.libby.Library;
+import net.byteflux.libby.LibraryManager;
+import net.byteflux.libby.VelocityLibraryManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
@@ -39,6 +42,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -266,6 +270,25 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     @Override
     public Audience getAudienceFromIssuer(CommandIssuer issuer) {
         return ((VelocityCommandIssuer) issuer).getIssuer();
+    }
+
+    @Override
+    protected List<Library> customDependencies() {
+        return List.of(
+
+        );
+    }
+
+    @Override
+    protected List<String> customRepositories() {
+        return List.of(
+
+        );
+    }
+
+    @Override
+    protected LibraryManager provideLibraryManager() {
+        return new VelocityLibraryManager<>(logger, Path.of("plugins", "librepremium"), server.getPluginManager(), this);
     }
 
     @Subscribe

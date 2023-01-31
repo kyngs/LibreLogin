@@ -3,11 +3,26 @@ package xyz.kyngs.librepremium.common.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.Nullable;
+import xyz.kyngs.easydb.EasyDB;
+import xyz.kyngs.easydb.EasyDBConfig;
+import xyz.kyngs.easydb.provider.mysql.MySQL;
+import xyz.kyngs.easydb.provider.mysql.MySQLConfig;
+import xyz.kyngs.librepremium.api.Logger;
+import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
+import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
+import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
+import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
+import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
+import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
+import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
@@ -53,6 +68,72 @@ public class GeneralUtil {
     public static UUID getCrackedUUIDFromName(String name) {
         if (name == null) return null;
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static void checkAndMigrate(PluginConfiguration configuration, Logger logger, AuthenticLibrePremium<?, ?> plugin) {
+        if (configuration.migrationOnNextStartup()) {
+            logger.info("Performing migration...");
+
+            try {
+                logger.info("Connecting to the OLD database...");
+
+                EasyDB<MySQL, Connection, SQLException> easyDB;
+
+                try {
+                    easyDB = new EasyDB<>(
+                            new EasyDBConfig<>(
+                                    new MySQL(
+                                            new MySQLConfig()
+                                                    .setUsername(configuration.getMigrationOldDatabaseUser())
+                                                    .setPassword(configuration.getMigrationOldDatabasePassword())
+                                                    .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getMigrationOldDatabaseHost(), configuration.getMigrationOldDatabasePort(), configuration.getMigrationOldDatabaseName()))
+                                    )
+                            )
+                                    .useGlobalExecutor(true)
+                    );
+
+                    logger.info("Connected to the OLD database");
+
+                } catch (Exception e) {
+                    var cause = GeneralUtil.getFurthestCause(e);
+                    logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+                    logger.error("Failed to connect to the OLD database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+                    logger.error("Aborting migration");
+
+                    return;
+                }
+
+                try {
+                    var localProviders = new HashMap<String, ReadDatabaseProvider>();
+
+                    localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
+                    localProviders.put("AuthMe", new AuthMeReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
+                    localProviders.put("Aegis", new AegisReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
+                    localProviders.put("DBA-SHA-512", new DBAReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
+
+                    var provider = localProviders.get(configuration.getMigrationType());
+
+                    if (provider == null) {
+                        logger.error("Unknown migrator %s, aborting migration".formatted(configuration.getMigrationType()));
+                        return;
+                    }
+
+                    logger.info("Starting data conversion... This may take a while!");
+
+                    plugin.migrate(provider, plugin.getDatabaseProvider());
+
+                    logger.info("Migration complete, cleaning up!");
+
+                } finally {
+                    easyDB.stop();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("An unexpected exception occurred while performing database migration, aborting migration");
+            }
+
+        }
     }
 
 }

@@ -5,6 +5,9 @@ import co.aikar.commands.BungeeCommandManager;
 import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import net.byteflux.libby.BungeeLibraryManager;
+import net.byteflux.libby.Library;
+import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
@@ -29,6 +32,7 @@ import xyz.kyngs.librepremium.common.util.CancellableTask;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -282,6 +286,25 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
     @Override
     public Audience getAudienceFromIssuer(CommandIssuer issuer) {
         return adventure.sender(issuer.getIssuer());
+    }
+
+    @Override
+    protected List<Library> customDependencies() {
+        return List.of(
+
+        );
+    }
+
+    @Override
+    protected List<String> customRepositories() {
+        return List.of(
+
+        );
+    }
+
+    @Override
+    protected LibraryManager provideLibraryManager() {
+        return new BungeeLibraryManager(bootstrap);
     }
 
 }

@@ -20,6 +20,7 @@ repositories {
     maven { url = "https://mvn.exceptionflug.de/repository/exceptionflug-public/" }
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
     maven { url = "https://repo.dmulloy2.net/repository/public/" }
+    maven { url = "https://repo.alessiodp.com/releases/" }
 }
 
 blossom {
@@ -36,16 +37,17 @@ shadowJar {
         exclude(dependency('com.google.protobuf:.*:.*'))
     }
 
-    relocate 'co.aikar.acf', 'xyz.kyngs.librepremiumlib.acf'
-    relocate 'com.github.benmanes.caffeine', 'xyz.kyngs.librepremiumlib.caffeine'
-    relocate 'com.typesafe.config', 'xyz.kyngs.librepremiumlib.hocon'
-    relocate 'com.zaxxer.hikari', 'xyz.kyngs.librepremiumlib.hikari'
-    relocate 'com.mysql', 'xyz.kyngs.librepremiumlib.mysql'
-    relocate 'org.bstats', 'xyz.kyngs.librepremiumlib.metrics'
-    relocate 'org.intellij', 'xyz.kyngs.librepremiumlib.intellij'
-    relocate 'org.jetbrains', 'xyz.kyngs.librepremiumlib.jetbrains'
-    relocate 'io.leangen.geantyref', 'xyz.kyngs.librepremiumlib.reflect'
-    relocate 'org.spongepowered.configurate', 'xyz.kyngs.librepremiumlib.configurate'
+    relocate 'co.aikar.acf', 'xyz.kyngs.librepremium.lib.acf'
+    relocate 'com.github.benmanes.caffeine', 'xyz.kyngs.librepremium.lib.caffeine'
+    relocate 'com.typesafe.config', 'xyz.kyngs.librepremium.lib.hocon'
+    relocate 'com.zaxxer.hikari', 'xyz.kyngs.librepremium.lib.hikari'
+    relocate 'com.mysql', 'xyz.kyngs.librepremium.lib.mysql'
+    relocate 'org.bstats', 'xyz.kyngs.librepremium.lib.metrics'
+    relocate 'org.intellij', 'xyz.kyngs.librepremium.lib.intellij'
+    relocate 'org.jetbrains', 'xyz.kyngs.librepremium.lib.jetbrains'
+    relocate 'io.leangen.geantyref', 'xyz.kyngs.librepremium.lib.reflect'
+    relocate 'org.spongepowered.configurate', 'xyz.kyngs.librepremium.lib.configurate'
+    relocate 'net.byteflux.libby', 'xyz.kyngs.librepremium.lib.libby'
 }
 
 java {
@@ -61,9 +63,9 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-proxy:3.0.1'
 
     //MySQL
-    implementation 'mysql:mysql-connector-java:8.0.30'
-    implementation 'com.zaxxer:HikariCP:5.0.1'
-    implementation 'com.github.kyngs:EasyDB:a4bdf88ee0'
+    compileOnly 'mysql:mysql-connector-java:8.0.30'
+    compileOnly 'com.zaxxer:HikariCP:5.0.1'
+    compileOnly 'com.github.kyngs:EasyDB:a4bdf88ee0'
 
     //ACF
     implementation 'com.github.kyngs.commands:acf-velocity:object-fix-SNAPSHOT'
@@ -71,10 +73,10 @@ dependencies {
     implementation 'com.github.kyngs.commands:acf-paper:object-fix-SNAPSHOT'
 
     //Utils
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.1'
-    implementation 'org.spongepowered:configurate-hocon:4.1.2'
-    implementation 'at.favre.lib:bcrypt:0.9.0'
-    implementation 'dev.samstevens.totp:totp:1.7.1'
+    compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.1'
+    compileOnly 'org.spongepowered:configurate-hocon:4.1.2'
+    compileOnly 'at.favre.lib:bcrypt:0.9.0'
+    compileOnly 'dev.samstevens.totp:totp:1.7.1'
     compileOnly 'dev.simplix:protocolize-api:2.2.2'
 
     //Geyser
@@ -98,4 +100,7 @@ dependencies {
 
     //Libby
     implementation 'net.byteflux:libby-bukkit:1.1.5'
+    implementation 'net.byteflux:libby-velocity:1.1.5'
+    implementation 'net.byteflux:libby-bungee:1.1.5'
+
 }

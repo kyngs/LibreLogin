@@ -7,13 +7,11 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import net.byteflux.libby.Library;
+import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.charts.CustomChart;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.easydb.EasyDB;
-import xyz.kyngs.easydb.EasyDBConfig;
-import xyz.kyngs.easydb.provider.mysql.MySQL;
-import xyz.kyngs.easydb.provider.mysql.MySQLConfig;
 import xyz.kyngs.librepremium.api.LibrePremiumPlugin;
 import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.PlatformHandle;
@@ -44,10 +42,6 @@ import xyz.kyngs.librepremium.common.event.events.AuthenticLimboServerChooseEven
 import xyz.kyngs.librepremium.common.event.events.AuthenticLobbyServerChooseEvent;
 import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
 import xyz.kyngs.librepremium.common.integration.FloodgateIntegration;
-import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
-import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
-import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
-import xyz.kyngs.librepremium.common.migrate.JPremiumReadProvider;
 import xyz.kyngs.librepremium.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librepremium.common.server.AuthenticServerPinger;
 import xyz.kyngs.librepremium.common.server.DummyServerPinger;
@@ -58,8 +52,6 @@ import xyz.kyngs.librepremium.common.util.GeneralUtil;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -68,11 +60,11 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     public static final Gson GSON = new Gson();
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
 
-    private final AuthenticPremiumProvider premiumProvider;
+    private AuthenticPremiumProvider premiumProvider;
     private final Map<String, CryptoProvider> cryptoProviders;
     private final Map<String, ReadDatabaseProvider> readProviders;
     private final Multimap<P, CancellableTask> cancelOnExit;
-    private final AuthenticEventProvider<P, S> eventProvider;
+    private AuthenticEventProvider<P, S> eventProvider;
     private final PlatformHandle<P, S> platformHandle;
     private final Set<String> forbiddenPasswords;
     private ServerPinger<S> serverPinger;
@@ -88,16 +80,10 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     private CommandProvider<P, S> commandProvider;
 
     protected AuthenticLibrePremium() {
-        premiumProvider = new AuthenticPremiumProvider();
         cryptoProviders = new HashMap<>();
         readProviders = new HashMap<>();
-        eventProvider = new AuthenticEventProvider<>(this);
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
-
-        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
-        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
-        registerCryptoProvider(new BCrypt2ACryptoProvider());
         cancelOnExit = HashMultimap.create();
     }
 
@@ -169,6 +155,119 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         version = SemanticVersion.parse(getVersion());
         logger = provideLogger();
 
+        logger.info("Loading libraries...");
+
+        var libraryManager = provideLibraryManager();
+
+        libraryManager.addMavenLocal();
+        libraryManager.addMavenCentral();
+
+        var repos = new ArrayList<>(customRepositories());
+
+        repos.add("https://jitpack.io/");
+        repos.add("https://mvn.exceptionflug.de/repository/exceptionflug-public/");
+
+        repos.forEach(libraryManager::addRepository);
+
+        var dependencies = new ArrayList<>(customDependencies());
+
+        dependencies.add(Library.builder()
+                .groupId("com{}zaxxer")
+                .artifactId("HikariCP")
+                .version("5.0.1")
+                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librepremium{}lib{}hikari")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("mysql")
+                .artifactId("mysql-connector-java")
+                .version("8.0.30")
+                .relocate("com{}mysql", "xyz{}kyngs{}librepremium{}lib{}mysql")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("com{}github{}kyngs")
+                .artifactId("EasyDB")
+                .version("a4bdf88ee0")
+                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librepremium{}lib{}hikari")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("com{}github{}ben-manes{}caffeine")
+                .artifactId("caffeine")
+                .version("3.1.1")
+                .relocate("com{}github{}benmanes{}caffeine", "xyz{}kyngs{}librepremium{}lib{}caffeine")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("org{}spongepowered")
+                .artifactId("configurate-hocon")
+                .version("4.1.2")
+                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librepremium{}lib{}configurate")
+                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librepremium{}lib{}reflect")
+                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librepremium{}lib{}hocon")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("org{}spongepowered")
+                .artifactId("configurate-core")
+                .version("4.1.2")
+                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librepremium{}lib{}configurate")
+                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librepremium{}lib{}reflect")
+                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librepremium{}lib{}hocon")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("io{}leangen{}geantyref")
+                .artifactId("geantyref")
+                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librepremium{}lib{}reflect")
+                .version("1.3.13")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("com{}typesafe")
+                .artifactId("config")
+                .version("1.4.2")
+                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librepremium{}lib{}hocon")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("at{}favre{}lib")
+                .artifactId("bcrypt")
+                .version("0.9.0")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("dev{}samstevens{}totp")
+                .artifactId("totp")
+                .version("1.7.1")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("at{}favre{}lib")
+                .artifactId("bytes")
+                .version("1.5.0")
+                .build()
+        );
+
+        dependencies.forEach(libraryManager::loadLibrary);
+
+        eventProvider = new AuthenticEventProvider<>(this);
+        premiumProvider = new AuthenticPremiumProvider();
+        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
+        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
+        registerCryptoProvider(new BCrypt2ACryptoProvider());
+
         checkDataFolder();
 
         logger.info("Loading messages...");
@@ -187,8 +286,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             shutdownProxy(1);
         }
-
-        logger.info("Messages loaded");
 
         logger.info("Loading configuration...");
 
@@ -211,8 +308,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             shutdownProxy(1);
         }
-
-        logger.info("Configuration loaded");
 
         logger.info("Loading forbidden passwords...");
 
@@ -255,7 +350,8 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         serverPinger = configuration.pingServers() ? new AuthenticServerPinger<>(this) : new DummyServerPinger<>();
         logger.info("Pinged servers");
 
-        checkAndMigrate();
+        // Moved to a different class to avoid class loading issues
+        GeneralUtil.checkAndMigrate(configuration, logger, this);
 
         imageProjector = provideImageProjector();
 
@@ -291,6 +387,8 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
         }
     }
+
+    protected abstract LibraryManager provideLibraryManager();
 
     private void loadForbiddenPasswords() throws IOException {
         var file = new File(getDataFolder(), "forbidden-passwords.txt");
@@ -361,72 +459,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         } catch (Exception e) {
             e.printStackTrace();
             logger.warn("Failed to check for updates");
-        }
-    }
-
-    private void checkAndMigrate() {
-        if (configuration.migrationOnNextStartup()) {
-            logger.info("Performing migration...");
-
-            try {
-                logger.info("Connecting to the OLD database...");
-
-                EasyDB<MySQL, Connection, SQLException> easyDB;
-
-                try {
-                    easyDB = new EasyDB<>(
-                            new EasyDBConfig<>(
-                                    new MySQL(
-                                            new MySQLConfig()
-                                                    .setUsername(configuration.getMigrationOldDatabaseUser())
-                                                    .setPassword(configuration.getMigrationOldDatabasePassword())
-                                                    .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getMigrationOldDatabaseHost(), configuration.getMigrationOldDatabasePort(), configuration.getMigrationOldDatabaseName()))
-                                    )
-                            )
-                                    .useGlobalExecutor(true)
-                    );
-
-                    logger.info("Connected to the OLD database");
-
-                } catch (Exception e) {
-                    var cause = GeneralUtil.getFurthestCause(e);
-                    logger.error("!! THIS IS NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
-                    logger.error("Failed to connect to the OLD database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-                    logger.error("Aborting migration");
-
-                    return;
-                }
-
-                try {
-                    var localProviders = new HashMap<String, ReadDatabaseProvider>();
-
-                    localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-                    localProviders.put("AuthMe", new AuthMeReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-                    localProviders.put("Aegis", new AegisReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-                    localProviders.put("DBA-SHA-512", new DBAReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-
-                    var provider = localProviders.get(configuration.getMigrationType());
-
-                    if (provider == null) {
-                        logger.error("Unknown migrator %s, aborting migration".formatted(configuration.getMigrationType()));
-                        return;
-                    }
-
-                    logger.info("Starting data conversion... This may take a while!");
-
-                    migrate(provider, databaseProvider);
-
-                    logger.info("Migration complete, cleaning up!");
-
-                } finally {
-                    easyDB.stop();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("An unexpected exception occurred while performing database migration, aborting migration");
-            }
-
         }
     }
 
@@ -599,4 +631,9 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     }
 
     public abstract Audience getAudienceFromIssuer(CommandIssuer issuer);
+
+    protected abstract List<Library> customDependencies();
+
+    protected abstract List<String> customRepositories();
+
 }

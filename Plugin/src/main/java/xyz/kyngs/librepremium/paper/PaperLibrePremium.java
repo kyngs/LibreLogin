@@ -4,6 +4,9 @@ import co.aikar.commands.BukkitCommandIssuer;
 import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
 import co.aikar.commands.PaperCommandManager;
+import net.byteflux.libby.BukkitLibraryManager;
+import net.byteflux.libby.Library;
+import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.CustomChart;
@@ -24,6 +27,7 @@ import xyz.kyngs.librepremium.common.util.CancellableTask;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Comparator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -188,5 +192,24 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
     @Override
     public Audience getAudienceFromIssuer(CommandIssuer issuer) {
         return ((BukkitCommandIssuer) issuer).getIssuer();
+    }
+
+    @Override
+    protected List<Library> customDependencies() {
+        return List.of(
+
+        );
+    }
+
+    @Override
+    protected List<String> customRepositories() {
+        return List.of(
+
+        );
+    }
+
+    @Override
+    protected LibraryManager provideLibraryManager() {
+        return new BukkitLibraryManager(bootstrap);
     }
 }
