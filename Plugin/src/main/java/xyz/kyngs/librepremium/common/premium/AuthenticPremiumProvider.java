@@ -23,8 +23,10 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
     private final Cache<String, PremiumUser> userCache;
     private final List<ThrowableFunction<String, PremiumUser, PremiumException>> fetchers;
+    private final AuthenticLibrePremium<?, ?> plugin;
 
-    public AuthenticPremiumProvider() {
+    public AuthenticPremiumProvider(AuthenticLibrePremium<?, ?> plugin) {
+        this.plugin = plugin;
         userCache = Caffeine.newBuilder()
                 .expireAfterWrite(20, TimeUnit.MINUTES)
                 .build();
@@ -74,6 +76,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
     private PremiumUser getUserFromAschon(String name) throws PremiumException {
         try {
+            plugin.reportMainThread();
             var connection = (HttpURLConnection) new URL("https://api.ashcon.app/mojang/v2/user/" + name).openConnection();
 
             switch (connection.getResponseCode()) {
@@ -99,6 +102,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
     private PremiumUser getUserFromMojang(String name) throws PremiumException {
         try {
+            plugin.reportMainThread();
             var connection = (HttpURLConnection) new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openConnection();
 
             return switch (connection.getResponseCode()) {

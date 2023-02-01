@@ -31,8 +31,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         platformHandle = plugin.getPlatformHandle();
     }
 
-    protected void onPostLogin(P player, @Nullable String ip) {
-        if (ip == null) ip = platformHandle.getIP(player);
+    protected void onPostLogin(P player) {
+        var ip = platformHandle.getIP(player);
         var uuid = platformHandle.getUUIDForPlayer(player);
         if (plugin.fromFloodgate(uuid)) return;
 
@@ -194,13 +194,17 @@ public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S
         return user;
     }
 
-    protected S chooseServer(P player, @Nullable String ip) {
+    protected S chooseServer(P player, @Nullable String ip, @Nullable User user) {
         var id = platformHandle.getUUIDForPlayer(player);
         var fromFloodgate = plugin.fromFloodgate(id);
 
         var sessionTime = plugin.getConfiguration().getSessionTimeout();
 
-        var user = fromFloodgate ? null : plugin.getDatabaseProvider().getByUUID(id);
+        if (fromFloodgate) {
+            user = null;
+        } else if (user == null) {
+            user = plugin.getDatabaseProvider().getByUUID(id);
+        }
 
         if (ip == null) {
             ip = platformHandle.getIP(player);

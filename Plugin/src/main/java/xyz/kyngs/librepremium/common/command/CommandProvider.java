@@ -44,19 +44,6 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
 
         var contexts = manager.getCommandContexts();
 
-        contexts.registerIssuerAwareContext(User.class, context -> {
-            var player = plugin.getPlayerFromIssuer(context.getIssuer());
-
-            if (player == null)
-                throw new co.aikar.commands.InvalidCommandArgument(MessageKeys.NOT_ALLOWED_ON_CONSOLE, false);
-
-            var uuid = plugin.getPlatformHandle().getUUIDForPlayer(player);
-
-            if (plugin.fromFloodgate(uuid)) throw new InvalidCommandArgument(getMessage("error-from-floodgate"));
-
-            return plugin.getDatabaseProvider().getByUUID(uuid);
-        });
-
         contexts.registerIssuerAwareContext(Audience.class, context -> {
             if (limiter.tryAndLimit(context.getIssuer().getUniqueId()))
                 throw new xyz.kyngs.librepremium.common.command.InvalidCommandArgument(plugin.getMessages().getMessage("error-throttle"));

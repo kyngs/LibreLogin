@@ -25,6 +25,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ForkJoinPool;
 
 public class GeneralUtil {
@@ -134,6 +136,20 @@ public class GeneralUtil {
             }
 
         }
+    }
+
+    public static CompletionStage<Void> runAsync(Runnable runnable) {
+        var future = new CompletableFuture<Void>();
+        AuthenticLibrePremium.EXECUTOR.submit(() -> {
+            try {
+                runnable.run();
+                future.complete(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 
 }

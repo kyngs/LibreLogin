@@ -23,7 +23,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
 
     @EventHandler(priority = HIGHEST)
     public void onPostLogin(PostLoginEvent event) {
-        onPostLogin(event.getPlayer(), null);
+        onPostLogin(event.getPlayer());
     }
 
     @EventHandler
@@ -88,7 +88,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremiu
     public void chooseServer(ServerConnectEvent event) {
         if (!event.getReason().equals(ServerConnectEvent.Reason.JOIN_PROXY)) return;
 
-        var server = chooseServer(event.getPlayer(), null);
+        var server = chooseServer(event.getPlayer(), null, null);
 
         if (server == null) {
             event.getPlayer().disconnect(plugin.getSerializer().serialize(plugin.getMessages().getMessage("kick-no-server")));

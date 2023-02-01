@@ -2,12 +2,13 @@ package xyz.kyngs.librepremium.common.command.commands;
 
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
-import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.api.event.events.PasswordChangeEvent;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.command.Command;
 import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.event.events.AuthenticPasswordChangeEvent;
+
+import java.util.concurrent.CompletionStage;
 
 @CommandAlias("changepassword|changepass|passwd|passch")
 public class ChangePasswordCommand<P> extends Command<P> {
@@ -18,25 +19,28 @@ public class ChangePasswordCommand<P> extends Command<P> {
     @Default
     @Syntax("{@@syntax.change-password}")
     @CommandCompletion("%autocomplete.change-password")
-    public void onPasswordChange(Audience sender, P player, User user, String oldPass, @Single String newPass) {
-        sender.sendMessage(getMessage("info-editing"));
+    public CompletionStage<Void> onPasswordChange(Audience sender, P player, String oldPass, @Single String newPass) {
+        return runAsync(() -> {
+            sender.sendMessage(getMessage("info-editing"));
+            var user = getUser(player);
 
-        var hashed = user.getHashedPassword();
-        var crypto = getCrypto(hashed);
+            var hashed = user.getHashedPassword();
+            var crypto = getCrypto(hashed);
 
-        if (!crypto.matches(oldPass, hashed)) {
-            throw new InvalidCommandArgument(getMessage("error-password-wrong"));
-        }
+            if (!crypto.matches(oldPass, hashed)) {
+                throw new InvalidCommandArgument(getMessage("error-password-wrong"));
+            }
 
-        var defaultProvider = plugin.getDefaultCryptoProvider();
+            var defaultProvider = plugin.getDefaultCryptoProvider();
 
-        user.setHashedPassword(defaultProvider.createHash(newPass));
+            user.setHashedPassword(defaultProvider.createHash(newPass));
 
-        getDatabaseProvider().updateUser(user);
+            getDatabaseProvider().updateUser(user);
 
-        sender.sendMessage(getMessage("info-edited"));
+            sender.sendMessage(getMessage("info-edited"));
 
-        plugin.getEventProvider().fire(PasswordChangeEvent.class, new AuthenticPasswordChangeEvent<>(user, player, plugin, hashed));
+            plugin.getEventProvider().fire(PasswordChangeEvent.class, new AuthenticPasswordChangeEvent<>(user, player, plugin, hashed));
+        });
     }
 
 }

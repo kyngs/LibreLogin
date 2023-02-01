@@ -10,6 +10,7 @@ import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.crypto.HashedPassword;
 import xyz.kyngs.librepremium.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librepremium.api.database.User;
+import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,9 +24,11 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     private final EasyDB<MySQL, Connection, SQLException> easyDB;
     private final Logger logger;
+    private final AuthenticLibrePremium<?, ?> plugin;
 
-    public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger) {
+    public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger, AuthenticLibrePremium<?, ?> plugin) {
         this.logger = logger;
+        this.plugin = plugin;
 
         var mySQLConfig = new MySQLConfig()
                 .setUsername(configuration.getDatabaseUser())
@@ -84,7 +87,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     private boolean handleConnectionException(Exception e) {
         logger.error("!! LOST CONNECTION TO THE DATABASE, THE PROXY IS GOING TO SHUT DOWN TO PREVENT DAMAGE !!");
         e.printStackTrace();
-        System.exit(1);
+        System.exit(0);
         //Won't return anyway
         return true;
     }
@@ -96,6 +99,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public User getByName(String name) {
+        plugin.reportMainThread();
         return easyDB.runFunctionSync(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE last_nickname=?");
 
@@ -115,6 +119,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public User getByUUID(UUID uuid) {
+        plugin.reportMainThread();
         return easyDB.runFunctionSync(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE uuid=?");
 
@@ -158,6 +163,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public User getByPremiumUUID(UUID uuid) {
+        plugin.reportMainThread();
         return easyDB.runFunctionSync(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE premium_uuid=?");
 
@@ -201,6 +207,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public void insertUser(User user) {
+        plugin.reportMainThread();
         easyDB.runTaskSync(connection -> {
             var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
@@ -212,6 +219,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public void insertUsers(Collection<User> users) {
+        plugin.reportMainThread();
         easyDB.runTaskSync(connection -> {
             var ps = connection.prepareStatement("INSERT IGNORE INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
@@ -242,6 +250,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public void updateUser(User user) {
+        plugin.reportMainThread();
         easyDB.runTaskSync(connection -> {
             var ps = connection.prepareStatement("UPDATE librepremium_data SET premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=?, secret=?, ip=?, last_authentication=?, last_server=? WHERE uuid=?");
 
@@ -263,6 +272,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     @Override
     public void deleteUser(User user) {
+        plugin.reportMainThread();
         easyDB.runTaskSync(connection -> {
             var ps = connection.prepareStatement("DELETE FROM librepremium_data WHERE uuid=?");
 

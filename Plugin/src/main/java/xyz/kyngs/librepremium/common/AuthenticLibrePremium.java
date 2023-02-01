@@ -54,11 +54,18 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 
 public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<P, S> {
 
     public static final Gson GSON = new Gson();
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
+    public static final ExecutorService EXECUTOR;
+
+    static {
+        EXECUTOR = new ForkJoinPool(4);
+    }
 
     private AuthenticPremiumProvider premiumProvider;
     private final Map<String, CryptoProvider> cryptoProviders;
@@ -263,7 +270,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         dependencies.forEach(libraryManager::loadLibrary);
 
         eventProvider = new AuthenticEventProvider<>(this);
-        premiumProvider = new AuthenticPremiumProvider();
+        premiumProvider = new AuthenticPremiumProvider(this);
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
@@ -324,7 +331,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         logger.info("Connecting to the database...");
 
         try {
-            databaseProvider = new MySQLDatabaseProvider(configuration, logger);
+            databaseProvider = new MySQLDatabaseProvider(configuration, logger, this);
         } catch (Exception e) {
             var cause = GeneralUtil.getFurthestCause(e);
             logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
@@ -636,4 +643,14 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
 
     protected abstract List<String> customRepositories();
 
+    protected boolean mainThread() {
+        return false;
+    }
+
+    public void reportMainThread() {
+        if (mainThread()) {
+            logger.error("AN IO OPERATION IS BEING PERFORMED ON THE MAIN THREAD! THIS IS A SERIOUS BUG!, PLEASE REPORT IT TO THE DEVELOPER OF THE PLUGIN AND ATTACH THE STACKTRACE BELOW!");
+            new Throwable().printStackTrace();
+        }
+    }
 }

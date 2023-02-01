@@ -29,10 +29,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
+import xyz.kyngs.librepremium.api.database.User;
 import xyz.kyngs.librepremium.common.listener.AuthenticListeners;
+import xyz.kyngs.librepremium.common.util.GeneralUtil;
 import xyz.kyngs.librepremium.paper.protocollib.ClientPublicKey;
 import xyz.kyngs.librepremium.paper.protocollib.EncryptionUtil;
 import xyz.kyngs.librepremium.paper.protocollib.ProtocolListener;
@@ -72,6 +75,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
             .build();
     private final FloodgateHelper floodgateHelper;
     private final Cache<Player, String> ipCache;
+    private final Cache<UUID, User> readOnlyUserCache;
 
     public PaperListeners(PaperLibrePremium paperLibrePremium) {
         super(paperLibrePremium);
@@ -83,22 +87,31 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
         ipCache = Caffeine.newBuilder()
                 .expireAfterWrite(1, TimeUnit.MINUTES)
                 .build();
+
+        readOnlyUserCache = Caffeine.newBuilder()
+                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .build();
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        onPlayerDisconnect(event.getPlayer());
+        GeneralUtil.runAsync(() -> onPlayerDisconnect(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPostLogin(PlayerLoginEvent event) {
         ipCache.put(event.getPlayer(), event.getAddress().getHostName());
-        onPostLogin(event.getPlayer(), event.getAddress().getHostName());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onJoin(PlayerJoinEvent event) {
+        plugin.delay(() -> onPostLogin(event.getPlayer()), 0);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        ;
+        if (plugin.fromFloodgate(event.getPlayerProfile().getId())) return; //Floodgate player, won't handle it
+
         var existing = event.getPlayerProfile();
 
         if (plugin.fromFloodgate(existing.getId())) return;
@@ -108,12 +121,15 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
         //Going to solve it when they remove it
         //noinspection removal
         existing.setId(profile.getUuid());
+
+        readOnlyUserCache.put(profile.getUuid(), profile);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void chooseWorld(PlayerSpawnLocationEvent event) {
-        var world = chooseServer(event.getPlayer(), ipCache.getIfPresent(event.getPlayer()));
+        var world = chooseServer(event.getPlayer(), ipCache.getIfPresent(event.getPlayer()), readOnlyUserCache.getIfPresent(event.getPlayer().getUniqueId()));
         ipCache.invalidate(event.getPlayer());
+        readOnlyUserCache.invalidate(event.getPlayer().getUniqueId());
         if (world == null) {
             event.getPlayer().kick(Component.text("Internal error"));
         } else {

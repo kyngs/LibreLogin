@@ -74,7 +74,7 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
 
     @Override
     protected PaperPlatformHandle providePlatformHandle() {
-        return new PaperPlatformHandle();
+        return new PaperPlatformHandle(this);
     }
 
     @Override
@@ -85,6 +85,11 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
     @Override
     public CommandManager<?, ?, ?, ?, ?, ?> provideManager() {
         return new PaperCommandManager(bootstrap);
+    }
+
+    @Override
+    protected boolean mainThread() {
+        return Bukkit.isPrimaryThread();
     }
 
     @Override
@@ -136,7 +141,10 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
         try {
             var lobby = chooseLobby(user, player, true);
             if (lobby == null) throw new NoSuchElementException();
-            player.teleportAsync(lobby.getSpawnLocation());
+            PaperUtil.runSyncAndWait(() -> {
+                player.teleportAsync(lobby.getSpawnLocation());
+            }, this);
+
         } catch (NoSuchElementException e) {
             player.kick(getMessages().getMessage("kick-no-server"));
         }

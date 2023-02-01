@@ -13,6 +13,13 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PaperPlatformHandle implements PlatformHandle<Player, World> {
+
+    private final PaperLibrePremium plugin;
+
+    public PaperPlatformHandle(PaperLibrePremium plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public Audience getAudienceForPlayer(Player player) {
         return player;
@@ -31,7 +38,7 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
 
     @Override
     public void kick(Player player, Component reason) {
-        player.kick(reason);
+        PaperUtil.runSyncAndWait(() -> player.kick(reason), plugin);
     }
 
     @Override
