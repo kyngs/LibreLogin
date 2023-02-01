@@ -56,5 +56,8 @@ public class PaperBootstrap extends JavaPlugin implements LibrePremiumProvider<P
         return librePremium;
     }
 
+    protected void disable() {
+        setEnabled(false);
+    }
 
 }

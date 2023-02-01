@@ -627,7 +627,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         return floodgateApi != null && uuid != null && floodgateApi.isFloodgateId(uuid);
     }
 
-    private void shutdownProxy(int code) {
+    protected void shutdownProxy(int code) {
         //noinspection finally
         try {
             Thread.sleep(5000);

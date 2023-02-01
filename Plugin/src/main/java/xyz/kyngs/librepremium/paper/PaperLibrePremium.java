@@ -4,6 +4,7 @@ import co.aikar.commands.BukkitCommandIssuer;
 import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
 import co.aikar.commands.PaperCommandManager;
+import com.comphenix.protocol.ProtocolLibrary;
 import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
 import net.byteflux.libby.LibraryManager;
@@ -101,11 +102,19 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
 
     @Override
     protected void disable() {
+        ProtocolLibrary.getProtocolManager().getAsynchronousManager().unregisterAsyncHandlers(bootstrap);
         super.disable();
     }
 
     @Override
     protected void enable() {
+
+        if (Bukkit.getOnlineMode()) {
+            getLogger().error("!!!The server is running in online mode! LibrePremium won't start unless you set it to false!!!");
+            disable();
+            return;
+        }
+
         super.enable();
 
         var provider = getEventProvider();
@@ -195,6 +204,12 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
                 .filter(world -> finalServers.contains(world.getName()))
                 .min(Comparator.comparingInt(World::getPlayerCount))
                 .orElse(null);
+    }
+
+    @Override
+    protected void shutdownProxy(int code) {
+        bootstrap.disable();
+        bootstrap.getServer().shutdown();
     }
 
     @Override

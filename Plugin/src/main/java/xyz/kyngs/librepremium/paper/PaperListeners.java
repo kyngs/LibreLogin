@@ -188,8 +188,6 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
                 });
             }
 
-            event.getAsyncMarker().incrementProcessingDelay();
-
             try {
                 var preLoginResult = onPreLogin(username);
                 switch (preLoginResult.state()) {
@@ -246,10 +244,8 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
             }
 
             var expectedToken = data.token().clone();
-            if (verifyNonce(packet, data.publicKey(), expectedToken)) {
-                event.getAsyncMarker().incrementProcessingDelay();
 
-            } else {
+            if (!verifyNonce(packet, data.publicKey(), expectedToken)) {
                 kickPlayer("Invalid nonce", sender);
             }
 
