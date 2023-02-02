@@ -9,6 +9,7 @@ import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
 import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
+import org.apache.logging.log4j.LogManager;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
@@ -24,6 +25,7 @@ import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
 import xyz.kyngs.librepremium.common.SLF4JLogger;
 import xyz.kyngs.librepremium.common.image.AuthenticImageProjector;
 import xyz.kyngs.librepremium.common.util.CancellableTask;
+import xyz.kyngs.librepremium.paper.log.LogFilter;
 
 import java.io.File;
 import java.io.InputStream;
@@ -114,6 +116,8 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
             disable();
             return;
         }
+
+        ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).addFilter(new LogFilter());
 
         super.enable();
 

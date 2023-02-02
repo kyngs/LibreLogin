@@ -11,6 +11,7 @@ import xyz.kyngs.librepremium.api.Logger;
 import xyz.kyngs.librepremium.api.configuration.PluginConfiguration;
 import xyz.kyngs.librepremium.api.database.ReadDatabaseProvider;
 import xyz.kyngs.librepremium.common.AuthenticLibrePremium;
+import xyz.kyngs.librepremium.common.command.InvalidCommandArgument;
 import xyz.kyngs.librepremium.common.migrate.AegisReadProvider;
 import xyz.kyngs.librepremium.common.migrate.AuthMeReadProvider;
 import xyz.kyngs.librepremium.common.migrate.DBAReadProvider;
@@ -144,6 +145,8 @@ public class GeneralUtil {
             try {
                 runnable.run();
                 future.complete(null);
+            } catch (InvalidCommandArgument e) {
+                future.completeExceptionally(e);
             } catch (Exception e) {
                 e.printStackTrace();
                 future.completeExceptionally(e);

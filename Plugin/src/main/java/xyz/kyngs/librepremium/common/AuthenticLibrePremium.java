@@ -655,6 +655,6 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     }
 
     public boolean fromFloodgate(String username) {
-        return floodgateApi.getPlayer(username) != null;
+        return floodgateApi != null && floodgateApi.getPlayer(username) != null;
     }
 }
