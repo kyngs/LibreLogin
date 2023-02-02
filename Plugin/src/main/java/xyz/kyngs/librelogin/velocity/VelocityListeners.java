@@ -21,7 +21,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
 
     @Subscribe(order = PostOrder.LAST)
     public void onPostLogin(PostLoginEvent event) {
-        onPostLogin(event.getPlayer());
+        onPostLogin(event.getPlayer(), null);
     }
 
     @Subscribe

@@ -23,6 +23,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mojang.datafixers.util.Either;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -76,6 +77,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     private final FloodgateHelper floodgateHelper;
     private final Cache<Player, String> ipCache;
     private final Cache<UUID, User> readOnlyUserCache;
+    private final Cache<Player, Location> spawnLocationCache;
 
     public PaperListeners(PaperLibreLogin plugin) {
         super(plugin);
@@ -91,6 +93,14 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         readOnlyUserCache = Caffeine.newBuilder()
                 .expireAfterWrite(1, TimeUnit.MINUTES)
                 .build();
+
+        spawnLocationCache = Caffeine.newBuilder()
+                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .build();
+    }
+
+    public Cache<Player, Location> getSpawnLocationCache() {
+        return spawnLocationCache;
     }
 
     @EventHandler
@@ -103,9 +113,15 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         ipCache.put(event.getPlayer(), event.getAddress().getHostName());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
-        plugin.delay(() -> onPostLogin(event.getPlayer()), 0);
+        var data = readOnlyUserCache.getIfPresent(event.getPlayer().getUniqueId());
+        if (data == null) {
+            event.getPlayer().kick(Component.text("Internal error, please try again later."));
+            return;
+        }
+        readOnlyUserCache.invalidate(event.getPlayer().getUniqueId());
+        onPostLogin(event.getPlayer(), data);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -127,11 +143,22 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     public void chooseWorld(PlayerSpawnLocationEvent event) {
         var world = chooseServer(event.getPlayer(), ipCache.getIfPresent(event.getPlayer()), readOnlyUserCache.getIfPresent(event.getPlayer().getUniqueId()));
         ipCache.invalidate(event.getPlayer());
-        readOnlyUserCache.invalidate(event.getPlayer().getUniqueId());
+        spawnLocationCache.invalidate(event.getPlayer());
         if (world == null) {
             event.getPlayer().kick(Component.text("Internal error"));
         } else {
+            var playedBefore = event.getPlayer().hasPlayedBefore();
+            //This is terrible, but should work
+            if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().getLimbo().contains(event.getSpawnLocation().getWorld().getName())) {
+                if (plugin.getConfiguration().getLimbo().contains(world.getName())) {
+                    spawnLocationCache.put(event.getPlayer(), event.getSpawnLocation());
+                } else {
+                    return;
+                }
+            }
+
             event.setSpawnLocation(world.getSpawnLocation());
+
         }
     }
 

@@ -42,6 +42,11 @@ public class Blockers implements Listener {
         return !authorizationProvider.isAuthorized(player) || authorizationProvider.isAwaiting2FA(player);
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onTeleport(PlayerTeleportEvent event) {
+        cancelIfNeeded(event);
+    }
+
     @EventHandler(priority = org.bukkit.event.EventPriority.LOWEST)
     public void onChat(AsyncChatEvent event) {
         cancelIfNeeded(event);

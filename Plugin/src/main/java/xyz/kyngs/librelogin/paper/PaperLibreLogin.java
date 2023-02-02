@@ -35,14 +35,15 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
-    public PaperBootstrap getBootstrap() {
-        return bootstrap;
-    }
-
     private final PaperBootstrap bootstrap;
+    private PaperListeners listeners;
 
     public PaperLibreLogin(PaperBootstrap bootstrap) {
         this.bootstrap = bootstrap;
+    }
+
+    public PaperBootstrap getBootstrap() {
+        return bootstrap;
     }
 
     @Override
@@ -128,7 +129,9 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             player.setInvisible(false);
         });
 
-        Bukkit.getPluginManager().registerEvents(new PaperListeners(this), bootstrap);
+        listeners = new PaperListeners(this);
+
+        Bukkit.getPluginManager().registerEvents(listeners, bootstrap);
         Bukkit.getPluginManager().registerEvents(new Blockers(this), bootstrap);
     }
 
@@ -152,11 +155,22 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     @Override
     public void authorize(Player player, User user, Audience audience) {
         try {
-            var lobby = chooseLobby(user, player, true);
-            if (lobby == null) throw new NoSuchElementException();
-            PaperUtil.runSyncAndWait(() -> {
-                player.teleportAsync(lobby.getSpawnLocation());
-            }, this);
+
+            var location = listeners.getSpawnLocationCache().getIfPresent(player);
+
+            if (location == null) {
+                var world = chooseLobby(user, player, true);
+                if (world == null) {
+                    throw new NoSuchElementException();
+                } else {
+                    location = world.getSpawnLocation();
+                }
+            } else {
+                listeners.getSpawnLocationCache().invalidate(player);
+            }
+
+            var finalLocation = location;
+            PaperUtil.runSyncAndWait(() -> player.teleportAsync(finalLocation), this);
 
         } catch (NoSuchElementException e) {
             player.kick(getMessages().getMessage("kick-no-server"));

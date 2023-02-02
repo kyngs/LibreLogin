@@ -31,12 +31,14 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         platformHandle = plugin.getPlatformHandle();
     }
 
-    protected void onPostLogin(P player) {
+    protected void onPostLogin(P player, User user) {
         var ip = platformHandle.getIP(player);
         var uuid = platformHandle.getUUIDForPlayer(player);
         if (plugin.fromFloodgate(uuid)) return;
 
-        var user = plugin.getDatabaseProvider().getByUUID(uuid);
+        if (user == null) {
+            user = plugin.getDatabaseProvider().getByUUID(uuid);
+        }
         var sessionTime = plugin.getConfiguration().getSessionTimeout();
 
         if (user.autoLoginEnabled()) {
@@ -51,7 +53,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
 
         user.setLastSeen(Timestamp.valueOf(LocalDateTime.now()));
 
-        plugin.getDatabaseProvider().updateUser(user);
+        var finalUser = user;
+        plugin.delay(() -> plugin.getDatabaseProvider().updateUser(finalUser), 0);
 
     }
 

@@ -23,7 +23,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
 
     @EventHandler(priority = HIGHEST)
     public void onPostLogin(PostLoginEvent event) {
-        onPostLogin(event.getPlayer());
+        onPostLogin(event.getPlayer(), null);
     }
 
     @EventHandler

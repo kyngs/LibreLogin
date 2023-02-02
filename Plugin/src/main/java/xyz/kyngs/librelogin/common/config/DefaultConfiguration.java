@@ -79,7 +79,7 @@ public class DefaultConfiguration {
 
     public static final ConfigurationKey<String> NEW_UUID_CREATOR = new ConfigurationKey<>(
             "new-uuid-creator",
-            "RANDOM",
+            "CRACKED",
             """
                     Sets which method should be used for creating fixed UUID when a new player is created.
                     See the wiki for further information: https://github.com/kyngs/LibreLogin/wiki/UUID-Creators
