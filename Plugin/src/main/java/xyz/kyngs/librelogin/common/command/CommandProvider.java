@@ -9,14 +9,14 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.common.AuthenticHandler;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.commands.ChangePasswordCommand;
 import xyz.kyngs.librelogin.common.command.commands.authorization.LoginCommand;
 import xyz.kyngs.librelogin.common.command.commands.authorization.RegisterCommand;
 import xyz.kyngs.librelogin.common.command.commands.premium.PremiumConfirmCommand;
 import xyz.kyngs.librelogin.common.command.commands.premium.PremiumDisableCommand;
 import xyz.kyngs.librelogin.common.command.commands.premium.PremiumEnableCommand;
-import xyz.kyngs.librelogin.common.command.commands.staff.LibrePremiumCommand;
+import xyz.kyngs.librelogin.common.command.commands.staff.LibreLoginCommand;
 import xyz.kyngs.librelogin.common.command.commands.tfa.TwoFactorAuthCommand;
 import xyz.kyngs.librelogin.common.command.commands.tfa.TwoFactorConfirmCommand;
 import xyz.kyngs.librelogin.common.util.RateLimiter;
@@ -33,7 +33,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
     private final RateLimiter<UUID> limiter;
     private final Cache<UUID, Object> confirmCache;
 
-    public CommandProvider(AuthenticLibrePremium<P, S> plugin) {
+    public CommandProvider(AuthenticLibreLogin<P, S> plugin) {
         super(plugin);
 
         limiter = new RateLimiter<>(1, TimeUnit.SECONDS);
@@ -95,7 +95,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
         manager.registerCommand(new PremiumConfirmCommand<>(plugin));
         manager.registerCommand(new PremiumDisableCommand<>(plugin));
         manager.registerCommand(new ChangePasswordCommand<>(plugin));
-        manager.registerCommand(new LibrePremiumCommand<>(plugin));
+        manager.registerCommand(new LibreLoginCommand<>(plugin));
 
         if (plugin.getTOTPProvider() != null) {
             manager.registerCommand(new TwoFactorAuthCommand<>(plugin));
@@ -114,7 +114,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
 
         audience.sendMessage(plugin.getMessages().getMessage("info-enabling"));
 
-        LibrePremiumCommand.enablePremium(player, user, plugin);
+        LibreLoginCommand.enablePremium(player, user, plugin);
 
         plugin.getDatabaseProvider().updateUser(user);
 

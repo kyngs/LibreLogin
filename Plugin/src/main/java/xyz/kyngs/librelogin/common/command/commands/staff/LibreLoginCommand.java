@@ -9,7 +9,7 @@ import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.api.event.events.PremiumLoginSwitchEvent;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
@@ -21,12 +21,12 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletionStage;
 
-import static xyz.kyngs.librelogin.common.AuthenticLibrePremium.DATE_TIME_FORMATTER;
+import static xyz.kyngs.librelogin.common.AuthenticLibreLogin.DATE_TIME_FORMATTER;
 
-@CommandAlias("librepremium")
-public class LibrePremiumCommand<P> extends StaffCommand<P> {
+@CommandAlias("librelogin")
+public class LibreLoginCommand<P> extends StaffCommand<P> {
 
-    public LibrePremiumCommand(AuthenticLibrePremium<P, ?> plugin) {
+    public LibreLoginCommand(AuthenticLibreLogin<P, ?> plugin) {
         super(plugin);
     }
 
@@ -96,7 +96,7 @@ public class LibrePremiumCommand<P> extends StaffCommand<P> {
         });
     }
 
-    public static <P> void enablePremium(P player, User user, AuthenticLibrePremium<P, ?> plugin) {
+    public static <P> void enablePremium(P player, User user, AuthenticLibreLogin<P, ?> plugin) {
         var id = plugin.getUserOrThrowICA(user.getLastNickname());
 
         if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));

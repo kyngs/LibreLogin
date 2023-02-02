@@ -1,5 +1,6 @@
-# LibrePremium
-Like JPremium, but free, open-source and multiplatform
+# LibreLogin
+
+Free and open-source multiplatform extremely customizable authentication plugin with outstanding features and API.
 
 # Quick information
 
@@ -10,7 +11,7 @@ Like JPremium, but free, open-source and multiplatform
 - Name Validation (Including case sensitivity check)
 - Automatic data migration for premium players
 - Migration of a player's data by using one command
-- Geyser support [Floodgate](https://github.com/kyngs/LibrePremium/wiki/Floodgate)
+- Geyser support [Floodgate](https://github.com/kyngs/LibreLogin/wiki/Floodgate)
 
 ## Considerations
 

@@ -14,8 +14,8 @@ import com.velocitypowered.api.util.GameProfile;
 import net.kyori.adventure.text.Component;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 
-public class VelocityListeners extends AuthenticListeners<VelocityLibrePremium, Player, RegisteredServer> {
-    public VelocityListeners(VelocityLibrePremium plugin) {
+public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Player, RegisteredServer> {
+    public VelocityListeners(VelocityLibreLogin plugin) {
         super(plugin);
     }
 

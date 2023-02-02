@@ -2,7 +2,7 @@ package xyz.kyngs.librelogin.common.config;
 
 import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.NewUUIDCreator;
@@ -29,7 +29,7 @@ public class HoconPluginConfiguration implements PluginConfiguration {
     }
 
     @Override
-    public boolean reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException {
+    public boolean reload(LibreLoginPlugin plugin) throws IOException, CorruptedConfigurationException {
         var adept = new ConfigurateConfiguration(
                 plugin.getDataFolder(),
                 "config.conf",
@@ -40,11 +40,11 @@ public class HoconPluginConfiguration implements PluginConfiguration {
                           You can find more information about the format on the sponge wiki:
                           https://docs.spongepowered.org/stable/en/server/getting-started/configuration/hocon.html
                           ----------------------------------------------------------------------------------------
-                          LibrePremium Configuration
+                          LibreLogin Configuration
                           ----------------------------------------------------------------------------------------
-                          This is the configuration file for LibrePremium.
-                          You can find more information about LibrePremium on the github page:
-                          https://github.com/kyngs/LibrePremium
+                          This is the configuration file for LibreLogin.
+                          You can find more information about LibreLogin on the github page:
+                          https://github.com/kyngs/LibreLogin
                         """,
                 logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator(), new ThirdConfigurationMigrator()
         );

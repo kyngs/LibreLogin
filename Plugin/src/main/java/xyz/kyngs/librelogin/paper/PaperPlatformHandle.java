@@ -14,9 +14,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class PaperPlatformHandle implements PlatformHandle<Player, World> {
 
-    private final PaperLibrePremium plugin;
+    private final PaperLibreLogin plugin;
 
-    public PaperPlatformHandle(PaperLibrePremium plugin) {
+    public PaperPlatformHandle(PaperLibreLogin plugin) {
         this.plugin = plugin;
     }
 

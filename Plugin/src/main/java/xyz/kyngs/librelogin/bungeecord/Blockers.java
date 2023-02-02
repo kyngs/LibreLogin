@@ -14,9 +14,9 @@ public class Blockers implements Listener {
 
     private final AuthorizationProvider<ProxiedPlayer> authorizationProvider;
     private final PluginConfiguration configuration;
-    private final BungeeCordLibrePremium plugin;
+    private final BungeeCordLibreLogin plugin;
 
-    public Blockers(BungeeCordLibrePremium plugin) {
+    public Blockers(BungeeCordLibreLogin plugin) {
         this.authorizationProvider = plugin.getAuthorizationProvider();
         this.configuration = plugin.getConfiguration();
         this.plugin = plugin;

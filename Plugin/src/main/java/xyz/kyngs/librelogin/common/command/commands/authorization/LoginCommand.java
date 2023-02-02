@@ -3,7 +3,7 @@ package xyz.kyngs.librelogin.common.command.commands.authorization;
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 
 import java.util.concurrent.CompletionStage;
@@ -11,7 +11,7 @@ import java.util.concurrent.CompletionStage;
 @CommandAlias("login|l|log")
 public class LoginCommand<P> extends AuthorizationCommand<P> {
 
-    public LoginCommand(AuthenticLibrePremium<P, ?> premium) {
+    public LoginCommand(AuthenticLibreLogin<P, ?> premium) {
         super(premium);
     }
 

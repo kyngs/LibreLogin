@@ -2,7 +2,7 @@ package xyz.kyngs.librelogin.common.command.commands.premium;
 
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 
 import java.util.UUID;
@@ -11,7 +11,7 @@ import java.util.concurrent.CompletionStage;
 @CommandAlias("premium|autologin")
 public class PremiumEnableCommand<P> extends PremiumCommand<P> {
 
-    public PremiumEnableCommand(AuthenticLibrePremium<P, ?> plugin) {
+    public PremiumEnableCommand(AuthenticLibreLogin<P, ?> plugin) {
         super(plugin);
     }
 

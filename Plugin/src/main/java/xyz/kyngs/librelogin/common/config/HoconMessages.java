@@ -3,7 +3,7 @@ package xyz.kyngs.librelogin.common.config;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.spongepowered.configurate.CommentedConfigurationNode;
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.Messages;
@@ -53,7 +53,7 @@ public class HoconMessages implements Messages {
     }
 
     @Override
-    public void reload(LibrePremiumPlugin plugin) throws IOException, CorruptedConfigurationException {
+    public void reload(LibreLoginPlugin plugin) throws IOException, CorruptedConfigurationException {
         var adept = new ConfigurateConfiguration(
                 plugin.getDataFolder(),
                 "messages.conf",
@@ -64,11 +64,11 @@ public class HoconMessages implements Messages {
                           You can find more information about the format on the sponge wiki:
                           https://docs.spongepowered.org/stable/en/server/getting-started/configuration/hocon.html
                           ----------------------------------------------------------------------------------------
-                          LibrePremium Messages
+                          LibreLogin" Messages
                           ----------------------------------------------------------------------------------------
                           This file contains all of the messages used by the plugin, you are welcome to fit it to your needs.
-                          You can find more information about LibrePremium on the github page:
-                          https://github.com/kyngs/LibrePremium
+                          You can find more information about LibreLogin on the github page:
+                          https://github.com/kyngs/LibreLogin
                         """,
                 logger,
                 new FirstMessagesMigrator(),

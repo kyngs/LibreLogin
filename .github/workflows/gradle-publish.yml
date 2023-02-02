@@ -23,5 +23,5 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: LibrePremium
-          path: ./Plugin/build/libs/LibrePremium.jar
+          name: LibreLogin
+          path: ./Plugin/build/libs/LibreLogin.jar

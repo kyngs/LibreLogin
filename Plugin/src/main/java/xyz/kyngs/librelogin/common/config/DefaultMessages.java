@@ -52,7 +52,7 @@ public class DefaultMessages {
             "Please, change your username to &c%username%",
             """
                     This message is displayed when the player's username is not in the correct case.
-                    See https://github.com/kyngs/LibrePremium/wiki/Name-Validation for more information.""",
+                    See https://github.com/kyngs/LibreLogin/wiki/Name-Validation for more information.""",
             ConfigurateHelper::getString
     );
 
@@ -69,7 +69,7 @@ public class DefaultMessages {
             "You have illegal characters in your username or/and your username is longer than 16 characters!",
             """
                     This message is displayed when the player's username is not allowed.
-                    See https://github.com/kyngs/LibrePremium/wiki/Name-Validation for more information.""",
+                    See https://github.com/kyngs/LibreLogin/wiki/Name-Validation for more information.""",
             ConfigurateHelper::getString
     );
 
@@ -78,7 +78,7 @@ public class DefaultMessages {
             "Oh no! It looks like an premium user with activated auto login changed their nickname to %nickname%, therefore there are 2 colliding accounts. Please contact support immediately.",
             """
                     This occurs, when there is a profile conflict.
-                    See https://github.com/kyngs/LibrePremium/wiki/Profile-Conflicts for more information.""",
+                    See https://github.com/kyngs/LibreLogin/wiki/Profile-Conflicts for more information.""",
             ConfigurateHelper::getString
     );
 
@@ -710,70 +710,70 @@ public class DefaultMessages {
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_INFO = new ConfigurationKey<>(
             "autocomplete.user-info",
             "@players",
-            "This hint is displayed when the player starts typing the /librepremium user info command.",
+            "This hint is displayed when the player starts typing the /librelogin user info command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_MIGRATE = new ConfigurationKey<>(
             "autocomplete.user-migrate",
             "@players newName",
-            "This hint is displayed when the player starts typing the /librepremium user migrate command.",
+            "This hint is displayed when the player starts typing the /librelogin user migrate command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_UNREGISTER = new ConfigurationKey<>(
             "autocomplete.user-unregister",
             "@players",
-            "This hint is displayed when the player starts typing the /librepremium user unregister command.",
+            "This hint is displayed when the player starts typing the /librelogin user unregister command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_DELETE = new ConfigurationKey<>(
             "autocomplete.user-delete",
             "@players",
-            "This hint is displayed when the player starts typing the /librepremium user delete command.",
+            "This hint is displayed when the player starts typing the /librelogin user delete command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_PREMIUM = new ConfigurationKey<>(
             "autocomplete.user-premium",
             "@players",
-            "This hint is displayed when the player starts typing the /librepremium user premium command.",
+            "This hint is displayed when the player starts typing the /librelogin user premium command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_CRACKED = new ConfigurationKey<>(
             "autocomplete.user-cracked",
             "@players",
-            "This hint is displayed when the player starts typing the /librepremium user cracked command.",
+            "This hint is displayed when the player starts typing the /librelogin user cracked command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_REGISTER = new ConfigurationKey<>(
             "autocomplete.user-register",
             "@players password",
-            "This hint is displayed when the player starts typing the /librepremium user register command.",
+            "This hint is displayed when the player starts typing the /librelogin user register command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_LOGIN = new ConfigurationKey<>(
             "autocomplete.user-login",
             "@players",
-            "This hint is displayed when the player starts typing the /librepremium user login command.",
+            "This hint is displayed when the player starts typing the /librelogin user login command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_2FA_OFF = new ConfigurationKey<>(
             "autocomplete.user-2fa-off",
             "@players",
-            "This hint is displayed when the player starts typing the /librepremium user 2fa-off command.",
+            "This hint is displayed when the player starts typing the /librelogin user 2fa-off command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_USER_CHANGE_PASSWORD = new ConfigurationKey<>(
             "autocomplete.user-pass-change",
             "@players newPassword",
-            "This hint is displayed when the player starts typing the /librepremium user pass-change command.",
+            "This hint is displayed when the player starts typing the /librelogin user pass-change command.",
             ConfigurateHelper::getString
     );
 

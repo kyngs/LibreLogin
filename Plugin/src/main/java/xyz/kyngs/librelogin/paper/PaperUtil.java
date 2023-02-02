@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 
 public class PaperUtil {
 
-    public static void runSyncAndWait(Runnable runnable, PaperLibrePremium plugin) {
+    public static void runSyncAndWait(Runnable runnable, PaperLibreLogin plugin) {
         if (Bukkit.isPrimaryThread()) {
             runnable.run();
         } else {

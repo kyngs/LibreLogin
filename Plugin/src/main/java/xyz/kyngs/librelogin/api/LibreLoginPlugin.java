@@ -25,7 +25,7 @@ import java.util.UUID;
  * @param <P> The type of the player
  * @param <S> The type of the server
  */
-public interface LibrePremiumPlugin<P, S> {
+public interface LibreLoginPlugin<P, S> {
 
     /**
      * Gets the current premium provider.

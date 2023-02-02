@@ -1,5 +1,5 @@
 subprojects {
-    group = 'xyz.kyngs.librepremium'
+    group = 'xyz.kyngs.librelogin'
 
     repositories {
         mavenLocal()

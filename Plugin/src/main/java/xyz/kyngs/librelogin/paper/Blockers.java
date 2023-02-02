@@ -20,9 +20,9 @@ public class Blockers implements Listener {
 
     private final AuthorizationProvider<Player> authorizationProvider;
     private final PluginConfiguration configuration;
-    private final PaperLibrePremium plugin;
+    private final PaperLibreLogin plugin;
 
-    public Blockers(PaperLibrePremium plugin) {
+    public Blockers(PaperLibreLogin plugin) {
         this.authorizationProvider = plugin.getAuthorizationProvider();
         this.configuration = plugin.getConfiguration();
         this.plugin = plugin;

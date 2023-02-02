@@ -25,14 +25,14 @@ import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.api.provider.LibrePremiumProvider;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
@@ -49,8 +49,8 @@ import java.util.concurrent.TimeUnit;
 
 
 @Plugin(
-        id = "librepremium",
-        name = "LibrePremium",
+        id = "librelogin",
+        name = "LibreLogin",
         version = "@version@",
         authors = "kyngs",
         dependencies = {
@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
                 @Dependency(id = "redisbungee", optional = true)
         }
 )
-public class VelocityLibrePremium extends AuthenticLibrePremium<Player, RegisteredServer> implements LibrePremiumProvider<Player, RegisteredServer> {
+public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredServer> implements LibreLoginProvider<Player, RegisteredServer> {
 
     @Inject
     private org.slf4j.Logger logger;
@@ -288,7 +288,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
 
     @Override
     protected LibraryManager provideLibraryManager() {
-        return new VelocityLibraryManager<>(logger, Path.of("plugins", "librepremium"), server.getPluginManager(), this);
+        return new VelocityLibraryManager<>(logger, Path.of("plugins", "librelogin"), server.getPluginManager(), this);
     }
 
     @Subscribe
@@ -323,7 +323,7 @@ public class VelocityLibrePremium extends AuthenticLibrePremium<Player, Register
     }
 
     @Override
-    public LibrePremiumPlugin<Player, RegisteredServer> getLibrePremium() {
+    public LibreLoginPlugin<Player, RegisteredServer> getLibreLogin() {
         return this;
     }
 }

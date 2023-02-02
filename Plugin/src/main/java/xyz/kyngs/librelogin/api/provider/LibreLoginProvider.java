@@ -1,6 +1,6 @@
 package xyz.kyngs.librelogin.api.provider;
 
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 
 /**
  * This class is used to obtain the instance of the plugin
@@ -8,8 +8,8 @@ import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
  * @param <P> The type of the player
  * @param <S> The type of the server
  */
-public interface LibrePremiumProvider<P, S> {
+public interface LibreLoginProvider<P, S> {
 
-    LibrePremiumPlugin<P, S> getLibrePremium();
+    LibreLoginPlugin<P, S> getLibreLogin();
 
 }

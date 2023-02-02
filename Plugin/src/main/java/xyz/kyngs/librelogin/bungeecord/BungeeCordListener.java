@@ -15,9 +15,9 @@ import java.lang.reflect.Field;
 import static net.md_5.bungee.event.EventPriority.HIGHEST;
 import static net.md_5.bungee.event.EventPriority.LOW;
 
-public class BungeeCordListener extends AuthenticListeners<BungeeCordLibrePremium, ProxiedPlayer, ServerInfo> implements Listener {
+public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin, ProxiedPlayer, ServerInfo> implements Listener {
 
-    public BungeeCordListener(BungeeCordLibrePremium plugin) {
+    public BungeeCordListener(BungeeCordLibreLogin plugin) {
         super(plugin);
     }
 

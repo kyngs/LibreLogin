@@ -2,12 +2,12 @@ package xyz.kyngs.librelogin.common.command.commands.staff;
 
 import org.jetbrains.annotations.NotNull;
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.Command;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 
 public class StaffCommand<P> extends Command<P> {
-    public StaffCommand(AuthenticLibrePremium<P, ?> plugin) {
+    public StaffCommand(AuthenticLibreLogin<P, ?> plugin) {
         super(plugin);
     }
 

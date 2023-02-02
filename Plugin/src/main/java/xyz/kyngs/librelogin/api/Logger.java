@@ -1,7 +1,7 @@
 package xyz.kyngs.librelogin.api;
 
 /**
- * Logger class for LibrePremium.
+ * Logger class for LibreLogin.
  *
  * @author kyngs
  */

@@ -28,7 +28,7 @@ blossom {
 }
 
 shadowJar {
-    archiveFileName = "LibrePremium.jar"
+    archiveFileName = "LibreLogin.jar"
 
     dependencies {
         exclude(dependency('org.slf4j:.*:.*'))
@@ -37,17 +37,17 @@ shadowJar {
         exclude(dependency('com.google.protobuf:.*:.*'))
     }
 
-    relocate 'co.aikar.acf', 'xyz.kyngs.librepremium.lib.acf'
-    relocate 'com.github.benmanes.caffeine', 'xyz.kyngs.librepremium.lib.caffeine'
-    relocate 'com.typesafe.config', 'xyz.kyngs.librepremium.lib.hocon'
-    relocate 'com.zaxxer.hikari', 'xyz.kyngs.librepremium.lib.hikari'
-    relocate 'com.mysql', 'xyz.kyngs.librepremium.lib.mysql'
-    relocate 'org.bstats', 'xyz.kyngs.librepremium.lib.metrics'
-    relocate 'org.intellij', 'xyz.kyngs.librepremium.lib.intellij'
-    relocate 'org.jetbrains', 'xyz.kyngs.librepremium.lib.jetbrains'
-    relocate 'io.leangen.geantyref', 'xyz.kyngs.librepremium.lib.reflect'
-    relocate 'org.spongepowered.configurate', 'xyz.kyngs.librepremium.lib.configurate'
-    relocate 'net.byteflux.libby', 'xyz.kyngs.librepremium.lib.libby'
+    relocate 'co.aikar.acf', 'xyz.kyngs.librelogin.lib.acf'
+    relocate 'com.github.benmanes.caffeine', 'xyz.kyngs.librelogin.lib.caffeine'
+    relocate 'com.typesafe.config', 'xyz.kyngs.librelogin.lib.hocon'
+    relocate 'com.zaxxer.hikari', 'xyz.kyngs.librelogin.lib.hikari'
+    relocate 'com.mysql', 'xyz.kyngs.librelogin.lib.mysql'
+    relocate 'org.bstats', 'xyz.kyngs.librelogin.lib.metrics'
+    relocate 'org.intellij', 'xyz.kyngs.librelogin.lib.intellij'
+    relocate 'org.jetbrains', 'xyz.kyngs.librelogin.lib.jetbrains'
+    relocate 'io.leangen.geantyref', 'xyz.kyngs.librelogin.lib.reflect'
+    relocate 'org.spongepowered.configurate', 'xyz.kyngs.librelogin.lib.configurate'
+    relocate 'net.byteflux.libby', 'xyz.kyngs.librelogin.lib.libby'
 }
 
 java {

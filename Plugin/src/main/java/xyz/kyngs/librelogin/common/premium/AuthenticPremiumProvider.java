@@ -7,7 +7,7 @@ import xyz.kyngs.easydb.scheduler.ThrowableFunction;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumProvider;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.io.IOException;
@@ -23,9 +23,9 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
     private final Cache<String, PremiumUser> userCache;
     private final List<ThrowableFunction<String, PremiumUser, PremiumException>> fetchers;
-    private final AuthenticLibrePremium<?, ?> plugin;
+    private final AuthenticLibreLogin<?, ?> plugin;
 
-    public AuthenticPremiumProvider(AuthenticLibrePremium<?, ?> plugin) {
+    public AuthenticPremiumProvider(AuthenticLibreLogin<?, ?> plugin) {
         this.plugin = plugin;
         userCache = Caffeine.newBuilder()
                 .expireAfterWrite(20, TimeUnit.MINUTES)
@@ -81,7 +81,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
             switch (connection.getResponseCode()) {
                 case 200 -> {
-                    var data = AuthenticLibrePremium.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+                    var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
                     var uuid = data.get("uuid");
 
@@ -112,7 +112,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 default ->
                         throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 200 -> {
-                    var data = AuthenticLibrePremium.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+                    var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
                     var id = data.get("id").getAsString();
                     var demo = data.get("demo");

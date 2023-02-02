@@ -41,7 +41,7 @@ public class DefaultConfiguration {
                                         
                     The servers/worlds player should be sent to when they are authenticated. THE SERVERS MUST BE REGISTERED IN THE PROXY CONFIG. IN CASE OF PAPER, THE WORLDS MUST EXIST.
                     The configuration allows configuring forced hosts; the servers/worlds in "root" are used when players do not connect from a forced host. Use § instead of dots.
-                    See: https://github.com/kyngs/LibrePremium/wiki/Configuring-Forced-Hosts
+                    See: https://github.com/kyngs/LibreLogin/wiki/Configuring-Forced-Hosts
                     """,
             ConfigurateHelper::getServerMap
     );
@@ -82,7 +82,7 @@ public class DefaultConfiguration {
             "RANDOM",
             """
                     Sets which method should be used for creating fixed UUID when a new player is created.
-                    See the wiki for further information: https://github.com/kyngs/LibrePremium/wiki/UUID-Creators
+                    See the wiki for further information: https://github.com/kyngs/LibreLogin/wiki/UUID-Creators
                     Available Creators:
                     RANDOM - Generates a random UUID
                     CRACKED - Generates a UUID based on the player's name, the same method as if the server was in offline mode
@@ -134,7 +134,7 @@ public class DefaultConfiguration {
 
     public static final ConfigurationKey<String> DATABASE_NAME = new ConfigurationKey<>(
             "database.database",
-            "librepremium",
+            "librelogin",
             "The name of the database.",
             ConfigurateHelper::getString
     );
@@ -164,7 +164,7 @@ public class DefaultConfiguration {
             "migration",
             """
                     This is used for migrating the database from other plugins.
-                    Please see the wiki for further information: https://github.com/kyngs/LibrePremium/wiki/Database-Migration
+                    Please see the wiki for further information: https://github.com/kyngs/LibreLogin/wiki/Database-Migration
                     """
     );
 
@@ -236,7 +236,7 @@ public class DefaultConfiguration {
                     This section is used for 2FA configuration.
                     !! YOU MUST HAVE PROTOCOLIZE INSTALLED FOR THIS TO WORK !!
                                         
-                    You can find more information on the wiki: https://github.com/kyngs/LibrePremium/wiki/2FA
+                    You can find more information on the wiki: https://github.com/kyngs/LibreLogin/wiki/2FA
                     """
     );
 
@@ -245,14 +245,14 @@ public class DefaultConfiguration {
             true,
             """
                     Should we enable TOTP-Based Two-Factor Authentication? If you don't know what this is, this is the 2FA used in applications like Google Authenticator etc.
-                    I heavily suggest you to read this wiki page: https://github.com/kyngs/LibrePremium/wiki/2FA
+                    I heavily suggest you to read this wiki page: https://github.com/kyngs/LibreLogin/wiki/2FA
                     """,
             ConfigurateHelper::getBoolean
     );
 
     public static final ConfigurationKey<String> TOTP_LABEL = new ConfigurationKey<>(
             "totp.label",
-            "LibrePremium Network",
+            "LibreLogin Network",
             "The label to be displayed in the 2FA app. Change this to your network name.",
             ConfigurateHelper::getString
     );

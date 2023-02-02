@@ -1,7 +1,7 @@
-name: "LibrePremium"
+name: "LibreLogin"
 author: "kyngs"
 version: 0.13.0-DEVELOPMENT
-main: "xyz.kyngs.librepremium.paper.PaperBootstrap"
+main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
 
 depend:
   - ProtocolLib

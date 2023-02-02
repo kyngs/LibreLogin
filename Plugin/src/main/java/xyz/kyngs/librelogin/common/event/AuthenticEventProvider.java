@@ -3,7 +3,7 @@ package xyz.kyngs.librelogin.common.event;
 import xyz.kyngs.librelogin.api.event.Event;
 import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.common.AuthenticHandler;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +15,7 @@ public class AuthenticEventProvider<P, S> extends AuthenticHandler<P, S> impleme
 
     private final Map<Class<? extends Event<P, S>>, Set<Consumer<Event<P, S>>>> listeners;
 
-    public AuthenticEventProvider(AuthenticLibrePremium<P, S> plugin) {
+    public AuthenticEventProvider(AuthenticLibreLogin<P, S> plugin) {
         super(plugin);
         this.listeners = new HashMap<>();
     }

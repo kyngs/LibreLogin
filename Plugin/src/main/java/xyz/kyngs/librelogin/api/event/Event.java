@@ -1,6 +1,6 @@
 package xyz.kyngs.librelogin.api.event;
 
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 
 /**
@@ -15,7 +15,7 @@ public interface Event<P, S> {
      *
      * @return the plugin instance
      */
-    LibrePremiumPlugin<P, S> getPlugin();
+    LibreLoginPlugin<P, S> getPlugin();
 
     PlatformHandle<P, S> getPlatformHandle();
 

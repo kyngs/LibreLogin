@@ -13,7 +13,7 @@ import dev.samstevens.totp.time.SystemTimeProvider;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.totp.TOTPData;
 import xyz.kyngs.librelogin.api.totp.TOTPProvider;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
@@ -21,12 +21,12 @@ import java.io.IOException;
 
 public class AuthenticTOTPProvider implements TOTPProvider {
 
-    private final AuthenticLibrePremium<?, ?> plugin;
+    private final AuthenticLibreLogin<?, ?> plugin;
     private final SecretGenerator secretGenerator;
     private final QrGenerator qrGenerator;
     private final CodeVerifier verifier;
 
-    public AuthenticTOTPProvider(AuthenticLibrePremium<?, ?> plugin) {
+    public AuthenticTOTPProvider(AuthenticLibreLogin<?, ?> plugin) {
         this.plugin = plugin;
         secretGenerator = new DefaultSecretGenerator();
         qrGenerator = new ZxingPngQrGenerator();

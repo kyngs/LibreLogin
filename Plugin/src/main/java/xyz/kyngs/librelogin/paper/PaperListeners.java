@@ -55,7 +55,7 @@ import java.util.function.Function;
 import static com.comphenix.protocol.PacketType.Login.Client.START;
 import static com.comphenix.protocol.PacketType.Login.Server.DISCONNECT;
 
-public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player, World> implements Listener {
+public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, World> implements Listener {
 
     private static final String ENCRYPTION_CLASS_NAME = "MinecraftEncryption";
     private static final Class<?> ENCRYPTION_CLASS;
@@ -77,12 +77,12 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
     private final Cache<Player, String> ipCache;
     private final Cache<UUID, User> readOnlyUserCache;
 
-    public PaperListeners(PaperLibrePremium paperLibrePremium) {
-        super(paperLibrePremium);
+    public PaperListeners(PaperLibreLogin plugin) {
+        super(plugin);
 
-        floodgateHelper = plugin.floodgateEnabled() ? new FloodgateHelper() : null;
+        floodgateHelper = this.plugin.floodgateEnabled() ? new FloodgateHelper() : null;
 
-        new ProtocolListener(this, plugin);
+        new ProtocolListener(this, this.plugin);
 
         ipCache = Caffeine.newBuilder()
                 .expireAfterWrite(1, TimeUnit.MINUTES)

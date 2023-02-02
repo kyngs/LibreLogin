@@ -1,12 +1,12 @@
 package xyz.kyngs.librelogin.common.command.commands.premium;
 
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.command.commands.authorization.AuthorizationCommand;
 
 public class PremiumCommand<P> extends AuthorizationCommand<P> {
-    public PremiumCommand(AuthenticLibrePremium<P, ?> premium) {
+    public PremiumCommand(AuthenticLibreLogin<P, ?> premium) {
         super(premium);
     }
 

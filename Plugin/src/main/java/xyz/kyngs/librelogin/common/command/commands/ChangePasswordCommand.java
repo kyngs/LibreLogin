@@ -3,7 +3,7 @@ package xyz.kyngs.librelogin.common.command.commands;
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.event.events.PasswordChangeEvent;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.Command;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPasswordChangeEvent;
@@ -12,7 +12,7 @@ import java.util.concurrent.CompletionStage;
 
 @CommandAlias("changepassword|changepass|passwd|passch")
 public class ChangePasswordCommand<P> extends Command<P> {
-    public ChangePasswordCommand(AuthenticLibrePremium<P, ?> plugin) {
+    public ChangePasswordCommand(AuthenticLibreLogin<P, ?> plugin) {
         super(plugin);
     }
 

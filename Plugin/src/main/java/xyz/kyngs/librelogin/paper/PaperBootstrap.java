@@ -3,11 +3,11 @@ package xyz.kyngs.librelogin.paper;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.kyngs.librelogin.api.provider.LibrePremiumProvider;
+import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
-public class PaperBootstrap extends JavaPlugin implements LibrePremiumProvider<Player, World> {
+public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Player, World> {
 
-    private PaperLibrePremium librePremium;
+    private PaperLibreLogin libreLogin;
 
     @Override
     public void onEnable() {
@@ -24,10 +24,10 @@ public class PaperBootstrap extends JavaPlugin implements LibrePremiumProvider<P
         }
 
         getLogger().info("Detected Adventure-compatible server distribution - " + getServer().getName() + " " + getServer().getVersion());
-        getLogger().info("Bootstrapping LibrePremium...");
+        getLogger().info("Bootstrapping LibreLogin...");
 
-        librePremium = new PaperLibrePremium(this);
-        librePremium.enable();
+        libreLogin = new PaperLibreLogin(this);
+        libreLogin.enable();
     }
 
     private void unsupportedSetup() {
@@ -48,12 +48,12 @@ public class PaperBootstrap extends JavaPlugin implements LibrePremiumProvider<P
 
     @Override
     public void onDisable() {
-        librePremium.disable();
+        libreLogin.disable();
     }
 
     @Override
-    public PaperLibrePremium getLibrePremium() {
-        return librePremium;
+    public PaperLibreLogin getLibreLogin() {
+        return libreLogin;
     }
 
     protected void disable() {

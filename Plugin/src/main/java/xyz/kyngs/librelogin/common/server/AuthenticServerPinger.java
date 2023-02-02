@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 import xyz.kyngs.librelogin.api.server.ServerPinger;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class AuthenticServerPinger<S> implements ServerPinger<S> {
     private final LoadingCache<S, Optional<ServerPing>> pingCache;
 
-    public AuthenticServerPinger(AuthenticLibrePremium<?, S> plugin) {
+    public AuthenticServerPinger(AuthenticLibreLogin<?, S> plugin) {
         this.pingCache = Caffeine.newBuilder()
                 .refreshAfterWrite(10, TimeUnit.SECONDS)
                 .build(server -> {

@@ -24,7 +24,7 @@ import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
@@ -38,7 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer, ServerInfo> {
+public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, ServerInfo> {
 
     private final BungeeCordBootstrap bootstrap;
     private BungeeAudiences adventure;
@@ -46,7 +46,7 @@ public class BungeeCordLibrePremium extends AuthenticLibrePremium<ProxiedPlayer,
     private RedisBungeeAPI redisBungee;
     private BungeeComponentSerializer serializer;
 
-    public BungeeCordLibrePremium(BungeeCordBootstrap bootstrap) {
+    public BungeeCordLibreLogin(BungeeCordBootstrap bootstrap) {
         this.bootstrap = bootstrap;
     }
 

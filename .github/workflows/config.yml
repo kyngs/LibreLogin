@@ -30,7 +30,7 @@ jobs:
         run: "mkdir -p velocity/plugins"
 
       - name: "Copy plugin"
-        run: "cp Plugin/build/libs/LibrePremium.jar velocity/plugins/"
+        run: "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
 
       - name: "Setup Velocity"
         run: "cd velocity && curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/184/downloads/velocity-3.1.2-SNAPSHOT-184.jar -o velocity.jar"
@@ -47,8 +47,8 @@ jobs:
       - name: "Update wiki"
         run: |
           cd wiki
-          echo '```hocon' > Config.md && cat ../velocity/plugins/librepremium/config.conf >> Config.md && echo '```' >> Config.md
-          echo '```hocon' > Messages.md && cat ../velocity/plugins/librepremium/messages.conf >> Messages.md && echo '```' >> Messages.md
+          echo '```hocon' > Config.md && cat ../velocity/plugins/librelogin/config.conf >> Config.md && echo '```' >> Config.md
+          echo '```hocon' > Messages.md && cat ../velocity/plugins/librelogin/messages.conf >> Messages.md && echo '```' >> Messages.md
 
       - name: "Commit and push wiki changes"
         run: |

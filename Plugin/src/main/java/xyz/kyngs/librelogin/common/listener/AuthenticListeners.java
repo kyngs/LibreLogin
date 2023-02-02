@@ -7,7 +7,7 @@ import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public class AuthenticListeners<Plugin extends AuthenticLibrePremium<P, S>, P, S> {
+public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> {
 
     @SuppressWarnings("RegExpSimplifiable") //I don't believe you
     private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_]*");

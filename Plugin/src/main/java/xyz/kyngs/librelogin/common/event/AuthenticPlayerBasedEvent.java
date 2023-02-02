@@ -2,7 +2,7 @@ package xyz.kyngs.librelogin.common.event;
 
 import net.kyori.adventure.audience.Audience;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.PlayerBasedEvent;
@@ -15,10 +15,10 @@ public class AuthenticPlayerBasedEvent<P, S> implements PlayerBasedEvent<P, S> {
     private final Audience audience;
     private final UUID uuid;
     private final P player;
-    private final LibrePremiumPlugin<P, S> plugin;
+    private final LibreLoginPlugin<P, S> plugin;
     private final PlatformHandle<P, S> platformHandle;
 
-    public AuthenticPlayerBasedEvent(@Nullable User user, @Nullable P player, LibrePremiumPlugin<P, S> plugin) {
+    public AuthenticPlayerBasedEvent(@Nullable User user, @Nullable P player, LibreLoginPlugin<P, S> plugin) {
         this.plugin = plugin;
         this.platformHandle = plugin.getPlatformHandle();
         this.user = user;
@@ -48,7 +48,7 @@ public class AuthenticPlayerBasedEvent<P, S> implements PlayerBasedEvent<P, S> {
     }
 
     @Override
-    public LibrePremiumPlugin<P, S> getPlugin() {
+    public LibreLoginPlugin<P, S> getPlugin() {
         return plugin;
     }
 

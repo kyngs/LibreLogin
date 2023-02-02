@@ -12,7 +12,7 @@ import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.charts.CustomChart;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
@@ -57,7 +57,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
-public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<P, S> {
+public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S> {
 
     public static final Gson GSON = new Gson();
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd. MM. yyyy HH:mm");
@@ -86,7 +86,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
     private MySQLDatabaseProvider databaseProvider;
     private CommandProvider<P, S> commandProvider;
 
-    protected AuthenticLibrePremium() {
+    protected AuthenticLibreLogin() {
         cryptoProviders = new HashMap<>();
         readProviders = new HashMap<>();
         platformHandle = providePlatformHandle();
@@ -162,6 +162,17 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         version = SemanticVersion.parse(getVersion());
         logger = provideLogger();
 
+        var folder = getDataFolder();
+        if (!folder.exists()) {
+            var oldFolder = new File(folder.getParentFile(), folder.getName().equals("librelogin") ? "librepremium" : "LibrePremium");
+            if (oldFolder.exists()) {
+                logger.info("Migrating configuration and messages from old folder...");
+                if (!oldFolder.renameTo(folder)) {
+                    throw new RuntimeException("Can't migrate configuration and messages from old folder!");
+                }
+            }
+        }
+
         logger.info("Loading libraries...");
 
         var libraryManager = provideLibraryManager();
@@ -182,7 +193,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
                 .groupId("com{}zaxxer")
                 .artifactId("HikariCP")
                 .version("5.0.1")
-                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librepremium{}lib{}hikari")
+                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librelogin{}lib{}hikari")
                 .build()
         );
 
@@ -190,7 +201,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
                 .groupId("mysql")
                 .artifactId("mysql-connector-java")
                 .version("8.0.30")
-                .relocate("com{}mysql", "xyz{}kyngs{}librepremium{}lib{}mysql")
+                .relocate("com{}mysql", "xyz{}kyngs{}librelogin{}lib{}mysql")
                 .build()
         );
 
@@ -198,7 +209,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
                 .groupId("com{}github{}kyngs")
                 .artifactId("EasyDB")
                 .version("a4bdf88ee0")
-                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librepremium{}lib{}hikari")
+                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librelogin{}lib{}hikari")
                 .build()
         );
 
@@ -206,7 +217,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
                 .groupId("com{}github{}ben-manes{}caffeine")
                 .artifactId("caffeine")
                 .version("3.1.1")
-                .relocate("com{}github{}benmanes{}caffeine", "xyz{}kyngs{}librepremium{}lib{}caffeine")
+                .relocate("com{}github{}benmanes{}caffeine", "xyz{}kyngs{}librelogin{}lib{}caffeine")
                 .build()
         );
 
@@ -214,9 +225,9 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
                 .groupId("org{}spongepowered")
                 .artifactId("configurate-hocon")
                 .version("4.1.2")
-                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librepremium{}lib{}configurate")
-                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librepremium{}lib{}reflect")
-                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librepremium{}lib{}hocon")
+                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librelogin{}lib{}configurate")
+                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librelogin{}lib{}reflect")
+                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librelogin{}lib{}hocon")
                 .build()
         );
 
@@ -224,16 +235,16 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
                 .groupId("org{}spongepowered")
                 .artifactId("configurate-core")
                 .version("4.1.2")
-                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librepremium{}lib{}configurate")
-                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librepremium{}lib{}reflect")
-                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librepremium{}lib{}hocon")
+                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librelogin{}lib{}configurate")
+                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librelogin{}lib{}reflect")
+                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librelogin{}lib{}hocon")
                 .build()
         );
 
         dependencies.add(Library.builder()
                 .groupId("io{}leangen{}geantyref")
                 .artifactId("geantyref")
-                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librepremium{}lib{}reflect")
+                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librelogin{}lib{}reflect")
                 .version("1.3.13")
                 .build()
         );
@@ -242,7 +253,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
                 .groupId("com{}typesafe")
                 .artifactId("config")
                 .version("1.4.2")
-                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librepremium{}lib{}hocon")
+                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librelogin{}lib{}hocon")
                 .build()
         );
 
@@ -289,7 +300,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             shutdownProxy(1);
         } catch (CorruptedConfigurationException e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
             logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             shutdownProxy(1);
         }
@@ -311,7 +322,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             shutdownProxy(1);
         } catch (CorruptedConfigurationException e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
             logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             shutdownProxy(1);
         }
@@ -334,7 +345,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             databaseProvider = new MySQLDatabaseProvider(configuration, logger, this);
         } catch (Exception e) {
             var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBREPREMIUM !!");
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
             logger.error("Failed to connect to the database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
             shutdownProxy(1);
         }
@@ -377,7 +388,7 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         commandProvider = new CommandProvider<>(this);
 
         if (getVersion().contains("DEVELOPMENT")) {
-            logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBREPREMIUM !!");
+            logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBRELOGIN !!");
             logger.warn("!! THIS IS NOT A RELEASE, USE THIS ONLY IF YOU WERE INSTRUCTED TO DO SO. DO NOT USE THIS IN PRODUCTION !!");
         } else {
             initMetrics();
@@ -419,9 +430,9 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
         logger.info("Checking for updates...");
 
         try {
-            var connection = new URL("https://api.github.com/repos/kyngs/LibrePremium/releases").openConnection();
+            var connection = new URL("https://api.github.com/repos/kyngs/LibreLogin/releases").openConnection();
 
-            connection.setRequestProperty("User-Agent", "LibrePremium");
+            connection.setRequestProperty("User-Agent", "LibreLogin");
 
             var in = connection.getInputStream();
 
@@ -453,10 +464,10 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             }
 
             if (behind.isEmpty()) {
-                logger.info("You are running the latest version of LibrePremium");
+                logger.info("You are running the latest version of LibreLogin");
             } else {
                 Collections.reverse(behind);
-                logger.warn("!! YOU ARE RUNNING AN OUTDATED VERSION OF LIBREPREMIUM !!");
+                logger.warn("!! YOU ARE RUNNING AN OUTDATED VERSION OF LIBRELOGIN !!");
                 logger.info("You are running version %s, the latest version is %s. You are running %s versions behind. Newer versions:".formatted(getVersion(), latest, behind.size()));
                 for (Release release : behind) {
                     logger.info("- %s".formatted(release.name()));

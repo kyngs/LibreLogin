@@ -8,7 +8,7 @@ import xyz.kyngs.librelogin.api.configuration.Messages;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librelogin.common.database.MySQLDatabaseProvider;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
@@ -17,9 +17,9 @@ import java.util.concurrent.CompletionStage;
 
 public class Command<P> extends BaseCommand {
 
-    protected final AuthenticLibrePremium<P, ?> plugin;
+    protected final AuthenticLibreLogin<P, ?> plugin;
 
-    public Command(AuthenticLibrePremium<P, ?> plugin) {
+    public Command(AuthenticLibreLogin<P, ?> plugin) {
         this.plugin = plugin;
     }
 

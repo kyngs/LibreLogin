@@ -1,7 +1,7 @@
-name: "LibrePremium"
+name: "LibreLogin"
 author: "kyngs"
 version: 0.13.0-DEVELOPMENT
-main: "xyz.kyngs.librepremium.bungeecord.BungeeCordBootstrap"
+main: "xyz.kyngs.librelogin.bungeecord.BungeeCordBootstrap"
 softdepends:
   - "RedisBungee"
   - "floodgate"

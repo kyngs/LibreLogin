@@ -2,7 +2,7 @@ package xyz.kyngs.librelogin.api.configuration;
 
 import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -17,12 +17,13 @@ public interface PluginConfiguration {
 
     /**
      * Reloads the configuration.
+     *
      * @param plugin The plugin.
      * @return True if new configuration was generated, false otherwise.
-     * @throws IOException If an I/O error occurs.
+     * @throws IOException                     If an I/O error occurs.
      * @throws CorruptedConfigurationException If the configuration is corrupted.
      */
-    boolean reload(LibrePremiumPlugin<?, ?> plugin) throws IOException, CorruptedConfigurationException;
+    boolean reload(LibreLoginPlugin<?, ?> plugin) throws IOException, CorruptedConfigurationException;
 
     Collection<String> getAllowedCommandsWhileUnauthorized();
 

@@ -1,7 +1,7 @@
 package xyz.kyngs.librelogin.api.configuration;
 
 import net.kyori.adventure.text.TextComponent;
-import xyz.kyngs.librelogin.api.LibrePremiumPlugin;
+import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 
 import java.io.IOException;
 
@@ -28,6 +28,6 @@ public interface Messages {
      * @throws IOException                     If an I/O error occurs.
      * @throws CorruptedConfigurationException If the configuration is corrupted.
      */
-    void reload(LibrePremiumPlugin<?, ?> plugin) throws IOException, CorruptedConfigurationException;
+    void reload(LibreLoginPlugin<?, ?> plugin) throws IOException, CorruptedConfigurationException;
 
 }

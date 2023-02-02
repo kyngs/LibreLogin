@@ -21,7 +21,7 @@ import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
@@ -34,14 +34,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
+public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     public PaperBootstrap getBootstrap() {
         return bootstrap;
     }
 
     private final PaperBootstrap bootstrap;
 
-    public PaperLibrePremium(PaperBootstrap bootstrap) {
+    public PaperLibreLogin(PaperBootstrap bootstrap) {
         this.bootstrap = bootstrap;
     }
 
@@ -112,7 +112,7 @@ public class PaperLibrePremium extends AuthenticLibrePremium<Player, World> {
     protected void enable() {
 
         if (Bukkit.getOnlineMode()) {
-            getLogger().error("!!!The server is running in online mode! LibrePremium won't start unless you set it to false!!!");
+            getLogger().error("!!!The server is running in online mode! LibreLogin won't start unless you set it to false!!!");
             disable();
             return;
         }

@@ -7,7 +7,7 @@ import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.api.totp.TOTPData;
 import xyz.kyngs.librelogin.common.AuthenticHandler;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
 
 import java.sql.Timestamp;
@@ -22,7 +22,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     private final Map<P, Boolean> unAuthorized;
     private final Map<P, String> awaiting2FA;
 
-    public AuthenticAuthorizationProvider(AuthenticLibrePremium<P, S> plugin) {
+    public AuthenticAuthorizationProvider(AuthenticLibreLogin<P, S> plugin) {
         super(plugin);
         unAuthorized = new HashMap<>();
         awaiting2FA = new HashMap<>();

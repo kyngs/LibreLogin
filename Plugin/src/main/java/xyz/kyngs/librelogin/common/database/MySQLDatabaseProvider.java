@@ -10,7 +10,7 @@ import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 import xyz.kyngs.librelogin.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.common.AuthenticLibrePremium;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,9 +24,9 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
 
     private final EasyDB<MySQL, Connection, SQLException> easyDB;
     private final Logger logger;
-    private final AuthenticLibrePremium<?, ?> plugin;
+    private final AuthenticLibreLogin<?, ?> plugin;
 
-    public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger, AuthenticLibrePremium<?, ?> plugin) {
+    public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger, AuthenticLibreLogin<?, ?> plugin) {
         this.logger = logger;
         this.plugin = plugin;
 
