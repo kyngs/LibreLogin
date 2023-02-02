@@ -653,4 +653,8 @@ public abstract class AuthenticLibrePremium<P, S> implements LibrePremiumPlugin<
             new Throwable().printStackTrace();
         }
     }
+
+    public boolean fromFloodgate(String username) {
+        return floodgateApi.getPlayer(username) != null;
+    }
 }

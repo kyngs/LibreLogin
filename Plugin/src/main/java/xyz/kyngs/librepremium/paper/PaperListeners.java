@@ -110,8 +110,6 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        if (plugin.fromFloodgate(event.getPlayerProfile().getId())) return; //Floodgate player, won't handle it
-
         var existing = event.getPlayerProfile();
 
         if (plugin.fromFloodgate(existing.getId())) return;
@@ -189,6 +187,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibrePremium, Player
             }
 
             try {
+                if (plugin.fromFloodgate(username)) return; //Floodgate player, won't handle it
                 var preLoginResult = onPreLogin(username);
                 switch (preLoginResult.state()) {
                     case DENIED -> {
