@@ -1,6 +1,6 @@
 # LibreLogin
 
-Free and open-source multiplatform extremely customizable authentication plugin with outstanding features and API.
+Open-source, multiplatform, and highly customizable authentication plugin with outstanding features and API.
 
 # Quick information
 
@@ -15,7 +15,7 @@ Free and open-source multiplatform extremely customizable authentication plugin 
 
 ## Considerations
 
-- The plugin does not prevent your players from moving on the limbo. Please look at the limbo section on the wiki.
+- When using on Proxy, you need to secure your limbo
 
 ## Platforms
 
