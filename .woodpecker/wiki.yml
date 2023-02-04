@@ -4,7 +4,7 @@ pipeline:
     commands:
       - "gradle shadowJar"
 
-  setup-and-run-velocity:
+  setup-velocity:
     image: "debian"
     commands:
       - "pwd"
@@ -13,6 +13,10 @@ pipeline:
       - "ls -la"
       - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
       - "curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/184/downloads/velocity-3.1.2-SNAPSHOT-184.jar -o velocity/velocity.jar"
+
+  run-velocity:
+    image: "openjdk:17-jdk"
+    commands:
       - "cd velocity && java -jar velocity.jar"
 
   checkout-wiki:
