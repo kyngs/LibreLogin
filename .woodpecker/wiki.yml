@@ -1,0 +1,25 @@
+pipeline:
+  shadowJar:
+    image: "gradle:jdk17-focal"
+    commands:
+      - "gradle shadowJar"
+
+  setup-and-run-velocity:
+    image: "debian"
+    commands:
+      - "mkdir -p velocity/plugins"
+      - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
+      - "cd velocity && curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/184/downloads/velocity-3.1.2-SNAPSHOT-184.jar -o velocity.jar"
+      - "cd velocity && java -jar velocity.jar"
+
+  checkout-wiki:
+    image: "bitnami/git"
+    commands:
+      - "git clone https://github.com/kyngs/LibrePlugin.wiki.git wiki"
+
+  update-wiki:
+    image: "debian"
+    commands:
+      - "cd wiki"
+      - "echo '```hocon' > Config.md && cat ../velocity/plugins/librelogin/config.conf >> Config.md && echo '```' >> Config.md"
+      - "echo '```hocon' > Messages.md && cat ../velocity/plugins/librelogin/messages.conf >> Messages.md && echo '```' >> Messages.md"
