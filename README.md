@@ -29,3 +29,4 @@ Please check our wiki for guides, features and other things.
 # Contact
 
 [Please join our discord](https://discord.gg/HP3CSfCv2v).
+
