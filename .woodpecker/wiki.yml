@@ -5,7 +5,7 @@ pipeline:
       - "gradle shadowJar"
 
   setup-and-run-velocity:
-    image: "debian"
+    image: "curlimages/curl"
     commands:
       - "mkdir -p velocity/plugins"
       - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
