@@ -35,10 +35,10 @@ pipeline:
   commit-and-push-wiki:
     image: "bitnami/git"
     commands:
-      - "expr length ${GITHUB_TOKEN}"
+      - "expr length $GITHUB_PERSONAL_TOKEN"
       - "cd wiki"
       - "git config --local user.email 'kyngs@users.noreply.github.com'"
       - "git config --local user.name 'kyngs'"
       - "git add ."
       - "git diff-index --quiet HEAD || git commit -m 'Update configuration and messages on wiki' && git push https://kyngs:${GITHUB_TOKEN}@github.com/kyngs/LibrePremium.git"
-    secrets: [ github_token ]
+    secrets: [ github_personal_token ]
