@@ -64,7 +64,7 @@ public class HoconMessages implements Messages {
                           You can find more information about the format on the sponge wiki:
                           https://docs.spongepowered.org/stable/en/server/getting-started/configuration/hocon.html
                           ----------------------------------------------------------------------------------------
-                          LibreLogin" Messages
+                          LibreLogin Messages
                           ----------------------------------------------------------------------------------------
                           This file contains all of the messages used by the plugin, you are welcome to fit it to your needs.
                           You can find more information about LibreLogin on the github page:
