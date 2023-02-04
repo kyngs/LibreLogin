@@ -22,7 +22,7 @@ pipeline:
   checkout-wiki:
     image: "bitnami/git"
     commands:
-      - "git clone https://github.com/kyngs/LibrePlugin.wiki.git wiki"
+      - "git clone https://github.com/kyngs/LibrePremium.wiki.git wiki"
 
   update-wiki:
     image: "debian"
