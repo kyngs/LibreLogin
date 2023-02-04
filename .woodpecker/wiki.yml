@@ -16,8 +16,9 @@ pipeline:
 
   run-velocity:
     image: "openjdk:17-jdk"
+    directory: "velocity"
     commands:
-      - "cd velocity && java -jar velocity.jar"
+      - "java -jar velocity.jar"
 
   checkout-wiki:
     image: "bitnami/git"
@@ -26,7 +27,16 @@ pipeline:
 
   update-wiki:
     image: "debian"
+    directory: "wiki"
     commands:
-      - "cd wiki"
       - "echo '```hocon' > Config.md && cat ../velocity/plugins/librelogin/config.conf >> Config.md && echo '```' >> Config.md"
       - "echo '```hocon' > Messages.md && cat ../velocity/plugins/librelogin/messages.conf >> Messages.md && echo '```' >> Messages.md"
+
+  commit-and-push-wiki:
+    image: "bitnami/git"
+    directory: "wiki"
+    commands:
+      - "git config --local user.email 'kyngs@users.noreply.github.com'"
+      - "git config --local user.name 'kyngs'"
+      - "git add ."
+      - "git diff-index --quiet HEAD || git commit -m 'Update configuration and messages on wiki' && git push"
