@@ -7,7 +7,7 @@ pipeline:
   setup-velocity-environment:
     image: "debian"
     commands:
-      - "apt install -y curl"
+      - "apt update && apt install -y curl"
       - "mkdir -p velocity/plugins"
       - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
       - "cd velocity && curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/184/downloads/velocity-3.1.2-SNAPSHOT-184.jar -o velocity.jar"
