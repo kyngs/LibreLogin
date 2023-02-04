@@ -1,7 +1,5 @@
 pipeline:
-  setup-gradle:
+  shadowJar:
     image: "gradle:jdk17-focal"
-
-  build:
     commands:
       - "gradle shadowJar"
