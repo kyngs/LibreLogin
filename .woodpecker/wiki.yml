@@ -4,8 +4,13 @@ pipeline:
     commands:
       - "gradle shadowJar"
 
+  install-curl:
+    image: "debian"
+    commands:
+      - "apt-get update && apt-get install -y curl"
+
   setup-velocity-environment:
-    image: "ubuntu"
+    image: "debian"
     commands:
       - "mkdir -p velocity/plugins"
       - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
