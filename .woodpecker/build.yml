@@ -1,5 +1,0 @@
-pipeline:
-  shadowJar:
-    image: "gradle:jdk17-focal"
-    commands:
-      - "gradle shadowJar"
