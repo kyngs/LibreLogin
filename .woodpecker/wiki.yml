@@ -41,3 +41,5 @@ pipeline:
       - "git add ."
       - "git diff-index --quiet HEAD || git commit -m 'Update configuration and messages on wiki' && git push https://kyngs:$${GITHUB_PERSONAL_TOKEN}@github.com/kyngs/LibrePremium.wiki.git"
     secrets: [ github_personal_token ]
+
+branches: [ master ]
