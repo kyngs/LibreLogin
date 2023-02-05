@@ -106,6 +106,8 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     @Override
     protected void disable() {
         ProtocolLibrary.getProtocolManager().getAsynchronousManager().unregisterAsyncHandlers(bootstrap);
+        if (getDatabaseProvider() == null) return; //Not initialized
+
         super.disable();
     }
 
@@ -120,7 +122,11 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
         ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).addFilter(new LogFilter());
 
-        super.enable();
+        try {
+            super.enable();
+        } catch (ShutdownException e) {
+            return;
+        }
 
         var provider = getEventProvider();
 
@@ -228,6 +234,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     protected void shutdownProxy(int code) {
         bootstrap.disable();
         bootstrap.getServer().shutdown();
+        throw new ShutdownException();
     }
 
     @Override
