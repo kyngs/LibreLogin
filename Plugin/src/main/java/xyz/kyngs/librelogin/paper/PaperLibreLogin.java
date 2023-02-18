@@ -25,6 +25,7 @@ import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
+import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import xyz.kyngs.librelogin.paper.log.LogFilter;
 
 import java.io.File;
@@ -155,20 +156,31 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     }
 
     @Override
-    public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
-        if (configuration.get(LIMBO).isEmpty())
-            throw new CorruptedConfigurationException("No limbo worlds defined!");
-        if (configuration.get(PASS_THROUGH).isEmpty())
-            throw new CorruptedConfigurationException("No pass-through worlds defined!");
+    public void validateConfiguration(HoconPluginConfiguration configuration) {
+        Bukkit.getScheduler().runTask(bootstrap, () -> { //I hate this, but it's the only way to do it without breaking compatibility with plugins like multiverse
+            try {
+                if (configuration.get(LIMBO).isEmpty())
+                    throw new CorruptedConfigurationException("No limbo worlds defined!");
+                if (configuration.get(PASS_THROUGH).isEmpty())
+                    throw new CorruptedConfigurationException("No pass-through worlds defined!");
 
-        for (String server : configuration.get(PASS_THROUGH).values()) {
-            if (Bukkit.getWorld(server) == null)
-                throw new CorruptedConfigurationException("The supplied pass-through world %s does not exist! I suggest using plugins like Multiverse to create it.".formatted(server));
-        }
-        for (String server : configuration.get(LIMBO)) {
-            if (Bukkit.getWorld(server) == null)
-                throw new CorruptedConfigurationException("The supplied limbo world %s does not exist! I suggest using plugins like Multiverse to create it.".formatted(server));
-        }
+                for (String server : configuration.get(PASS_THROUGH).values()) {
+                    if (Bukkit.getWorld(server) == null)
+                        throw new CorruptedConfigurationException("The supplied pass-through world %s does not exist! I suggest using plugins like Multiverse to create it.".formatted(server));
+                }
+                for (String server : configuration.get(LIMBO)) {
+                    if (Bukkit.getWorld(server) == null)
+                        throw new CorruptedConfigurationException("The supplied limbo world %s does not exist! I suggest using plugins like Multiverse to create it.".formatted(server));
+                }
+            } catch (CorruptedConfigurationException e) {
+                var cause = GeneralUtil.getFurthestCause(e);
+                getLogger().error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
+                getLogger().error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+                shutdownProxy(1);
+            }
+
+        });
+
     }
 
     @Override

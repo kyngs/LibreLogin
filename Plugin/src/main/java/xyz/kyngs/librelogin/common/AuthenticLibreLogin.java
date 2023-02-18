@@ -409,6 +409,15 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             }
 
             validateConfiguration(configuration);
+
+            var limbos = configuration.get(LIMBO);
+            var lobby = configuration.get(PASS_THROUGH);
+
+            for (String value : lobby.values()) {
+                if (limbos.contains(value)) {
+                    throw new CorruptedConfigurationException("Lobby world %s is also a limbo world, this is not allowed".formatted(value));
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
             logger.info("An unknown exception occurred while attempting to load the configuration, this most likely isn't your fault");
