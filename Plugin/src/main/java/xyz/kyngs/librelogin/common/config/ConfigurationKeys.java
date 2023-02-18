@@ -153,7 +153,7 @@ public class ConfigurationKeys {
 
     public static final ConfigurationKey<String> MIGRATION_TYPE = new ConfigurationKey<>(
             "migration.type",
-            "",
+            "authme-sqlite",
             """
                     The type of the migration. Available Types:
                     jpremium-mysql - Can convert from MySQL JPremium SHA256 and BCrypt
