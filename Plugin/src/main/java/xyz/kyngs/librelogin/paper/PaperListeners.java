@@ -35,6 +35,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import xyz.kyngs.librelogin.paper.protocollib.ClientPublicKey;
@@ -149,8 +150,8 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         } else {
             var playedBefore = event.getPlayer().hasPlayedBefore();
             //This is terrible, but should work
-            if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().getLimbo().contains(event.getSpawnLocation().getWorld().getName())) {
-                if (plugin.getConfiguration().getLimbo().contains(world.getName())) {
+            if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(event.getSpawnLocation().getWorld().getName())) {
+                if (plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(world.getName())) {
                     spawnLocationCache.put(event.getPlayer(), event.getSpawnLocation());
                 } else {
                     return;

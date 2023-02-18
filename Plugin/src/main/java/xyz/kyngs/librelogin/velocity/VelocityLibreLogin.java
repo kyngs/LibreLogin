@@ -28,12 +28,12 @@ import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
-import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
+import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
 
 
 @Plugin(
@@ -90,7 +92,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
     @Override
     protected Logger provideLogger() {
-        return new SLF4JLogger(logger, () -> getConfiguration().debug());
+        return new SLF4JLogger(logger, () -> getConfiguration().get(DEBUG));
     }
 
     @Override
@@ -104,16 +106,16 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     }
 
     @Override
-    public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
-        if (configuration.getLimbo().isEmpty())
+    public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
+        if (configuration.get(LIMBO).isEmpty())
             throw new CorruptedConfigurationException("No limbo servers defined!");
-        if (configuration.getPassThrough().isEmpty())
+        if (configuration.get(PASS_THROUGH).isEmpty())
             throw new CorruptedConfigurationException("No pass-through servers defined!");
-        for (String server : configuration.getPassThrough().values()) {
+        for (String server : configuration.get(PASS_THROUGH).values()) {
             if (this.server.getServer(server).isEmpty())
                 throw new CorruptedConfigurationException("The supplied pass-through server %s is not configured in the proxy configuration!".formatted(server));
         }
-        for (String server : configuration.getLimbo()) {
+        for (String server : configuration.get(LIMBO)) {
             if (this.server.getServer(server).isEmpty())
                 throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
         }
@@ -231,7 +233,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
     @Override
     public RegisteredServer chooseLobbyDefault(Player player) throws NoSuchElementException {
-        var passThroughServers = getConfiguration().getPassThrough();
+        var passThroughServers = getConfiguration().get(PASS_THROUGH);
         var virt = player.getVirtualHost().orElse(null);
 
         getLogger().debug("Virtual host for player " + player.getUsername() + " is " + virt);
@@ -255,7 +257,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
     @Override
     public RegisteredServer chooseLimboDefault() {
-        var limbos = getConfiguration().getLimbo();
+        var limbos = getConfiguration().get(LIMBO);
         return server.getAllServers().stream()
                 .filter(server -> limbos.contains(server.getServerInfo().getName()))
                 .filter(server -> {
@@ -298,11 +300,11 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
         server.getEventManager().register(this, new Blockers(getAuthorizationProvider(), getConfiguration(), getMessages()));
         server.getEventManager().register(this, new VelocityListeners(this));
 
-        var millis = getConfiguration().milliSecondsToRefreshNotification();
+        var millis = getConfiguration().get(MILLISECONDS_TO_REFRESH_NOTIFICATION);
 
         if (millis > 0) {
             server.getScheduler().buildTask(this, () -> getAuthorizationProvider().notifyUnauthorized())
-                    .repeat(getConfiguration().milliSecondsToRefreshNotification(), TimeUnit.MILLISECONDS)
+                    .repeat(getConfiguration().get(MILLISECONDS_TO_REFRESH_NOTIFICATION), TimeUnit.MILLISECONDS)
                     .schedule();
         }
     }

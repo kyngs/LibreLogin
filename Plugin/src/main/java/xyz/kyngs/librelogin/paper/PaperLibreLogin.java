@@ -17,12 +17,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import xyz.kyngs.librelogin.api.Logger;
-import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
+import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
 import xyz.kyngs.librelogin.paper.log.LogFilter;
@@ -33,6 +33,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
 
 public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     private final PaperBootstrap bootstrap;
@@ -83,7 +85,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     protected Logger provideLogger() {
-        return new SLF4JLogger(bootstrap.getSLF4JLogger(), () -> getConfiguration().debug());
+        return new SLF4JLogger(bootstrap.getSLF4JLogger(), () -> getConfiguration().get(DEBUG));
     }
 
     @Override
@@ -142,17 +144,17 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     }
 
     @Override
-    public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
-        if (configuration.getLimbo().isEmpty())
+    public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
+        if (configuration.get(LIMBO).isEmpty())
             throw new CorruptedConfigurationException("No limbo worlds defined!");
-        if (configuration.getPassThrough().isEmpty())
+        if (configuration.get(PASS_THROUGH).isEmpty())
             throw new CorruptedConfigurationException("No pass-through worlds defined!");
 
-        for (String server : configuration.getPassThrough().values()) {
+        for (String server : configuration.get(PASS_THROUGH).values()) {
             if (Bukkit.getWorld(server) == null)
                 throw new CorruptedConfigurationException("The supplied pass-through world %s does not exist! I suggest using plugins like Multiverse to create it.".formatted(server));
         }
-        for (String server : configuration.getLimbo()) {
+        for (String server : configuration.get(LIMBO)) {
             if (Bukkit.getWorld(server) == null)
                 throw new CorruptedConfigurationException("The supplied limbo world %s does not exist! I suggest using plugins like Multiverse to create it.".formatted(server));
         }
@@ -214,7 +216,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     public World chooseLobbyDefault(Player player) {
-        var finalServers = getConfiguration().getPassThrough().get("root");
+        var finalServers = getConfiguration().get(PASS_THROUGH).get("root");
         return Bukkit.getWorlds().stream()
                 .filter(world -> finalServers.contains(world.getName()))
                 .min(Comparator.comparingInt(World::getPlayerCount))
@@ -223,7 +225,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     public World chooseLimboDefault() {
-        var finalServers = getConfiguration().getLimbo();
+        var finalServers = getConfiguration().get(LIMBO);
         return Bukkit.getWorlds().stream()
                 .filter(world -> finalServers.contains(world.getName()))
                 .min(Comparator.comparingInt(World::getPlayerCount))

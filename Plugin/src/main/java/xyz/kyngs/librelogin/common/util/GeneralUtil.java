@@ -3,32 +3,30 @@ package xyz.kyngs.librelogin.common.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.easydb.EasyDB;
-import xyz.kyngs.easydb.EasyDBConfig;
-import xyz.kyngs.easydb.provider.mysql.MySQL;
-import xyz.kyngs.easydb.provider.mysql.MySQLConfig;
 import xyz.kyngs.librelogin.api.Logger;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.database.ReadDatabaseProvider;
+import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
-import xyz.kyngs.librelogin.common.migrate.AegisReadProvider;
-import xyz.kyngs.librelogin.common.migrate.AuthMeReadProvider;
-import xyz.kyngs.librelogin.common.migrate.DBAReadProvider;
-import xyz.kyngs.librelogin.common.migrate.JPremiumReadProvider;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
+import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ForkJoinPool;
+
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DATABASE_TYPE;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.MIGRATION_TYPE;
 
 public class GeneralUtil {
 
@@ -73,27 +71,39 @@ public class GeneralUtil {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
     }
 
-    public static void checkAndMigrate(PluginConfiguration configuration, Logger logger, AuthenticLibreLogin<?, ?> plugin) {
-        if (configuration.migrationOnNextStartup()) {
+    public static void checkAndMigrate(HoconPluginConfiguration configuration, Logger logger, AuthenticLibreLogin<?, ?> plugin) {
+        if (configuration.get(ConfigurationKeys.MIGRATION_ON_NEXT_STARTUP)) {
             logger.info("Performing migration...");
 
             try {
                 logger.info("Connecting to the OLD database...");
 
-                EasyDB<MySQL, Connection, SQLException> easyDB;
+                ReadDatabaseProvider provider;
+                DatabaseConnector<?, ?> connector = null;
 
                 try {
-                    easyDB = new EasyDB<>(
-                            new EasyDBConfig<>(
-                                    new MySQL(
-                                            new MySQLConfig()
-                                                    .setUsername(configuration.getMigrationOldDatabaseUser())
-                                                    .setPassword(configuration.getMigrationOldDatabasePassword())
-                                                    .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true".formatted(configuration.getMigrationOldDatabaseHost(), configuration.getMigrationOldDatabasePort(), configuration.getMigrationOldDatabaseName()))
-                                    )
-                            )
-                                    .useGlobalExecutor(true)
-                    );
+                    var registration = plugin.getReadProviders().get(configuration.get(MIGRATION_TYPE));
+                    if (registration == null) {
+                        logger.error("Migration type %s doesn't exist, please check your configuration".formatted(configuration.get(MIGRATION_TYPE)));
+                        logger.error("Aborting migration");
+                        return;
+                    }
+
+                    if (registration.databaseConnector() != null) {
+                        var connectorRegistration = plugin.getDatabaseConnector(registration.databaseConnector());
+
+                        if (connectorRegistration == null) {
+                            logger.error("Migration type %s is corrupted, please use a different one".formatted(configuration.get(DATABASE_TYPE)));
+                            logger.error("Aborting migration");
+                            return;
+                        }
+
+                        connector = connectorRegistration.factory().apply("migration.old-database." + connectorRegistration.id() + ".");
+
+                        connector.connect();
+                    }
+
+                    provider = registration.create(connector);
 
                     logger.info("Connected to the OLD database");
 
@@ -107,20 +117,6 @@ public class GeneralUtil {
                 }
 
                 try {
-                    var localProviders = new HashMap<String, ReadDatabaseProvider>();
-
-                    localProviders.put("JPremium", new JPremiumReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-                    localProviders.put("AuthMe", new AuthMeReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-                    localProviders.put("Aegis", new AegisReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-                    localProviders.put("DBA-SHA-512", new DBAReadProvider(easyDB, configuration.getMigrationOldDatabaseTable(), logger));
-
-                    var provider = localProviders.get(configuration.getMigrationType());
-
-                    if (provider == null) {
-                        logger.error("Unknown migrator %s, aborting migration".formatted(configuration.getMigrationType()));
-                        return;
-                    }
-
                     logger.info("Starting data conversion... This may take a while!");
 
                     plugin.migrate(provider, plugin.getDatabaseProvider());
@@ -128,7 +124,7 @@ public class GeneralUtil {
                     logger.info("Migration complete, cleaning up!");
 
                 } finally {
-                    easyDB.stop();
+                    if (connector != null) connector.disconnect();
                 }
 
             } catch (Exception e) {
@@ -153,6 +149,21 @@ public class GeneralUtil {
             }
         });
         return future;
+    }
+
+    public static List<ConfigurationKey<?>> extractKeys(Class<?> clazz) {
+        var list = new ArrayList<ConfigurationKey<?>>();
+        try {
+            for (Field field : clazz.getFields()) {
+                if (field.getType() != ConfigurationKey.class) continue;
+                list.add((ConfigurationKey<?>) field.get(null));
+
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
     }
 
 }

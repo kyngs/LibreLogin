@@ -8,12 +8,15 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
+
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.LIMBO;
 
 public class Blockers implements Listener {
 
     private final AuthorizationProvider<ProxiedPlayer> authorizationProvider;
-    private final PluginConfiguration configuration;
+    private final HoconPluginConfiguration configuration;
     private final BungeeCordLibreLogin plugin;
 
     public Blockers(BungeeCordLibreLogin plugin) {
@@ -44,7 +47,7 @@ public class Blockers implements Listener {
 
         var command = event.getMessage().substring(1).split(" ")[0];
 
-        for (String allowed : configuration.getAllowedCommandsWhileUnauthorized()) {
+        for (String allowed : configuration.get(ALLOWED_COMMANDS_WHILE_UNAUTHORIZED)) {
             if (command.startsWith(allowed)) return;
         }
 
@@ -57,7 +60,7 @@ public class Blockers implements Listener {
             event.setCancelled(true);
             event.getPlayer().disconnect(plugin.getSerializer().serialize(plugin.getMessages().getMessage("kick-no-server")));
         } else if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
-            if (!configuration.getLimbo().contains(event.getTarget().getName())) {
+            if (!configuration.get(LIMBO).contains(event.getTarget().getName())) {
                 event.setCancelled(true);
             }
         }

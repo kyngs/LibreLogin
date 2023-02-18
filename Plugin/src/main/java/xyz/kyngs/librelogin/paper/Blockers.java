@@ -14,12 +14,13 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.*;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 
 public class Blockers implements Listener {
 
     private final AuthorizationProvider<Player> authorizationProvider;
-    private final PluginConfiguration configuration;
+    private final HoconPluginConfiguration configuration;
     private final PaperLibreLogin plugin;
 
     public Blockers(PaperLibreLogin plugin) {
@@ -59,7 +60,7 @@ public class Blockers implements Listener {
 
         var command = event.getMessage().substring(1);
 
-        for (String allowed : configuration.getAllowedCommandsWhileUnauthorized()) {
+        for (String allowed : configuration.get(ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED)) {
             if (command.startsWith(allowed)) return;
         }
 

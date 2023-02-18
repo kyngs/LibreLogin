@@ -4,14 +4,15 @@ import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.Logger;
-import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 import xyz.kyngs.librelogin.common.config.migrate.ConfigurationMigrator;
+import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.util.Collection;
 
 public class ConfigurateConfiguration {
 
@@ -19,7 +20,7 @@ public class ConfigurateConfiguration {
     private final boolean newlyCreated;
     private final HoconConfigurationLoader loader;
 
-    public ConfigurateConfiguration(File dataFolder, String name, Class<?> defaultKeys, String comment, Logger logger, ConfigurationMigrator... migrators) throws IOException, CorruptedConfigurationException {
+    public ConfigurateConfiguration(File dataFolder, String name, Collection<BiHolder<Class<?>, String>> defaultKeys, String comment, Logger logger, ConfigurationMigrator... migrators) throws IOException, CorruptedConfigurationException {
         var revision = migrators.length;
         var file = new File(dataFolder, name);
 
@@ -32,13 +33,14 @@ public class ConfigurateConfiguration {
                 .comment(comment)
         );
 
-        try {
-            for (Field field : defaultKeys.getFields()) {
-                if (field.getType() != ConfigurationKey.class) continue;
-                refHelper.setDefault((ConfigurationKey<?>) field.get(null));
+        var extractedKeys = defaultKeys.stream()
+                .map(data -> new BiHolder<>(GeneralUtil.extractKeys(data.key()), data.value()))
+                .toList();
+
+        for (var key : extractedKeys) {
+            for (ConfigurationKey<?> configurationKey : key.key()) {
+                refHelper.setDefault(configurationKey, key.value());
             }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
         }
 
         var ref = refHelper.configuration();
@@ -73,20 +75,17 @@ public class ConfigurateConfiguration {
             }
         }
 
+        helper.configuration().mergeFrom(ref);
+
         helper.configuration().node("revision")
                 .set(revision)
                 .comment("The config revision number. !!DO NOT TOUCH THIS!!");
 
-        try {
-            for (Field field : defaultKeys.getFields()) {
-                if (field.getType() != ConfigurationKey.class) continue;
-                helper.setComment((ConfigurationKey<?>) field.get(null));
+        for (var key : extractedKeys) {
+            for (ConfigurationKey<?> configurationKey : key.key()) {
+                helper.setComment(configurationKey, key.value());
             }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
         }
-
-
 
         save();
     }

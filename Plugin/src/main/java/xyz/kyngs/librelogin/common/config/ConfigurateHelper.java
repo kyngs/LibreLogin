@@ -5,8 +5,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
-import xyz.kyngs.easydb.scheduler.ThrowableFunction;
-import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
+import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 
 import java.util.Collection;
@@ -88,15 +87,15 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
         try {
             var node = resolve(path);
             if (node == null || node.virtual()) return null;
-            return function.run(resolve(path));
+            return function.apply(resolve(path));
         } catch (Exception e) {
             return null;
         }
     }
 
-    public void setDefault(ConfigurationKey<?> key) {
+    public void setDefault(ConfigurationKey<?> key, String prefix) {
         try {
-            var node = resolve(key.key());
+            var node = resolve(prefix + key.key());
 
             var defaultValue = key.defaultValue();
 
@@ -115,8 +114,8 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
         }
     }
 
-    public void setComment(ConfigurationKey<?> key) {
-        resolve(key.key())
+    public void setComment(ConfigurationKey<?> key, String prefix) {
+        resolve(prefix + key.key())
                 .comment(key.comment());
     }
 

@@ -2,21 +2,23 @@ package xyz.kyngs.librelogin.api;
 
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librelogin.api.configuration.Messages;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.database.ReadDatabaseProvider;
+import xyz.kyngs.librelogin.api.database.ReadDatabaseProviderRegistration;
 import xyz.kyngs.librelogin.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librelogin.api.database.WriteDatabaseProvider;
+import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.image.ImageProjector;
 import xyz.kyngs.librelogin.api.premium.PremiumProvider;
 import xyz.kyngs.librelogin.api.server.ServerPinger;
 import xyz.kyngs.librelogin.api.totp.TOTPProvider;
 import xyz.kyngs.librelogin.api.util.SemanticVersion;
+import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -48,13 +50,6 @@ public interface LibreLoginPlugin<P, S> {
      * @return The input stream, or null if the resource does not exist
      */
     InputStream getResourceAsStream(String name);
-
-    /**
-     * Gets the plugin's configuration.
-     *
-     * @return The configuration
-     */
-    PluginConfiguration getConfiguration();
 
     /**
      * Gets the plugin's authorization provider.
@@ -122,19 +117,20 @@ public interface LibreLoginPlugin<P, S> {
     void migrate(ReadDatabaseProvider from, WriteDatabaseProvider to);
 
     /**
-     * Gets the read providers
+     * Gets the read providers (immutable).
      *
-     * @return The read providers
+     * @return The immutable map of read providers
      */
-    Collection<ReadDatabaseProvider> getReadProviders();
+    Map<String, ReadDatabaseProviderRegistration<?, ?, ?>> getReadProviders();
 
     /**
      * Allows you to use your own read providers.
+     * <br>
+     * <b>If a {@link ReadWriteDatabaseProvider} is passed, it can also be used as the main database provider for the plugin.</b>
      *
-     * @param provider The read provider
-     * @param id       The ID of the provider
+     * @param registration The registration of the provider
      */
-    void registerReadProvider(ReadDatabaseProvider provider, String id);
+    void registerReadProvider(ReadDatabaseProviderRegistration<?, ?, ?> registration);
 
     /**
      * Allows you to use your own crypto algorithms.
@@ -142,6 +138,14 @@ public interface LibreLoginPlugin<P, S> {
      * @param provider The crypto provider to register
      */
     void registerCryptoProvider(CryptoProvider provider);
+
+    /**
+     * Registers a new database connector.
+     *
+     * @param factory The factory used to create the connector. The string parameter is the configuration prefix.
+     * @param clazz   The class the connector will be registered for. (e.g. {@link xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector})
+     */
+    <E extends Exception, C extends DatabaseConnector<E, ?>> void registerDatabaseConnector(Class<?> clazz, ThrowableFunction<String, C, E> factory, String id);
 
     /**
      * Gets the data folder of the plugin.
@@ -194,7 +198,7 @@ public interface LibreLoginPlugin<P, S> {
 
     /**
      * Gets a player by their UUID.
-     * <b>This cannot be used as a substitute to {@link #isPresent(UUID)} due to the possibility of multiple proxies.</b>
+     * <b>This cannot be used as a substitute for {@link #isPresent(UUID)} due to the possibility of multiple proxies.</b>
      *
      * @param uuid The UUID of the player
      * @return The player, or null if the player is not present on this proxy

@@ -65,7 +65,6 @@ dependencies {
     //MySQL
     compileOnly 'mysql:mysql-connector-java:8.0.30'
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
-    compileOnly 'com.github.kyngs:EasyDB:a4bdf88ee0'
 
     //ACF
     implementation 'com.github.kyngs.commands:acf-velocity:object-fix-SNAPSHOT'

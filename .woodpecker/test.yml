@@ -1,7 +1,0 @@
-pipeline:
-  test:
-    image: "debian"
-    commands:
-      - "echo $DATE"
-
-branches: [ master ]

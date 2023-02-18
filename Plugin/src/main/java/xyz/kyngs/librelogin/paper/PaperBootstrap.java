@@ -10,7 +10,7 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
     private PaperLibreLogin libreLogin;
 
     @Override
-    public void onEnable() {
+    public void onLoad() {
         getLogger().info("Analyzing server setup...");
 
         try {
@@ -24,9 +24,13 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
         }
 
         getLogger().info("Detected Adventure-compatible server distribution - " + getServer().getName() + " " + getServer().getVersion());
-        getLogger().info("Bootstrapping LibreLogin...");
 
         libreLogin = new PaperLibreLogin(this);
+    }
+
+    @Override
+    public void onEnable() {
+        getLogger().info("Bootstrapping LibreLogin...");
         libreLogin.enable();
     }
 

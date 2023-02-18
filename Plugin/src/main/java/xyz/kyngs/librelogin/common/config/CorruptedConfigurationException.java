@@ -1,4 +1,4 @@
-package xyz.kyngs.librelogin.api.configuration;
+package xyz.kyngs.librelogin.common.config;
 
 /**
  * This exception is thrown when the configuration is corrupted.

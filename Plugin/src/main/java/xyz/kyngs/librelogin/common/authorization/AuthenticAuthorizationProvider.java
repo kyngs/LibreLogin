@@ -8,6 +8,7 @@ import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.api.totp.TOTPData;
 import xyz.kyngs.librelogin.common.AuthenticHandler;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
 
 import java.sql.Timestamp;
@@ -77,7 +78,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
             sendInfoMessage(user.isRegistered(), audience);
         }, 250), player);
 
-        var limit = plugin.getConfiguration().secondsToAuthorize();
+        var limit = plugin.getConfiguration().get(ConfigurationKeys.SECONDS_TO_AUTHORIZE);
 
         if (limit > 0) {
             plugin.cancelOnExit(plugin.delay(() -> {
@@ -89,8 +90,8 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
 
     private void sendInfoMessage(boolean registered, Audience audience) {
         audience.sendMessage(plugin.getMessages().getMessage(registered ? "prompt-login" : "prompt-register"));
-        if (!plugin.getConfiguration().useTitles()) return;
-        var toRefresh = plugin.getConfiguration().milliSecondsToRefreshNotification();
+        if (!plugin.getConfiguration().get(ConfigurationKeys.USE_TITLES)) return;
+        var toRefresh = plugin.getConfiguration().get(ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION);
         //noinspection UnstableApiUsage
         audience.showTitle(Title.title(
                 plugin.getMessages().getMessage(registered ? "title-login" : "title-register"),

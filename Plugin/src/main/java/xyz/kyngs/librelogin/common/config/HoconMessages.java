@@ -3,9 +3,9 @@ package xyz.kyngs.librelogin.common.config;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
-import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.Messages;
 import xyz.kyngs.librelogin.common.config.migrate.messages.FirstMessagesMigrator;
 import xyz.kyngs.librelogin.common.config.migrate.messages.SecondMessagesMigrator;
@@ -14,6 +14,7 @@ import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class HoconMessages implements Messages {
 
@@ -57,7 +58,7 @@ public class HoconMessages implements Messages {
         var adept = new ConfigurateConfiguration(
                 plugin.getDataFolder(),
                 "messages.conf",
-                DefaultMessages.class,
+                Set.of(new BiHolder<>(MessageKeys.class, "")),
                 """
                           !!THIS FILE IS WRITTEN IN THE HOCON FORMAT!!
                           The hocon format is very similar to JSON, but it has some extra features.

@@ -1,4 +1,4 @@
-package xyz.kyngs.librelogin.api.configuration;
+package xyz.kyngs.librelogin.common.config;
 
 /**
  * This enum is used to manage new UUIDs.

@@ -10,15 +10,16 @@ import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librelogin.api.configuration.Messages;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 
 public class Blockers {
 
     private final AuthorizationProvider<Player> authorizationProvider;
-    private final PluginConfiguration configuration;
+    private final HoconPluginConfiguration configuration;
     private final Messages messages;
 
-    public Blockers(AuthorizationProvider<Player> authorizationProvider, PluginConfiguration configuration, Messages messages) {
+    public Blockers(AuthorizationProvider<Player> authorizationProvider, HoconPluginConfiguration configuration, Messages messages) {
         this.authorizationProvider = authorizationProvider;
         this.configuration = configuration;
         this.messages = messages;
@@ -38,7 +39,7 @@ public class Blockers {
 
         var command = event.getCommand();
 
-        for (String allowed : configuration.getAllowedCommandsWhileUnauthorized()) {
+        for (String allowed : configuration.get(ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED)) {
             if (command.startsWith(allowed)) return;
         }
 
@@ -48,7 +49,7 @@ public class Blockers {
     @Subscribe(order = PostOrder.FIRST)
     public void onServerConnect(ServerPreConnectEvent event) {
         if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
-            if (!configuration.getLimbo().contains(event.getOriginalServer().getServerInfo().getName())) {
+            if (!configuration.get(ConfigurationKeys.LIMBO).contains(event.getOriginalServer().getServerInfo().getName())) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
             }
         }

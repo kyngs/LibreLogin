@@ -12,15 +12,14 @@ import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.charts.CustomChart;
 import org.jetbrains.annotations.Nullable;
+import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
-import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
-import xyz.kyngs.librelogin.api.database.ReadDatabaseProvider;
-import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.api.database.WriteDatabaseProvider;
+import xyz.kyngs.librelogin.api.database.*;
+import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
+import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librelogin.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
@@ -29,19 +28,28 @@ import xyz.kyngs.librelogin.api.server.ServerPinger;
 import xyz.kyngs.librelogin.api.totp.TOTPProvider;
 import xyz.kyngs.librelogin.api.util.Release;
 import xyz.kyngs.librelogin.api.util.SemanticVersion;
+import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 import xyz.kyngs.librelogin.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librelogin.common.command.CommandProvider;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
+import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.common.config.HoconMessages;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.crypto.BCrypt2ACryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.MessageDigestCryptoProvider;
-import xyz.kyngs.librelogin.common.database.MySQLDatabaseProvider;
+import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
+import xyz.kyngs.librelogin.common.database.connector.AuthenticMySQLDatabaseConnector;
+import xyz.kyngs.librelogin.common.database.connector.DatabaseConnectorRegistration;
+import xyz.kyngs.librelogin.common.database.provider.LibreLoginMySQLDatabaseProvider;
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
+import xyz.kyngs.librelogin.common.migrate.AegisSQLDatabaseProvider;
+import xyz.kyngs.librelogin.common.migrate.AuthMeSQLReadProvider;
+import xyz.kyngs.librelogin.common.migrate.DBASQLReadProvider;
+import xyz.kyngs.librelogin.common.migrate.JPremiumSQLReadProvider;
 import xyz.kyngs.librelogin.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librelogin.common.server.AuthenticServerPinger;
 import xyz.kyngs.librelogin.common.server.DummyServerPinger;
@@ -57,6 +65,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
+
 public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S> {
 
     public static final Gson GSON = new Gson();
@@ -67,13 +77,14 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         EXECUTOR = new ForkJoinPool(4);
     }
 
-    private AuthenticPremiumProvider premiumProvider;
     private final Map<String, CryptoProvider> cryptoProviders;
-    private final Map<String, ReadDatabaseProvider> readProviders;
+    private final Map<String, ReadDatabaseProviderRegistration<?, ?, ?>> readProviders;
+    private final Map<Class<?>, DatabaseConnectorRegistration<?, ?>> databaseConnectors;
     private final Multimap<P, CancellableTask> cancelOnExit;
-    private AuthenticEventProvider<P, S> eventProvider;
     private final PlatformHandle<P, S> platformHandle;
     private final Set<String> forbiddenPasswords;
+    private AuthenticPremiumProvider premiumProvider;
+    private AuthenticEventProvider<P, S> eventProvider;
     private ServerPinger<S> serverPinger;
     private TOTPProvider totpProvider;
     private AuthenticImageProjector<P, S> imageProjector;
@@ -83,15 +94,35 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private HoconPluginConfiguration configuration;
     private HoconMessages messages;
     private AuthenticAuthorizationProvider<P, S> authorizationProvider;
-    private MySQLDatabaseProvider databaseProvider;
     private CommandProvider<P, S> commandProvider;
+    private ReadWriteDatabaseProvider databaseProvider;
+    private DatabaseConnector<?, ?> databaseConnector;
 
     protected AuthenticLibreLogin() {
         cryptoProviders = new HashMap<>();
         readProviders = new HashMap<>();
+        databaseConnectors = new HashMap<>();
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
         cancelOnExit = HashMultimap.create();
+    }
+
+    public Map<Class<?>, DatabaseConnectorRegistration<?, ?>> getDatabaseConnectors() {
+        return databaseConnectors;
+    }
+
+    @Override
+    public <E extends Exception, C extends DatabaseConnector<E, ?>> void registerDatabaseConnector(Class<?> clazz, ThrowableFunction<String, C, E> factory, String id) {
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(factory, null, id), clazz);
+    }
+
+    @Override
+    public void registerReadProvider(ReadDatabaseProviderRegistration<?, ?, ?> registration) {
+        readProviders.put(registration.id(), registration);
+    }
+
+    public void registerDatabaseConnector(DatabaseConnectorRegistration<?, ?> registration, Class<?> clazz) {
+        databaseConnectors.put(clazz, registration);
     }
 
     @Override
@@ -108,7 +139,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     @Override
     public boolean validPassword(String password) {
-        var length = password.length() >= configuration.minimumPasswordLength();
+        var length = password.length() >= configuration.get(MINIMUM_PASSWORD_LENGTH);
 
         if (!length) {
             return false;
@@ -120,13 +151,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     }
 
     @Override
-    public Collection<ReadDatabaseProvider> getReadProviders() {
-        return readProviders.values();
-    }
-
-    @Override
-    public void registerReadProvider(ReadDatabaseProvider provider, String id) {
-        readProviders.put(id, provider);
+    public Map<String, ReadDatabaseProviderRegistration<?, ?, ?>> getReadProviders() {
+        return Map.copyOf(readProviders);
     }
 
     public CommandProvider<P, S> getCommandProvider() {
@@ -134,7 +160,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     }
 
     @Override
-    public MySQLDatabaseProvider getDatabaseProvider() {
+    public ReadWriteDatabaseProvider getDatabaseProvider() {
         return databaseProvider;
     }
 
@@ -202,14 +228,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 .artifactId("mysql-connector-java")
                 .version("8.0.30")
                 .relocate("com{}mysql", "xyz{}kyngs{}librelogin{}lib{}mysql")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("com{}github{}kyngs")
-                .artifactId("EasyDB")
-                .version("a4bdf88ee0")
-                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librelogin{}lib{}hikari")
                 .build()
         );
 
@@ -282,9 +300,47 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
         eventProvider = new AuthenticEventProvider<>(this);
         premiumProvider = new AuthenticPremiumProvider(this);
+
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
+
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
+                        prefix -> new AuthenticMySQLDatabaseConnector(this, prefix),
+                        AuthenticMySQLDatabaseConnector.Configuration.class,
+                        "mysql"
+                ),
+                MySQLDatabaseConnector.class);
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LibreLoginMySQLDatabaseProvider(connector, this),
+                "librelogin-mysql",
+                MySQLDatabaseConnector.class
+        ));
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AegisSQLDatabaseProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "aegis-mysql",
+                MySQLDatabaseConnector.class
+        ));
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthMeSQLReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "authme-mysql",
+                MySQLDatabaseConnector.class
+        ));
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new DBASQLReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "dba-mysql",
+                MySQLDatabaseConnector.class
+        ));
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new JPremiumSQLReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "jpremium-mysql",
+                MySQLDatabaseConnector.class
+        ));
 
         checkDataFolder();
 
@@ -307,7 +363,15 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
         logger.info("Loading configuration...");
 
-        configuration = new HoconPluginConfiguration(logger);
+        var defaults = new ArrayList<BiHolder<Class<?>, String>>();
+
+        for (DatabaseConnectorRegistration<?, ?> value : databaseConnectors.values()) {
+            if (value.configClass() == null) continue;
+            defaults.add(new BiHolder<>(value.configClass(), "database.properties." + value.id() + "."));
+            defaults.add(new BiHolder<>(value.configClass(), "migration.old-database." + value.id() + "."));
+        }
+
+        configuration = new HoconPluginConfiguration(logger, defaults);
 
         try {
             if (configuration.reload(this)) {
@@ -342,7 +406,37 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         logger.info("Connecting to the database...");
 
         try {
-            databaseProvider = new MySQLDatabaseProvider(configuration, logger, this);
+            var registration = readProviders.get(configuration.get(DATABASE_TYPE));
+            if (registration == null) {
+                logger.error("Database type %s doesn't exist, please check your configuration".formatted(configuration.get(DATABASE_TYPE)));
+                shutdownProxy(1);
+            }
+
+            DatabaseConnector<?, ?> connector = null;
+
+            if (registration.databaseConnector() != null) {
+                var connectorRegistration = getDatabaseConnector(registration.databaseConnector());
+
+                if (connectorRegistration == null) {
+                    logger.error("Database type %s is corrupted, please use a different one".formatted(configuration.get(DATABASE_TYPE)));
+                    shutdownProxy(1);
+                }
+
+                connector = connectorRegistration.factory().apply("database.properties." + connectorRegistration.id() + ".");
+
+                connector.connect();
+            }
+
+            var provider = registration.create(connector);
+
+            if (provider instanceof ReadWriteDatabaseProvider casted) {
+                databaseProvider = casted;
+                databaseConnector = connector;
+            } else {
+                logger.error("Database type %s cannot be used for writing, please use a different one".formatted(configuration.get(DATABASE_TYPE)));
+                shutdownProxy(1);
+            }
+
         } catch (Exception e) {
             var cause = GeneralUtil.getFurthestCause(e);
             logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
@@ -352,20 +446,23 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
         logger.info("Successfully connected to the database");
 
-        logger.info("Validating tables");
+        if (databaseProvider instanceof AuthenticDatabaseProvider<?> casted) {
+            logger.info("Validating schema");
 
-        try {
-            databaseProvider.validateTables(configuration);
-        } catch (Exception e) {
-            var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("Failed to validate tables! Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            logger.error("Please open an issue on or GitHub, or visit Discord support");
+            try {
+                casted.validateSchema();
+            } catch (Exception e) {
+                var cause = GeneralUtil.getFurthestCause(e);
+                logger.error("Failed to validate schema! Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+                logger.error("Please open an issue on our GitHub, or visit Discord support");
+                shutdownProxy(1);
+            }
+
+            logger.info("Schema validated");
         }
 
-        logger.info("Tables validated");
-
         logger.info("Pinging servers...");
-        serverPinger = configuration.pingServers() ? new AuthenticServerPinger<>(this) : new DummyServerPinger<>();
+        serverPinger = configuration.get(PING_SERVERS) ? new AuthenticServerPinger<>(this) : new DummyServerPinger<>();
         logger.info("Pinged servers");
 
         // Moved to a different class to avoid class loading issues
@@ -374,7 +471,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         imageProjector = provideImageProjector();
 
         if (imageProjector != null) {
-            if (!configuration.totpEnabled()) {
+            if (!configuration.get(TOTP_ENABLED)) {
                 imageProjector = null;
                 logger.warn("2FA is disabled in the configuration, aborting...");
             } else {
@@ -404,6 +501,10 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         if (multiProxyEnabled()) {
             logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
         }
+    }
+
+    public <C extends DatabaseConnector<?, ?>> DatabaseConnectorRegistration<?, C> getDatabaseConnector(Class<C> clazz) {
+        return (DatabaseConnectorRegistration<?, C>) databaseConnectors.get(clazz);
     }
 
     protected abstract LibraryManager provideLibraryManager();
@@ -489,7 +590,14 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     }
 
     protected void disable() {
-        databaseProvider.disable();
+        if (databaseConnector != null) {
+            try {
+                databaseConnector.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Failed to disconnect from database, ignoring...");
+            }
+        }
     }
 
     @Override
@@ -497,8 +605,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         return logger;
     }
 
-    @Override
-    public PluginConfiguration getConfiguration() {
+    public HoconPluginConfiguration getConfiguration() {
         return configuration;
     }
 
@@ -520,7 +627,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public abstract P getPlayerFromIssuer(CommandIssuer issuer);
 
-    public abstract void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException;
+    public abstract void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException;
 
     public abstract void authorize(P player, User user, Audience audience);
 
@@ -532,7 +639,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public S chooseLobby(User user, P player, boolean remember) throws NoSuchElementException {
 
-        if (remember && configuration.rememberLastServer()) {
+        if (remember && configuration.get(REMEMBER_LAST_SERVER)) {
             var last = user.getLastServer();
 
             if (last != null) {
@@ -587,7 +694,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     @Override
     public CryptoProvider getDefaultCryptoProvider() {
-        return getCryptoProvider(configuration.getDefaultCryptoProvider());
+        return getCryptoProvider(configuration.get(DEFAULT_CRYPTO_PROVIDER));
     }
 
     @Override
@@ -615,11 +722,11 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public void onExit(P player) {
         cancelOnExit.removeAll(player).forEach(CancellableTask::cancel);
-        if (configuration.rememberLastServer()) {
+        if (configuration.get(REMEMBER_LAST_SERVER)) {
             var server = platformHandle.getPlayersServerName(player);
             if (server == null) return;
             var user = databaseProvider.getByUUID(platformHandle.getUUIDForPlayer(player));
-            if (user != null && !getConfiguration().getLimbo().contains(server)) {
+            if (user != null && !getConfiguration().get(LIMBO).contains(server)) {
                 user.setLastServer(server);
                 databaseProvider.updateUser(user);
             }

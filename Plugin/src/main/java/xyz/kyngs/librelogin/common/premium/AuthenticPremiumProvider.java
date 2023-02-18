@@ -3,10 +3,10 @@ package xyz.kyngs.librelogin.common.premium;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.gson.JsonObject;
-import xyz.kyngs.easydb.scheduler.ThrowableFunction;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumProvider;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
+import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
@@ -48,7 +48,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 var fetcher = fetchers.get(i);
 
                 try {
-                    return fetcher.run(x);
+                    return fetcher.apply(x);
                 } catch (PremiumException e) {
                     if (i == 0 && e.getIssue() == PremiumException.Issue.UNDEFINED) {
                         ex[0] = e;

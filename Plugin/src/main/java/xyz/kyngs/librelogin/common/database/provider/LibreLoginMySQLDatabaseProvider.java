@@ -1,18 +1,15 @@
-package xyz.kyngs.librelogin.common.database;
+package xyz.kyngs.librelogin.common.database.provider;
 
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.easydb.EasyDB;
-import xyz.kyngs.easydb.EasyDBConfig;
-import xyz.kyngs.easydb.provider.mysql.MySQL;
-import xyz.kyngs.easydb.provider.mysql.MySQLConfig;
-import xyz.kyngs.librelogin.api.Logger;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
-import xyz.kyngs.librelogin.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
+import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
+import xyz.kyngs.librelogin.common.database.AuthenticUser;
+import xyz.kyngs.librelogin.common.database.connector.AuthenticMySQLDatabaseConnector;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,87 +17,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
-public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
+public class LibreLoginMySQLDatabaseProvider extends AuthenticDatabaseProvider<MySQLDatabaseConnector> {
 
-    private final EasyDB<MySQL, Connection, SQLException> easyDB;
-    private final Logger logger;
-    private final AuthenticLibreLogin<?, ?> plugin;
+    private final HoconPluginConfiguration configuration;
 
-    public MySQLDatabaseProvider(PluginConfiguration configuration, Logger logger, AuthenticLibreLogin<?, ?> plugin) {
-        this.logger = logger;
-        this.plugin = plugin;
-
-        var mySQLConfig = new MySQLConfig()
-                .setUsername(configuration.getDatabaseUser())
-                .setPassword(configuration.getDatabasePassword())
-                .setJdbcUrl("jdbc:mysql://%s:%s/%s?autoReconnect=true&zeroDateTimeBehavior=convertToNull".formatted(configuration.getDatabaseHost(), configuration.getDatabasePort(), configuration.getDatabaseName()));
-
-        mySQLConfig.getHikariConfig().setMaxLifetime(configuration.maxLifeTime());
-        easyDB = new EasyDB<>(
-                new EasyDBConfig<>(
-                        new MySQL(
-                                mySQLConfig
-                        )
-                )
-                        .setExceptionHandler(this::handleException)
-                        .setConnectionExceptionHandler(this::handleConnectionException)
-                        .useGlobalExecutor(true)
-        );
-    }
-
-    public void validateTables(PluginConfiguration configuration) {
-        easyDB.runTaskSync(connection -> {
-            connection.prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS librepremium_data(" +
-                            "uuid VARCHAR(255) NOT NULL PRIMARY KEY," +
-                            "premium_uuid VARCHAR(255)," +
-                            "hashed_password VARCHAR(255)," +
-                            "salt VARCHAR(255)," +
-                            "algo VARCHAR(255)," +
-                            "last_nickname VARCHAR(255) NOT NULL," +
-                            "joined TIMESTAMP NULL DEFAULT NULL," +
-                            "last_seen TIMESTAMP NULL DEFAULT NULL," +
-                            "last_server VARCHAR(255)" +
-                            ")"
-            ).executeUpdate();
-
-            ResultSet resultSet = connection.prepareStatement("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='librepremium_data' and TABLE_SCHEMA='" + configuration.getDatabaseName() + "'")
-                .executeQuery();
-
-            ArrayList<String> columns = new ArrayList<>();
-            while (resultSet.next()) {
-                columns.add(resultSet.getString("column_name"));
-            }
-            if (!columns.contains("secret"))
-                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN secret VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
-            if (!columns.contains("ip"))
-                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN ip VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
-            if (!columns.contains("last_authentication"))
-                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_authentication TIMESTAMP NULL DEFAULT NULL").executeUpdate();
-            if (!columns.contains("last_server")) {
-                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_server VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
-            }
-
-        });
-    }
-
-    private boolean handleConnectionException(Exception e) {
-        logger.error("!! LOST CONNECTION TO THE DATABASE, THE PROXY IS GOING TO SHUT DOWN TO PREVENT DAMAGE !!");
-        e.printStackTrace();
-        System.exit(0);
-        //Won't return anyway
-        return true;
-    }
-
-    private boolean handleException(Exception e) {
-        e.printStackTrace();
-        return true;
+    public LibreLoginMySQLDatabaseProvider(MySQLDatabaseConnector connector, AuthenticLibreLogin<?, ?> plugin) {
+        super(connector, plugin);
+        this.configuration = plugin.getConfiguration();
     }
 
     @Override
     public User getByName(String name) {
         plugin.reportMainThread();
-        return easyDB.runFunctionSync(connection -> {
+        return connector.runQuery(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE last_nickname=?");
 
             ps.setString(1, name);
@@ -120,7 +49,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public User getByUUID(UUID uuid) {
         plugin.reportMainThread();
-        return easyDB.runFunctionSync(connection -> {
+        return connector.runQuery(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE uuid=?");
 
             ps.setString(1, uuid.toString());
@@ -164,7 +93,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public User getByPremiumUUID(UUID uuid) {
         plugin.reportMainThread();
-        return easyDB.runFunctionSync(connection -> {
+        return connector.runQuery(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE premium_uuid=?");
 
             ps.setString(1, uuid.toString());
@@ -208,7 +137,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public void insertUser(User user) {
         plugin.reportMainThread();
-        easyDB.runTaskSync(connection -> {
+        connector.runQuery(connection -> {
             var ps = connection.prepareStatement("INSERT INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             insertToStatement(ps, user);
@@ -220,7 +149,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public void insertUsers(Collection<User> users) {
         plugin.reportMainThread();
-        easyDB.runTaskSync(connection -> {
+        connector.runQuery(connection -> {
             var ps = connection.prepareStatement("INSERT IGNORE INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             for (User user : users) {
@@ -251,7 +180,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public void updateUser(User user) {
         plugin.reportMainThread();
-        easyDB.runTaskSync(connection -> {
+        connector.runQuery(connection -> {
             var ps = connection.prepareStatement("UPDATE librepremium_data SET premium_uuid=?, hashed_password=?, salt=?, algo=?, last_nickname=?, joined=?, last_seen=?, secret=?, ip=?, last_authentication=?, last_server=? WHERE uuid=?");
 
             ps.setString(1, user.getPremiumUUID() == null ? null : user.getPremiumUUID().toString());
@@ -273,7 +202,7 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
     @Override
     public void deleteUser(User user) {
         plugin.reportMainThread();
-        easyDB.runTaskSync(connection -> {
+        connector.runQuery(connection -> {
             var ps = connection.prepareStatement("DELETE FROM librepremium_data WHERE uuid=?");
 
             ps.setString(1, user.getUuid().toString());
@@ -282,7 +211,39 @@ public class MySQLDatabaseProvider implements ReadWriteDatabaseProvider {
         });
     }
 
-    public void disable() {
-        easyDB.stop();
+    @Override
+    public void validateSchema() {
+        connector.runQuery(connection -> {
+            connection.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS librepremium_data(" +
+                            "uuid VARCHAR(255) NOT NULL PRIMARY KEY," +
+                            "premium_uuid VARCHAR(255)," +
+                            "hashed_password VARCHAR(255)," +
+                            "salt VARCHAR(255)," +
+                            "algo VARCHAR(255)," +
+                            "last_nickname VARCHAR(255) NOT NULL," +
+                            "joined TIMESTAMP NULL DEFAULT NULL," +
+                            "last_seen TIMESTAMP NULL DEFAULT NULL," +
+                            "last_server VARCHAR(255)" +
+                            ")"
+            ).executeUpdate();
+
+            var resultSet = connection.prepareStatement("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='librepremium_data' and TABLE_SCHEMA='" + ((AuthenticMySQLDatabaseConnector) connector).get(AuthenticMySQLDatabaseConnector.Configuration.NAME) + "'")
+                    .executeQuery();
+
+            ArrayList<String> columns = new ArrayList<>();
+            while (resultSet.next()) {
+                columns.add(resultSet.getString("column_name"));
+            }
+            if (!columns.contains("secret"))
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN secret VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
+            if (!columns.contains("ip"))
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN ip VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
+            if (!columns.contains("last_authentication"))
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_authentication TIMESTAMP NULL DEFAULT NULL").executeUpdate();
+            if (!columns.contains("last_server")) {
+                connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN last_server VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
+            }
+        });
     }
 }

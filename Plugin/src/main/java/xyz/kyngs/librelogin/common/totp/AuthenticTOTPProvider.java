@@ -14,6 +14,7 @@ import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.totp.TOTPData;
 import xyz.kyngs.librelogin.api.totp.TOTPProvider;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
@@ -43,7 +44,7 @@ public class AuthenticTOTPProvider implements TOTPProvider {
     public TOTPData generate(User user, String secret) {
         var data = new QrData.Builder()
                 .label(user.getLastNickname())
-                .issuer(plugin.getConfiguration().getTotpLabel())
+                .issuer(plugin.getConfiguration().get(ConfigurationKeys.TOTP_LABEL))
                 .secret(secret)
                 .build();
 

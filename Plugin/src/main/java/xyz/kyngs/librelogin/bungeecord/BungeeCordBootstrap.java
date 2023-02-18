@@ -10,8 +10,12 @@ public class BungeeCordBootstrap extends Plugin implements LibreLoginProvider<Pr
     private BungeeCordLibreLogin libreLogin;
 
     @Override
-    public void onEnable() {
+    public void onLoad() {
         libreLogin = new BungeeCordLibreLogin(this);
+    }
+
+    @Override
+    public void onEnable() {
         libreLogin.enable();
     }
 

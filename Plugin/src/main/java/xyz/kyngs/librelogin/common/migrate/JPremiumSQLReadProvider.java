@@ -1,24 +1,21 @@
 package xyz.kyngs.librelogin.common.migrate;
 
-import xyz.kyngs.easydb.EasyDB;
-import xyz.kyngs.easydb.provider.mysql.MySQL;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.database.connector.SQLDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.util.CryptoUtil;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
-public class JPremiumReadProvider extends MySQLReadProvider {
+public class JPremiumSQLReadProvider extends SQLReadProvider {
 
-    public JPremiumReadProvider(EasyDB<MySQL, Connection, SQLException> easyDB, String tableName, Logger logger) {
-        super(easyDB, tableName, logger);
+    public JPremiumSQLReadProvider(String tableName, Logger logger, SQLDatabaseConnector connector) {
+        super(tableName, logger, connector);
     }
 
     @Override
@@ -38,7 +35,7 @@ public class JPremiumReadProvider extends MySQLReadProvider {
 
     @Override
     public Collection<User> getAllUsers() {
-        return easyDB.runFunctionSync(connection -> {
+        return connector.runQuery(connection -> {
             var ps = connection.prepareStatement("SELECT * FROM `%s`".formatted(tableName));
 
             var rs = ps.executeQuery();

@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 import xyz.kyngs.librelogin.api.server.ServerPinger;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +27,11 @@ public class AuthenticServerPinger<S> implements ServerPinger<S> {
         var handle = plugin.getPlatformHandle();
         handle.getServers().parallelStream()
                 .filter(server -> {
-                    if (plugin.getConfiguration().rememberLastServer()) return true;
+                    if (plugin.getConfiguration().get(ConfigurationKeys.REMEMBER_LAST_SERVER)) return true;
 
                     var name = handle.getServerName(server);
 
-                    return plugin.getConfiguration().getLimbo().contains(name) || plugin.getConfiguration().getPassThrough().containsValue(name);
+                    return plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(name) || plugin.getConfiguration().get(ConfigurationKeys.PASS_THROUGH).containsValue(name);
                 })
                 .forEach(this::getLatestPing);
     }

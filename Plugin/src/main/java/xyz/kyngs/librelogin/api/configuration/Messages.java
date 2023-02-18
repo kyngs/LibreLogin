@@ -2,6 +2,7 @@ package xyz.kyngs.librelogin.api.configuration;
 
 import net.kyori.adventure.text.TextComponent;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
+import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
 
 import java.io.IOException;
 

@@ -9,11 +9,13 @@ import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -39,13 +41,13 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         if (user == null) {
             user = plugin.getDatabaseProvider().getByUUID(uuid);
         }
-        var sessionTime = plugin.getConfiguration().getSessionTimeout();
+        var sessionTime = Duration.ofSeconds(plugin.getConfiguration().get(ConfigurationKeys.SESSION_TIMEOUT));
 
         if (user.autoLoginEnabled()) {
-            plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-premium-logged-in"));
+            plugin.delay(() -> plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-premium-logged-in")), 500);
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.PREMIUM));
         } else if (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now())) {
-            plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-session-logged-in"));
+            plugin.delay(() -> plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-session-logged-in")), 500);
             plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.SESSION));
         } else {
             plugin.getAuthorizationProvider().startTracking(user, player);
@@ -165,7 +167,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                 ));
             }
 
-            if (premiumID != null && plugin.getConfiguration().autoRegister()) {
+            if (premiumID != null && plugin.getConfiguration().get(ConfigurationKeys.AUTO_REGISTER)) {
                 user = new AuthenticUser(
                         newID,
                         premiumID,
@@ -201,7 +203,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         var id = platformHandle.getUUIDForPlayer(player);
         var fromFloodgate = plugin.fromFloodgate(id);
 
-        var sessionTime = plugin.getConfiguration().getSessionTimeout();
+        var sessionTime = Duration.ofSeconds(plugin.getConfiguration().get(ConfigurationKeys.SESSION_TIMEOUT));
 
         if (fromFloodgate) {
             user = null;

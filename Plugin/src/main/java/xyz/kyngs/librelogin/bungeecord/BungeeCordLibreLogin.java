@@ -21,10 +21,10 @@ import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
-import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
-import xyz.kyngs.librelogin.api.configuration.PluginConfiguration;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
+import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
@@ -37,6 +37,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
 
 public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, ServerInfo> {
 
@@ -79,7 +81,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
         bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new Blockers(this));
         bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new BungeeCordListener(this));
 
-        var millis = getConfiguration().milliSecondsToRefreshNotification();
+        var millis = getConfiguration().get(MILLISECONDS_TO_REFRESH_NOTIFICATION);
 
         if (millis > 0) {
             bootstrap.getProxy().getScheduler().schedule(bootstrap, () -> getAuthorizationProvider().notifyUnauthorized(), 0, millis, TimeUnit.MILLISECONDS);
@@ -129,7 +131,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
             @Override
             public void debug(String message) {
-                if (getConfiguration().debug()) {
+                if (getConfiguration().get(DEBUG)) {
                     bootstrap.getLogger().log(Level.INFO, "[DEBUG] " + message);
                 }
             }
@@ -149,23 +151,23 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
     }
 
     @Override
-    public void validateConfiguration(PluginConfiguration configuration) throws CorruptedConfigurationException {
+    public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
         var serverMap = bootstrap.getProxy().getServers();
-        if (configuration.getLimbo().isEmpty()) {
+        if (configuration.get(LIMBO).isEmpty()) {
             throw new CorruptedConfigurationException("No limbo servers defined!");
         }
 
-        if (configuration.getPassThrough().isEmpty()) {
+        if (configuration.get(PASS_THROUGH).isEmpty()) {
             throw new CorruptedConfigurationException("No pass-through servers defined!");
         }
 
-        for (String server : configuration.getPassThrough().values()) {
+        for (String server : configuration.get(PASS_THROUGH).values()) {
             if (!serverMap.containsKey(server)) {
                 throw new CorruptedConfigurationException("The supplied pass-through server %s is not configured in the proxy configuration!".formatted(server));
             }
         }
 
-        for (String server : configuration.getLimbo()) {
+        for (String server : configuration.get(LIMBO)) {
             if (!serverMap.containsKey(server)) {
                 throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
             }
@@ -247,7 +249,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     public ServerInfo chooseLobbyDefault(ProxiedPlayer player) throws NoSuchElementException {
-        var passThroughServers = getConfiguration().getPassThrough();
+        var passThroughServers = getConfiguration().get(PASS_THROUGH);
         var virt = player.getPendingConnection().getVirtualHost();
 
         getLogger().debug("Virtual host for player " + player.getDisplayName() + " is " + virt);
@@ -271,7 +273,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     public ServerInfo chooseLimboDefault() {
-        var limbos = getConfiguration().getLimbo();
+        var limbos = getConfiguration().get(LIMBO);
         return bootstrap.getProxy().getServers().values().stream()
                 .filter(server -> limbos.contains(server.getName()))
                 .filter(server -> {
