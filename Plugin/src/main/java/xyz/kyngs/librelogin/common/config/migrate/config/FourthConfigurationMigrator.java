@@ -14,6 +14,13 @@ public class FourthConfigurationMigrator implements ConfigurationMigrator {
         helper.set("database.properties.mysql.user", helper.getString("database.user"));
         helper.set("database.properties.mysql.max-life-time", helper.getInt("database.max-life-time"));
         helper.set("database.type", "librelogin-mysql");
+
+        helper.set("database.host", null);
+        helper.set("database.database", null);
+        helper.set("database.password", null);
+        helper.set("database.port", null);
+        helper.set("database.user", null);
+        helper.set("database.max-life-time", null);
         helper.set("migration", null);
     }
 }

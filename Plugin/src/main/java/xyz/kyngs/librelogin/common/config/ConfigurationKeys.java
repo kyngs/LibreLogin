@@ -158,6 +158,7 @@ public class ConfigurationKeys {
                     The type of the migration. Available Types:
                     jpremium-mysql - Can convert from MySQL JPremium SHA256 and BCrypt
                     authme-mysql - Can convert from MySQL AuthMe BCrypt and SHA256
+                    authme-sqlite - Can convert from SQLite AuthMe BCrypt and SHA256
                     aegis-mysql - Can convert from MySQL Aegis BCrypt
                     dba-mysql - Can convert from MySQL DynamicBungeeAuth, which was configured to use SHA-512
                     librelogin-mysql - Can convert from MySQL LibreLogin, useful for migrating to a different database

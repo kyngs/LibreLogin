@@ -66,6 +66,9 @@ dependencies {
     compileOnly 'mysql:mysql-connector-java:8.0.30'
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
 
+    //SQLite
+    compileOnly 'org.xerial:sqlite-jdbc:3.40.1.0'
+
     //ACF
     implementation 'com.github.kyngs.commands:acf-velocity:object-fix-SNAPSHOT'
     implementation 'com.github.kyngs.commands:acf-bungee:object-fix-SNAPSHOT'

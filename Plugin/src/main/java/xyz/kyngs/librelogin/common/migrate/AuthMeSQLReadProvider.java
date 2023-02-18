@@ -47,8 +47,8 @@ public class AuthMeSQLReadProvider extends SQLReadProvider {
                 try {
                     var nickname = rs.getString("realname");
                     var passwordRaw = rs.getString("password");
-                    var lastSeen = rs.getObject("lastlogin", Long.class);
-                    var firstSeen = rs.getObject("regdate", Long.class);
+                    var lastSeen = rs.getLong("lastlogin");
+                    var firstSeen = rs.getLong("regdate");
 
                     if (nickname == null) continue;
 
@@ -76,8 +76,8 @@ public class AuthMeSQLReadProvider extends SQLReadProvider {
                                     null,
                                     password,
                                     nickname,
-                                    firstSeen == null ? null : new Timestamp(firstSeen),
-                                    lastSeen == null ? null : new Timestamp(lastSeen),
+                                    firstSeen == 0 ? null : new Timestamp(firstSeen),
+                                    lastSeen == 0 ? null : new Timestamp(lastSeen),
                                     null,
                                     null,
                                     null,

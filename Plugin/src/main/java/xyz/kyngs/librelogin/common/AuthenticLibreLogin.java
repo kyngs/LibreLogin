@@ -20,6 +20,7 @@ import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.database.*;
 import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
+import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
 import xyz.kyngs.librelogin.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librelogin.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
@@ -39,8 +40,10 @@ import xyz.kyngs.librelogin.common.crypto.BCrypt2ACryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.MessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.connector.AuthenticMySQLDatabaseConnector;
+import xyz.kyngs.librelogin.common.database.connector.AuthenticSQLiteDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.connector.DatabaseConnectorRegistration;
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginMySQLDatabaseProvider;
+import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabaseProvider;
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
@@ -296,6 +299,13 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 .build()
         );
 
+        dependencies.add(Library.builder()
+                .groupId("org{}xerial")
+                .artifactId("sqlite-jdbc")
+                .version("3.40.1.0")
+                .build()
+        );
+
         dependencies.forEach(libraryManager::loadLibrary);
 
         eventProvider = new AuthenticEventProvider<>(this);
@@ -312,10 +322,23 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 ),
                 MySQLDatabaseConnector.class);
 
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
+                        prefix -> new AuthenticSQLiteDatabaseConnector(this, prefix),
+                        AuthenticSQLiteDatabaseConnector.Configuration.class,
+                        "sqlite"
+                ),
+                SQLiteDatabaseConnector.class);
+
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new LibreLoginMySQLDatabaseProvider(connector, this),
                 "librelogin-mysql",
                 MySQLDatabaseConnector.class
+        ));
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LibreLoginSQLiteDatabaseProvider(connector, this),
+                "librelogin-sqlite",
+                SQLiteDatabaseConnector.class
         ));
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
@@ -328,6 +351,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 connector -> new AuthMeSQLReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "authme-mysql",
                 MySQLDatabaseConnector.class
+        ));
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthMeSQLReadProvider("authme", logger, connector),
+                "authme-sqlite",
+                SQLiteDatabaseConnector.class
         ));
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(

@@ -21,6 +21,8 @@ public class AuthenticMySQLDatabaseConnector extends AuthenticDatabaseConnector<
         super(plugin, prefix);
 
         this.hikariConfig = new HikariConfig();
+
+        hikariConfig.setPoolName("LibreLogin MySQL Pool");
         hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
         hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");

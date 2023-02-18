@@ -10,7 +10,7 @@ public abstract class AuthenticDatabaseConnector<E extends Exception, I> impleme
     private final String prefix;
     protected boolean connected = true;
 
-    protected AuthenticDatabaseConnector(AuthenticLibreLogin<?, ?> plugin, String prefix) {
+    public AuthenticDatabaseConnector(AuthenticLibreLogin<?, ?> plugin, String prefix) {
         this.plugin = plugin;
         this.prefix = prefix;
     }

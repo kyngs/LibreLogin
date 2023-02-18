@@ -39,9 +39,11 @@ import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
 public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     private final PaperBootstrap bootstrap;
     private PaperListeners listeners;
+    private boolean started;
 
     public PaperLibreLogin(PaperBootstrap bootstrap) {
         this.bootstrap = bootstrap;
+        this.started = false;
     }
 
     public PaperBootstrap getBootstrap() {
@@ -95,7 +97,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     protected boolean mainThread() {
-        return Bukkit.isPrimaryThread();
+        return Bukkit.isPrimaryThread() && started;
     }
 
     @Override
@@ -141,6 +143,8 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
         Bukkit.getPluginManager().registerEvents(listeners, bootstrap);
         Bukkit.getPluginManager().registerEvents(new Blockers(this), bootstrap);
+
+        started = true;
     }
 
     @Override
