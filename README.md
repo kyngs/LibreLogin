@@ -36,3 +36,4 @@ Please check our wiki for guides, features and other things.
 - [Raixo](https://github.com/RAIXOCZ) - for developing the original bungeecord port
 - [FastLogin contributors](https://github.com/games647/FastLogin) - for their work, which was used as a base for the
   paper port
+- [Fejby](https://github.com/Fejby) - For providing Floodgate test server and helping with testing
