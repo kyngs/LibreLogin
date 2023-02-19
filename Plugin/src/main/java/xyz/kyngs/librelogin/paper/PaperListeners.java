@@ -129,7 +129,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
         var existing = event.getPlayerProfile();
 
-        if (plugin.fromFloodgate(existing.getId())) return;
+        if (plugin.fromFloodgate(event.getName())) return;
 
         var profile = plugin.getDatabaseProvider().getByName(event.getName());
 
