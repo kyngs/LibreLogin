@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
 }
 
-version '0.13.1'
+version '0.13.2'
 
 compileJava {
     options.encoding('UTF-8')
@@ -79,7 +79,7 @@ dependencies {
     compileOnly 'org.spongepowered:configurate-hocon:4.1.2'
     compileOnly 'at.favre.lib:bcrypt:0.9.0'
     compileOnly 'dev.samstevens.totp:totp:1.7.1'
-    compileOnly 'dev.simplix:protocolize-api:2.2.2'
+    compileOnly 'dev.simplix:protocolize-api:2.2.5'
 
     //Geyser
     compileOnly 'org.geysermc.floodgate:api:2.0-SNAPSHOT'
