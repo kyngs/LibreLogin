@@ -436,7 +436,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
             for (String value : lobby.values()) {
                 if (limbos.contains(value)) {
-                    throw new CorruptedConfigurationException("Lobby world %s is also a limbo world, this is not allowed".formatted(value));
+                    throw new CorruptedConfigurationException("Lobby server/world %s is also a limbo server/world, this is not allowed".formatted(value));
                 }
             }
         } catch (IOException e) {
