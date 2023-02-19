@@ -1,6 +1,6 @@
 name: "LibreLogin"
 author: "kyngs"
-version: 0.13.1
+version: 0.13.2
 main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
 
 depend:

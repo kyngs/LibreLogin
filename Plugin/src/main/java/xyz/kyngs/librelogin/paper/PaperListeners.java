@@ -125,7 +125,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         onPostLogin(event.getPlayer(), data);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
         var existing = event.getPlayerProfile();
 
