@@ -306,6 +306,27 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 .build()
         );
 
+        dependencies.add(Library.builder()
+                .groupId("commons-codec")
+                .artifactId("commons-codec")
+                .version("1.13")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("com{}google{}zxing")
+                .artifactId("core")
+                .version("3.4.0")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("com{}google{}zxing")
+                .artifactId("javase")
+                .version("3.4.0")
+                .build()
+        );
+
         dependencies.forEach(libraryManager::loadLibrary);
 
         eventProvider = new AuthenticEventProvider<>(this);
