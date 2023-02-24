@@ -37,7 +37,7 @@ pipeline:
     commands:
       - "cd wiki"
       - "git config --local user.email 'kyngs@users.noreply.github.com'"
-      - "git config --local user.name 'Kyngs\' CI \\(ci.kyngs.xyz\\)"
+      - "git config --local user.name 'Kyngs\\' CI \\(ci.kyngs.xyz\\)"
       - "git add ."
       - "git diff-index --quiet HEAD || git commit -m 'Update configuration and messages on wiki' && git push https://kyngs:$${GITHUB_PERSONAL_TOKEN}@github.com/kyngs/LibreLogin.wiki.git"
     secrets: [ github_personal_token ]
