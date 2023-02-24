@@ -1,6 +1,6 @@
 name: "LibreLogin"
 author: "kyngs"
-version: 0.13.4-DEVELOPMENT
+version: 0.13.4
 main: "xyz.kyngs.librelogin.bungeecord.BungeeCordBootstrap"
 softdepends:
   - "RedisBungee"
