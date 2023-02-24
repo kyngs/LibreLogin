@@ -2,7 +2,7 @@ pipeline:
   shadowJar:
     image: "gradle:jdk17-focal"
     commands:
-      - "gradle shadowJar"
+      - "gradle shadowJar --no-daemon"
 
   setup-velocity:
     image: "debian"
