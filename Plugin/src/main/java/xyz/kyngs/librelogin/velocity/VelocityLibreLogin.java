@@ -58,7 +58,8 @@ import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
         dependencies = {
                 @Dependency(id = "floodgate", optional = true),
                 @Dependency(id = "protocolize", optional = true),
-                @Dependency(id = "redisbungee", optional = true)
+                @Dependency(id = "redisbungee", optional = true),
+                @Dependency(id = "nanolimbovelocity", optional = true)
         }
 )
 public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredServer> implements LibreLoginProvider<Player, RegisteredServer> {

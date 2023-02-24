@@ -6,3 +6,4 @@ softdepends:
   - "RedisBungee"
   - "floodgate"
   - "Protocolize"
+  - "NanoLimboBungee"
