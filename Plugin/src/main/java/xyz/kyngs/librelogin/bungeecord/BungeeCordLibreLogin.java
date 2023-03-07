@@ -31,9 +31,7 @@ import xyz.kyngs.librelogin.common.util.CancellableTask;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -176,7 +174,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     public void authorize(ProxiedPlayer player, User user, Audience audience) {
-        var serverInfo = chooseLobby(user, player, true);
+        var serverInfo = getServerHandler().chooseLobbyServer(user, player, true);
 
         if (serverInfo == null) {
             player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-server")));
@@ -245,44 +243,6 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
         var isVelocity = new SimplePie("using_velocity", () -> "No");
 
         metrics.addCustomChart(isVelocity);
-    }
-
-    @Override
-    public ServerInfo chooseLobbyDefault(ProxiedPlayer player) throws NoSuchElementException {
-        var passThroughServers = getConfiguration().get(PASS_THROUGH);
-        var virt = player.getPendingConnection().getVirtualHost();
-
-        getLogger().debug("Virtual host for player " + player.getDisplayName() + " is " + virt);
-
-        var servers = virt == null ? passThroughServers.get("root") : passThroughServers.get(virt.getHostName());
-
-        if (servers.isEmpty()) servers = passThroughServers.get("root");
-
-        final var finalServers = servers;
-
-        return bootstrap.getProxy().getServers().values().stream()
-                .filter(server -> finalServers.contains(server.getName()))
-                .filter(server -> {
-                    var ping = getServerPinger().getLatestPing(server);
-
-                    return ping != null && ping.maxPlayers() > server.getPlayers().size();
-                })
-                .min(Comparator.comparingInt(o -> o.getPlayers().size()))
-                .orElse(null);
-    }
-
-    @Override
-    public ServerInfo chooseLimboDefault() {
-        var limbos = getConfiguration().get(LIMBO);
-        return bootstrap.getProxy().getServers().values().stream()
-                .filter(server -> limbos.contains(server.getName()))
-                .filter(server -> {
-                    var ping = getServerPinger().getLatestPing(server);
-
-                    return ping != null && ping.maxPlayers() > server.getPlayers().size();
-                })
-                .min(Comparator.comparingInt(o -> o.getPlayers().size()))
-                .orElse(null);
     }
 
     @Override

@@ -30,7 +30,6 @@ import xyz.kyngs.librelogin.paper.log.LogFilter;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -190,7 +189,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             var location = listeners.getSpawnLocationCache().getIfPresent(player);
 
             if (location == null) {
-                var world = chooseLobby(user, player, true);
+                var world = getServerHandler().chooseLobbyServer(user, player, true);
                 if (world == null) {
                     throw new NoSuchElementException();
                 } else {
@@ -235,24 +234,6 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
         var isVelocity = new SimplePie("is_velocity", () -> "Paper");
 
         metrics.addCustomChart(isVelocity);
-    }
-
-    @Override
-    public World chooseLobbyDefault(Player player) {
-        var finalServers = getConfiguration().get(PASS_THROUGH).get("root");
-        return Bukkit.getWorlds().stream()
-                .filter(world -> finalServers.contains(world.getName()))
-                .min(Comparator.comparingInt(World::getPlayerCount))
-                .orElse(null);
-    }
-
-    @Override
-    public World chooseLimboDefault() {
-        var finalServers = getConfiguration().get(LIMBO);
-        return Bukkit.getWorlds().stream()
-                .filter(world -> finalServers.contains(world.getName()))
-                .min(Comparator.comparingInt(World::getPlayerCount))
-                .orElse(null);
     }
 
     @Override

@@ -42,4 +42,7 @@ public interface PlatformHandle<P, S> {
 
     String getPlayersServerName(P player);
 
+    String getPlayersVirtualHost(P player);
+
+    String getUsernameForPlayer(P player);
 }

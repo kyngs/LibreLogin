@@ -216,9 +216,9 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         }
 
         if (fromFloodgate || user.autoLoginEnabled() || (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
-            return plugin.chooseLobby(user, player, true);
+            return plugin.getServerHandler().chooseLobbyServer(user, player, true);
         } else {
-            return plugin.chooseLimbo(user, player);
+            return plugin.getServerHandler().chooseLimboServer(user, player);
         }
     }
 }

@@ -21,11 +21,9 @@ import xyz.kyngs.librelogin.api.database.*;
 import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
-import xyz.kyngs.librelogin.api.event.events.LimboServerChooseEvent;
-import xyz.kyngs.librelogin.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
-import xyz.kyngs.librelogin.api.server.ServerPinger;
+import xyz.kyngs.librelogin.api.server.ServerHandler;
 import xyz.kyngs.librelogin.api.totp.TOTPProvider;
 import xyz.kyngs.librelogin.api.util.Release;
 import xyz.kyngs.librelogin.api.util.SemanticVersion;
@@ -45,8 +43,6 @@ import xyz.kyngs.librelogin.common.database.connector.DatabaseConnectorRegistrat
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginMySQLDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabaseProvider;
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
-import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
-import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
 import xyz.kyngs.librelogin.common.migrate.AegisSQLDatabaseProvider;
@@ -54,8 +50,7 @@ import xyz.kyngs.librelogin.common.migrate.AuthMeSQLReadProvider;
 import xyz.kyngs.librelogin.common.migrate.DBASQLReadProvider;
 import xyz.kyngs.librelogin.common.migrate.JPremiumSQLReadProvider;
 import xyz.kyngs.librelogin.common.premium.AuthenticPremiumProvider;
-import xyz.kyngs.librelogin.common.server.AuthenticServerPinger;
-import xyz.kyngs.librelogin.common.server.DummyServerPinger;
+import xyz.kyngs.librelogin.common.server.AuthenticServerHandler;
 import xyz.kyngs.librelogin.common.totp.AuthenticTOTPProvider;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
@@ -88,7 +83,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private final Set<String> forbiddenPasswords;
     private AuthenticPremiumProvider premiumProvider;
     private AuthenticEventProvider<P, S> eventProvider;
-    private ServerPinger<S> serverPinger;
+    private AuthenticServerHandler<P, S> serverHandler;
     private TOTPProvider totpProvider;
     private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
@@ -183,8 +178,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     }
 
     @Override
-    public ServerPinger<S> getServerPinger() {
-        return serverPinger;
+    public ServerHandler<P, S> getServerHandler() {
+        return serverHandler;
     }
 
     protected void enable() {
@@ -520,9 +515,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             logger.info("Schema validated");
         }
 
-        logger.info("Pinging servers...");
-        serverPinger = configuration.get(PING_SERVERS) ? new AuthenticServerPinger<>(this) : new DummyServerPinger<>();
-        logger.info("Pinged servers");
+        serverHandler = new AuthenticServerHandler<>(this);
 
         // Moved to a different class to avoid class loading issues
         GeneralUtil.checkAndMigrate(configuration, logger, this);
@@ -696,29 +689,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     protected abstract AuthenticImageProjector<P, S> provideImageProjector();
 
-    public S chooseLobby(User user, P player, boolean remember) throws NoSuchElementException {
-
-        if (remember && configuration.get(REMEMBER_LAST_SERVER)) {
-            var last = user.getLastServer();
-
-            if (last != null) {
-                var server = platformHandle.getServer(last);
-                if (server != null) {
-                    var ping = serverPinger.getLatestPing(server);
-                    if (ping != null && ping.maxPlayers() > platformHandle.getConnectedPlayers(server)) {
-                        return server;
-                    }
-                }
-            }
-        }
-
-        var event = new AuthenticLobbyServerChooseEvent<>(user, player, this);
-
-        getEventProvider().fire(LobbyServerChooseEvent.class, event);
-
-        return event.getServer() != null ? event.getServer() : chooseLobbyDefault(player);
-    }
-
     public PremiumUser getUserOrThrowICA(String username) throws InvalidCommandArgument {
         try {
             return getPremiumProvider().getUserForName(username);
@@ -733,8 +703,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     }
 
     protected abstract void initMetrics(CustomChart... charts);
-
-    public abstract S chooseLobbyDefault(P player);
 
     @Override
     public AuthenticAuthorizationProvider<P, S> getAuthorizationProvider() {
@@ -768,16 +736,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     public AuthenticEventProvider<P, S> getEventProvider() {
         return eventProvider;
     }
-
-    public S chooseLimbo(User user, P player) {
-        var event = new AuthenticLimboServerChooseEvent<>(user, player, this);
-
-        getEventProvider().fire(LimboServerChooseEvent.class, event);
-
-        return event.getServer() != null ? event.getServer() : chooseLimboDefault();
-    }
-
-    public abstract S chooseLimboDefault();
 
     public void onExit(P player) {
         cancelOnExit.removeAll(player).forEach(CancellableTask::cancel);

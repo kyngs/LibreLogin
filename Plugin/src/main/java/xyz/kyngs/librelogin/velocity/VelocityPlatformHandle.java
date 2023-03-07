@@ -106,4 +106,16 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
 
         return server.isEmpty() ? null : server.get().getServerInfo().getName();
     }
+
+    @Override
+    public String getPlayersVirtualHost(Player player) {
+        var virt = player.getVirtualHost().orElse(null);
+
+        return virt == null ? null : virt.getHostName();
+    }
+
+    @Override
+    public String getUsernameForPlayer(Player player) {
+        return player.getUsername();
+    }
 }

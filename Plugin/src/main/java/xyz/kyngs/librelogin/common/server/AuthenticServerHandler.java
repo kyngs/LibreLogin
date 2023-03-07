@@ -1,0 +1,159 @@
+package xyz.kyngs.librelogin.common.server;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.event.events.LimboServerChooseEvent;
+import xyz.kyngs.librelogin.api.event.events.LobbyServerChooseEvent;
+import xyz.kyngs.librelogin.api.server.ServerHandler;
+import xyz.kyngs.librelogin.api.server.ServerPing;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
+import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.LIMBO;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.REMEMBER_LAST_SERVER;
+
+public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
+
+    private final LoadingCache<S, Optional<ServerPing>> pingCache;
+    private final AuthenticLibreLogin<P, S> plugin;
+    private final Collection<S> limboServers;
+    private final Multimap<String, S> lobbyServers;
+
+    public AuthenticServerHandler(AuthenticLibreLogin<P, S> plugin) {
+        this.plugin = plugin;
+
+        this.lobbyServers = HashMultimap.create();
+        this.limboServers = new ArrayList<>();
+
+        this.pingCache = Caffeine.newBuilder()
+                .refreshAfterWrite(10, TimeUnit.SECONDS)
+                .build(server -> {
+                    if (!plugin.getConfiguration().get(ConfigurationKeys.PING_SERVERS))
+                        return Optional.of(new ServerPing(Integer.MAX_VALUE));
+
+                    plugin.getLogger().debug("Pinging server " + server);
+                    var ping = plugin.getPlatformHandle().ping(server);
+                    plugin.getLogger().debug("Pinged server " + server + ": " + ping);
+
+                    return Optional.ofNullable(ping);
+                });
+
+        var handle = plugin.getPlatformHandle();
+
+        if (plugin.getConfiguration().get(ConfigurationKeys.PING_SERVERS))
+            plugin.getLogger().info("Pinging servers...");
+
+        for (String limbo : plugin.getConfiguration().get(LIMBO)) {
+            var server = handle.getServer(limbo);
+            if (server != null) {
+                registerLimboServer(server);
+            } else {
+                plugin.getLogger().warn("Limbo server/world " + limbo + " not found!");
+            }
+        }
+
+        plugin.getConfiguration().get(ConfigurationKeys.PASS_THROUGH).forEach((forced, server) -> {
+            var s = handle.getServer(server);
+            if (s != null) {
+                registerLobbyServer(s, forced);
+            } else {
+                plugin.getLogger().warn("Lobby server/world " + server + " not found!");
+            }
+        });
+
+        if (plugin.getConfiguration().get(ConfigurationKeys.PING_SERVERS)) plugin.getLogger().info("Pinged servers...");
+    }
+
+    @Override
+    public ServerPing getLatestPing(S server) {
+        return pingCache.get(server).orElse(null);
+    }
+
+    @Override
+    public S chooseLobbyServer(User user, P player, boolean remember) {
+        if (remember && plugin.getConfiguration().get(REMEMBER_LAST_SERVER)) {
+            var last = user.getLastServer();
+
+            if (last != null) {
+                var server = plugin.getPlatformHandle().getServer(last);
+                if (server != null) {
+                    var ping = getLatestPing(server);
+                    if (ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server)) {
+                        return server;
+                    }
+                }
+            }
+        }
+
+        var event = new AuthenticLobbyServerChooseEvent<>(user, player, plugin);
+
+        plugin.getEventProvider().fire(LobbyServerChooseEvent.class, event);
+
+        if (event.getServer() != null) return event.getServer();
+
+        var virtual = plugin.getPlatformHandle().getPlayersVirtualHost(player);
+
+        plugin.getLogger().debug("Virtual host for player " + plugin.getPlatformHandle().getUsernameForPlayer(player) + ": " + virtual);
+
+        var servers = virtual == null ? lobbyServers.get("root") : lobbyServers.get(virtual);
+
+        if (servers.isEmpty()) servers = lobbyServers.get("root");
+
+        return servers.stream()
+                .filter(server -> {
+                    var ping = getLatestPing(server);
+
+                    return ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server);
+                })
+                .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
+    public S chooseLimboServer(User user, P player) {
+        var event = new AuthenticLimboServerChooseEvent<>(user, player, plugin);
+
+        plugin.getEventProvider().fire(LimboServerChooseEvent.class, event);
+
+        if (event.getServer() != null) return event.getServer();
+
+        return limboServers.stream()
+                .filter(server -> {
+                    var ping = getLatestPing(server);
+
+                    return ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server);
+                })
+                .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
+    public Multimap<String, S> getLobbyServers() {
+        return lobbyServers;
+    }
+
+    @Override
+    public Collection<S> getLimboServers() {
+        return limboServers;
+    }
+
+    @Override
+    public void registerLobbyServer(S server, String forcedHost) {
+        getLatestPing(server);
+        lobbyServers.put(forcedHost, server);
+    }
+
+    @Override
+    public void registerLimboServer(S server) {
+        getLatestPing(server);
+        limboServers.add(server);
+    }
+}

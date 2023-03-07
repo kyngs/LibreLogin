@@ -11,7 +11,7 @@ import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.image.ImageProjector;
 import xyz.kyngs.librelogin.api.premium.PremiumProvider;
-import xyz.kyngs.librelogin.api.server.ServerPinger;
+import xyz.kyngs.librelogin.api.server.ServerHandler;
 import xyz.kyngs.librelogin.api.totp.TOTPProvider;
 import xyz.kyngs.librelogin.api.util.SemanticVersion;
 import xyz.kyngs.librelogin.api.util.ThrowableFunction;
@@ -213,9 +213,11 @@ public interface LibreLoginPlugin<P, S> {
     PlatformHandle<P, S> getPlatformHandle();
 
     /**
-     * Gets the server pinger.
+     * Gets the server handler.
+     * <br>
+     * <b>This can be used for registering servers</b>
      *
-     * @return The server pinger
+     * @return The server handler
      */
-    ServerPinger<S> getServerPinger();
+    ServerHandler<P, S> getServerHandler();
 }

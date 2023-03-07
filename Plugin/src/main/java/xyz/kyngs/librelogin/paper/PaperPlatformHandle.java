@@ -85,4 +85,14 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
     public String getPlayersServerName(Player player) {
         return player.getWorld().getName();
     }
+
+    @Override
+    public String getPlayersVirtualHost(Player player) {
+        return null;
+    }
+
+    @Override
+    public String getUsernameForPlayer(Player player) {
+        return player.getName();
+    }
 }

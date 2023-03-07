@@ -136,7 +136,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     public void beginTwoFactorAuth(User user, P player, TOTPData data) {
         awaiting2FA.put(player, data.secret());
 
-        platformHandle.movePlayer(player, plugin.chooseLimbo(user, player)).whenComplete((t, e) -> {
+        platformHandle.movePlayer(player, plugin.getServerHandler().chooseLimboServer(user, player)).whenComplete((t, e) -> {
             if (t != null || e != null) awaiting2FA.remove(player);
         });
     }
