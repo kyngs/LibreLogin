@@ -88,7 +88,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
     private SemanticVersion version;
-    private Logger logger;
+    protected Logger logger;
     private HoconPluginConfiguration configuration;
     private HoconMessages messages;
     private AuthenticAuthorizationProvider<P, S> authorizationProvider;
@@ -184,7 +184,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     protected void enable() {
         version = SemanticVersion.parse(getVersion());
-        logger = provideLogger();
+        if (logger == null) logger = provideLogger();
 
         var folder = getDataFolder();
         if (!folder.exists()) {

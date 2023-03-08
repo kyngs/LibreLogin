@@ -116,6 +116,8 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     @Override
     protected void enable() {
 
+        logger = provideLogger();
+
         if (Bukkit.getOnlineMode()) {
             getLogger().error("!!!The server is running in online mode! LibreLogin won't start unless you set it to false!!!");
             disable();
