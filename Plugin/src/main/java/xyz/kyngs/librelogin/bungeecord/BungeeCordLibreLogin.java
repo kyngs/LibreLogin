@@ -36,7 +36,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION;
 
 public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, ServerInfo> {
 
@@ -150,26 +151,6 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
-        var serverMap = bootstrap.getProxy().getServers();
-        if (configuration.get(LIMBO).isEmpty()) {
-            throw new CorruptedConfigurationException("No limbo servers defined!");
-        }
-
-        if (configuration.get(PASS_THROUGH).isEmpty()) {
-            throw new CorruptedConfigurationException("No pass-through servers defined!");
-        }
-
-        for (String server : configuration.get(PASS_THROUGH).values()) {
-            if (!serverMap.containsKey(server)) {
-                throw new CorruptedConfigurationException("The supplied pass-through server %s is not configured in the proxy configuration!".formatted(server));
-            }
-        }
-
-        for (String server : configuration.get(LIMBO)) {
-            if (!serverMap.containsKey(server)) {
-                throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
-            }
-        }
     }
 
     @Override

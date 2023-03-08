@@ -46,7 +46,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION;
 
 
 @Plugin(
@@ -107,18 +108,6 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
     @Override
     public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
-        if (configuration.get(LIMBO).isEmpty())
-            throw new CorruptedConfigurationException("No limbo servers defined!");
-        if (configuration.get(PASS_THROUGH).isEmpty())
-            throw new CorruptedConfigurationException("No pass-through servers defined!");
-        for (String server : configuration.get(PASS_THROUGH).values()) {
-            if (this.server.getServer(server).isEmpty())
-                throw new CorruptedConfigurationException("The supplied pass-through server %s is not configured in the proxy configuration!".formatted(server));
-        }
-        for (String server : configuration.get(LIMBO)) {
-            if (this.server.getServer(server).isEmpty())
-                throw new CorruptedConfigurationException("The supplied limbo server is not configured in the proxy configuration!");
-        }
     }
 
     @Override
