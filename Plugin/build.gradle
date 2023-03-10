@@ -15,7 +15,7 @@ repositories {
     mavenLocal()
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     maven { url = "https://repo.opencollab.dev/maven-snapshots/" }
-    maven { url = "https://nexus.velocitypowered.com/repository/maven-public/" }
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
     maven { url = "https://hub.spigotmc.org/nexus/" }
     maven { url = "https://mvn.exceptionflug.de/repository/exceptionflug-public/" }
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
