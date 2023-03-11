@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION;
 
 public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, ServerInfo> {
 
@@ -79,12 +78,6 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
         bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new Blockers(this));
         bootstrap.getProxy().getPluginManager().registerListener(bootstrap, new BungeeCordListener(this));
-
-        var millis = getConfiguration().get(MILLISECONDS_TO_REFRESH_NOTIFICATION);
-
-        if (millis > 0) {
-            bootstrap.getProxy().getScheduler().schedule(bootstrap, () -> getAuthorizationProvider().notifyUnauthorized(), 0, millis, TimeUnit.MILLISECONDS);
-        }
     }
 
     @Override
@@ -168,6 +161,12 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
     @Override
     public CancellableTask delay(Runnable runnable, long delayInMillis) {
         var task = bootstrap.getProxy().getScheduler().schedule(bootstrap, runnable, delayInMillis, TimeUnit.MILLISECONDS);
+        return task::cancel;
+    }
+
+    @Override
+    public CancellableTask repeat(Runnable runnable, long delayInMillis, long repeatInMillis) {
+        var task = bootstrap.getProxy().getScheduler().schedule(bootstrap, runnable, delayInMillis, repeatInMillis, TimeUnit.MILLISECONDS);
         return task::cancel;
     }
 

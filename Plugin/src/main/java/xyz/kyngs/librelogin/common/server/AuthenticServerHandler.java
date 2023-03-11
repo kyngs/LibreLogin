@@ -15,7 +15,6 @@ import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.LIMBO;
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.REMEMBER_LAST_SERVER;
@@ -34,7 +33,6 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
         this.limboServers = new ArrayList<>();
 
         this.pingCache = Caffeine.newBuilder()
-                .refreshAfterWrite(10, TimeUnit.SECONDS)
                 .build(server -> {
                     if (!plugin.getConfiguration().get(ConfigurationKeys.PING_SERVERS))
                         return Optional.of(new ServerPing(Integer.MAX_VALUE));
@@ -45,6 +43,8 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
                     return Optional.ofNullable(ping);
                 });
+
+        plugin.repeat(() -> pingCache.refreshAll(pingCache.asMap().keySet()), 10000, 10000);
 
         var handle = plugin.getPlatformHandle();
 

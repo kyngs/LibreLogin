@@ -27,6 +27,12 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         super(plugin);
         unAuthorized = new HashMap<>();
         awaiting2FA = new HashMap<>();
+
+        var millis = plugin.getConfiguration().get(ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION);
+
+        if (millis > 0) {
+            plugin.repeat(this::notifyUnauthorized, 0, millis);
+        }
     }
 
     @Override

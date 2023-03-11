@@ -685,6 +685,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public abstract CancellableTask delay(Runnable runnable, long delayInMillis);
 
+    public abstract CancellableTask repeat(Runnable runnable, long delayInMillis, long repeatInMillis);
+
     public abstract boolean pluginPresent(String pluginName);
 
     protected abstract AuthenticImageProjector<P, S> provideImageProjector();

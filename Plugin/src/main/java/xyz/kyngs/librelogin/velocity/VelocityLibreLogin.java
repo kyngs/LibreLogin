@@ -47,7 +47,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION;
 
 
 @Plugin(
@@ -138,6 +137,17 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
                 .buildTask(this, runnable)
                 .delay(delayInMillis, TimeUnit.MILLISECONDS)
                 .schedule();
+        return task::cancel;
+    }
+
+    @Override
+    public CancellableTask repeat(Runnable runnable, long delayInMillis, long repeatInMillis) {
+        var task = server.getScheduler()
+                .buildTask(this, runnable)
+                .delay(delayInMillis, TimeUnit.MILLISECONDS)
+                .repeat(repeatInMillis, TimeUnit.MILLISECONDS)
+                .schedule();
+
         return task::cancel;
     }
 
@@ -250,14 +260,6 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
         server.getEventManager().register(this, new Blockers(getAuthorizationProvider(), getConfiguration(), getMessages()));
         server.getEventManager().register(this, new VelocityListeners(this));
-
-        var millis = getConfiguration().get(MILLISECONDS_TO_REFRESH_NOTIFICATION);
-
-        if (millis > 0) {
-            server.getScheduler().buildTask(this, () -> getAuthorizationProvider().notifyUnauthorized())
-                    .repeat(getConfiguration().get(MILLISECONDS_TO_REFRESH_NOTIFICATION), TimeUnit.MILLISECONDS)
-                    .schedule();
-        }
     }
 
     @Subscribe

@@ -191,6 +191,13 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     }
 
     @Override
+    public CancellableTask repeat(Runnable runnable, long delayInMillis, long repeatInMillis) {
+        var task = Bukkit.getScheduler()
+                .runTaskTimerAsynchronously(bootstrap, runnable, delayInMillis / 50, repeatInMillis / 50);
+        return task::cancel;
+    }
+
+    @Override
     public boolean pluginPresent(String pluginName) {
         return Bukkit.getPluginManager().isPluginEnabled(pluginName);
     }
