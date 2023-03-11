@@ -82,6 +82,15 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> KICK_SHORT_USERNAME = new ConfigurationKey<>(
+            "kick-short-username",
+            "Your username is too short! The minimum length is %length% letters.",
+            """
+                    This message is displayed when the player's username is too short.
+                    See the configuration key "minimum-username-length" for more information.""",
+            ConfigurateHelper::getString
+    );
+
     /*
     Other kicks
      */

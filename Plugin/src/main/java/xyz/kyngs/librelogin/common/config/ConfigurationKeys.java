@@ -208,6 +208,13 @@ public class ConfigurationKeys {
             ConfigurateHelper::getInt
     );
 
+    public static final ConfigurationKey<Integer> MINIMUM_USERNAME_LENGTH = new ConfigurationKey<>(
+            "minimum-username-length",
+            -1,
+            "The minimum length the player's name can have. Only applies to new players, set to 0 or lower to disable.",
+            ConfigurateHelper::getInt
+    );
+
     public static final ConfigurationKey<Long> SESSION_TIMEOUT = new ConfigurationKey<>(
             "session-timeout",
             604800L,
