@@ -209,7 +209,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     protected void initMetrics(CustomChart... charts) {
-        var metrics = new Metrics(bootstrap, 14805);
+        var metrics = new Metrics(bootstrap, 17915);
 
         for (var chart : charts) {
             metrics.addCustomChart(chart);
