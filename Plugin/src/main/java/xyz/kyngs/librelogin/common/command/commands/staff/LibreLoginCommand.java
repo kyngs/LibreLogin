@@ -148,6 +148,10 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             audience.sendMessage(getMessage("info-editing"));
 
             user.setHashedPassword(null);
+            user.setSecret(null);
+            user.setIp(null);
+            user.setLastAuthentication(null);
+            user.setPremiumUUID(null);
             getDatabaseProvider().updateUser(user);
 
             audience.sendMessage(getMessage("info-edited"));
