@@ -17,7 +17,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.CustomChart;
-import org.bstats.charts.SimplePie;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
@@ -214,15 +213,11 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     protected void initMetrics(CustomChart... charts) {
-        var metrics = new Metrics(bootstrap, 14805);
+        var metrics = new Metrics(bootstrap, 17982);
 
         for (CustomChart chart : charts) {
             metrics.addCustomChart(chart);
         }
-
-        var isVelocity = new SimplePie("using_velocity", () -> "No");
-
-        metrics.addCustomChart(isVelocity);
     }
 
     @Override

@@ -22,7 +22,6 @@ import net.byteflux.libby.VelocityLibraryManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
-import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
@@ -219,15 +218,11 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
     @Override
     protected void initMetrics(CustomChart... charts) {
-        var metrics = factory.make(this, 14805);
+        var metrics = factory.make(this, 17981);
 
         for (CustomChart chart : charts) {
             metrics.addCustomChart(chart);
         }
-
-        var isVelocity = new SimplePie("using_velocity", () -> "Yes");
-
-        metrics.addCustomChart(isVelocity);
     }
 
     @Override
