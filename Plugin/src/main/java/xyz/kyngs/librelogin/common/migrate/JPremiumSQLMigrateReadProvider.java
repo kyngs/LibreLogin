@@ -10,27 +10,11 @@ import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.UUID;
 
-public class JPremiumSQLReadProvider extends SQLReadProvider {
+public class JPremiumSQLMigrateReadProvider extends SQLMigrateReadProvider {
 
-    public JPremiumSQLReadProvider(String tableName, Logger logger, SQLDatabaseConnector connector) {
+    public JPremiumSQLMigrateReadProvider(String tableName, Logger logger, SQLDatabaseConnector connector) {
         super(tableName, logger, connector);
-    }
-
-    @Override
-    public User getByName(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public User getByUUID(UUID uuid) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public User getByPremiumUUID(UUID uuid) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

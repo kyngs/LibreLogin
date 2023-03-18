@@ -41,4 +41,12 @@ public interface ReadDatabaseProvider {
      */
     Collection<User> getAllUsers();
 
+    /**
+     * This method fetches all players which used the specified IP.
+     *
+     * @param ip IP address.
+     * @return A collection of all players which used the specified IP.
+     */
+    Collection<User> getByIP(String ip);
+
 }

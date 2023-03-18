@@ -10,25 +10,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
-public class DBASQLReadProvider extends SQLReadProvider {
+public class DBASQLMigrateReadProvider extends SQLMigrateReadProvider {
 
-    public DBASQLReadProvider(String tableName, Logger logger, SQLDatabaseConnector connector) {
+    public DBASQLMigrateReadProvider(String tableName, Logger logger, SQLDatabaseConnector connector) {
         super(tableName, logger, connector);
-    }
-
-    @Override
-    public User getByName(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public User getByUUID(UUID uuid) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public User getByPremiumUUID(UUID uuid) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

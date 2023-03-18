@@ -45,10 +45,10 @@ import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabasePro
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
-import xyz.kyngs.librelogin.common.migrate.AegisSQLDatabaseProvider;
-import xyz.kyngs.librelogin.common.migrate.AuthMeSQLReadProvider;
-import xyz.kyngs.librelogin.common.migrate.DBASQLReadProvider;
-import xyz.kyngs.librelogin.common.migrate.JPremiumSQLReadProvider;
+import xyz.kyngs.librelogin.common.migrate.AegisSQLMigrateReadProvider;
+import xyz.kyngs.librelogin.common.migrate.AuthMeSQLMigrateReadProvider;
+import xyz.kyngs.librelogin.common.migrate.DBASQLMigrateReadProvider;
+import xyz.kyngs.librelogin.common.migrate.JPremiumSQLMigrateReadProvider;
 import xyz.kyngs.librelogin.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librelogin.common.server.AuthenticServerHandler;
 import xyz.kyngs.librelogin.common.totp.AuthenticTOTPProvider;
@@ -358,31 +358,31 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         ));
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AegisSQLDatabaseProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "aegis-mysql",
                 MySQLDatabaseConnector.class
         ));
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AuthMeSQLReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "authme-mysql",
                 MySQLDatabaseConnector.class
         ));
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AuthMeSQLReadProvider("authme", logger, connector),
+                connector -> new AuthMeSQLMigrateReadProvider("authme", logger, connector),
                 "authme-sqlite",
                 SQLiteDatabaseConnector.class
         ));
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new DBASQLReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "dba-mysql",
                 MySQLDatabaseConnector.class
         ));
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new JPremiumSQLReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "jpremium-mysql",
                 MySQLDatabaseConnector.class
         ));

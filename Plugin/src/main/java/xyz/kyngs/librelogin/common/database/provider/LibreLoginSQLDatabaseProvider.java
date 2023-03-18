@@ -28,6 +28,28 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
     }
 
     @Override
+    public Collection<User> getByIP(String ip) {
+        plugin.reportMainThread();
+        return connector.runQuery(connection -> {
+            var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE ip=?");
+
+            ps.setString(1, ip);
+
+            var rs = ps.executeQuery();
+
+            var users = new ArrayList<User>();
+
+            User user;
+
+            while ((user = getUserFromResult(rs)) != null) {
+                users.add(user);
+            }
+
+            return users;
+        });
+    }
+
+    @Override
     public User getByName(String name) {
         plugin.reportMainThread();
         return connector.runQuery(connection -> {
@@ -72,36 +94,7 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
 
             var rs = ps.executeQuery();
 
-            if (rs.next()) {
-                var id = UUID.fromString(rs.getString("uuid"));
-                var premiumUUID = rs.getString("premium_uuid");
-                var hashedPassword = rs.getString("hashed_password");
-                var salt = rs.getString("salt");
-                var algo = rs.getString("algo");
-                var lastNickname = rs.getString("last_nickname");
-                var joinDate = rs.getTimestamp("joined");
-                var lastSeen = rs.getTimestamp("last_seen");
-                var secret = rs.getString("secret");
-                var ip = rs.getString("ip");
-                var lastAuthentication = rs.getTimestamp("last_authentication");
-                var lastServer = rs.getString("last_server");
-
-                return new AuthenticUser(
-                        id,
-                        premiumUUID == null ? null : UUID.fromString(premiumUUID),
-                        hashedPassword == null ? null : new HashedPassword(
-                                hashedPassword,
-                                salt,
-                                algo
-                        ),
-                        lastNickname,
-                        joinDate,
-                        lastSeen,
-                        secret,
-                        ip,
-                        lastAuthentication,
-                        lastServer);
-            } else return null;
+            return getUserFromResult(rs);
 
         });
     }
