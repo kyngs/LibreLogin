@@ -319,4 +319,32 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         });
     }
 
+    @Subcommand("user alts")
+    @CommandPermission("librelogin.user.alts")
+    @Syntax("{@@syntax.user-alts}")
+    @CommandCompletion("%autocomplete.user-alts")
+    public CompletionStage<Void> onUserAlts(Audience audience, String name) {
+        return runAsync(() -> {
+            var user = getUserOtherWiseInform(name);
+
+            var alts = getDatabaseProvider().getByIP(user.getIp());
+
+            if (alts.isEmpty()) {
+                audience.sendMessage(getMessage("info-no-alts"));
+                return;
+            }
+
+            audience.sendMessage(getMessage("info-alts",
+                    "%count%", String.valueOf(alts.size())
+            ));
+
+            for (var alt : alts) {
+                audience.sendMessage(getMessage("info-alts-entry",
+                        "%name%", alt.getLastNickname(),
+                        "%last_seen%", DATE_TIME_FORMATTER.format(user.getLastSeen().toLocalDateTime())
+                ));
+            }
+        });
+    }
+
 }

@@ -500,6 +500,27 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> INFO_NO_ALTS = new ConfigurationKey<>(
+            "info-no-alts",
+            "There are no other players with the same IP address.",
+            "This message is displayed when the player has no alts.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_ALTS = new ConfigurationKey<>(
+            "info-alts",
+            "There are %count% players with the same IP address:",
+            "This message is displayed when the player has alts.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_ALTS_ENTRY = new ConfigurationKey<>(
+            "info-alts-entry",
+            "- %name% (last seen: %last_seen%)",
+            "This message is displayed when the player has alts.",
+            ConfigurateHelper::getString
+    );
+
     /*
     Prompts
      */
@@ -682,6 +703,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_USER_ALTS = new ConfigurationKey<>(
+            "syntax.user-alts",
+            "<name>",
+            "This message is displayed when the player attempts to get alts of other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> SYNTAX_USER_CHANGE_PASSWORD = new ConfigurationKey<>(
             "syntax.user-pass-change",
             "<name> <newPassword>",
@@ -796,6 +824,13 @@ public class MessageKeys {
             "autocomplete.user-2fa-off",
             "@players",
             "This hint is displayed when the player starts typing the /librelogin user 2fa-off command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_ALTS = new ConfigurationKey<>(
+            "autocomplete.user-alts",
+            "@players",
+            "This hint is displayed when the player starts typing the /librelogin user alts command.",
             ConfigurateHelper::getString
     );
 
