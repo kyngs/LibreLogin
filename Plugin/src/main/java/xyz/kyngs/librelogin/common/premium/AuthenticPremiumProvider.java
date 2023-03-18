@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package xyz.kyngs.librelogin.common.premium;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -90,10 +96,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 case 404 -> {
                     return null;
                 }
-                case 429 ->
-                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
-                default ->
-                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+                case 429 -> throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                default -> throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             }
         } catch (IOException e) {
             throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
@@ -106,11 +110,9 @@ public class AuthenticPremiumProvider implements PremiumProvider {
             var connection = (HttpURLConnection) new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openConnection();
 
             return switch (connection.getResponseCode()) {
-                case 429 ->
-                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                case 429 -> throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 204, 404 -> null;
-                default ->
-                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+                default -> throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 200 -> {
                     var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
@@ -122,8 +124,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                             data.get("name").getAsString()
                     );
                 }
-                case 500 ->
-                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
+                case 500 -> throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
             };
         } catch (IOException e) {
             throw new PremiumException(PremiumException.Issue.UNDEFINED, e);

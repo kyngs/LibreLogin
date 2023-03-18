@@ -1,5 +1,13 @@
+plugins {
+    id 'org.cadixdev.licenser' version '0.6.1' apply false
+}
+
+defaultTasks 'updateLicenses', 'shadowJar'
+
 subprojects {
     group = 'xyz.kyngs.librelogin'
+
+    apply plugin: 'org.cadixdev.licenser'
 
     repositories {
         mavenLocal()
@@ -8,6 +16,12 @@ subprojects {
         maven {
             url 'https://jitpack.io'
         }
+    }
+
+    license {
+        header = rootProject.file('HEADER.txt')
+        include '**/*.java'
+        newLine = true
     }
 
 }
