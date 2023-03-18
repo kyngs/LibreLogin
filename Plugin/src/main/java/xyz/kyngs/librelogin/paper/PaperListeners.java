@@ -152,7 +152,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         ipCache.invalidate(event.getPlayer());
         spawnLocationCache.invalidate(event.getPlayer());
         if (world == null) {
-            event.getPlayer().kick(Component.text("Internal error"));
+            event.getPlayer().kick(plugin.getMessages().getMessage("kick-no-server"));
         } else {
             var playedBefore = event.getPlayer().hasPlayedBefore();
             //This is terrible, but should work

@@ -20,7 +20,10 @@ import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.LIMBO;
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.REMEMBER_LAST_SERVER;
@@ -120,7 +123,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                     return ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server);
                 })
                 .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
-                .orElseThrow(NoSuchElementException::new);
+                .orElse(null);
     }
 
     @Override
@@ -138,7 +141,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                     return ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server);
                 })
                 .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
-                .orElseThrow(NoSuchElementException::new);
+                .orElse(null);
     }
 
     @Override
