@@ -480,6 +480,20 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> INFO_ABOUT = new ConfigurationKey<>(
+            "info-about",
+            """
+                    This server is running FOSS authentication plugin, LibreLogin.
+                    Version: %version%
+                    Authors: kyngs, and other contributors
+                    Source: https://github.com/kyngs/LibreLogin
+                    License: Mozilla Public License 2.0""",
+            """
+                    This message is displayed when the player executes /librelogin about.
+                    !! Clearing this message, or somehow making the command unexecutable is not only cringe, but also considered a violation of the license. !!""",
+            ConfigurateHelper::getString
+    );
+
     /*
     Prompts
      */

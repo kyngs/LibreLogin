@@ -30,6 +30,13 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         super(plugin);
     }
 
+    @Subcommand("about")
+    public CompletionStage<Void> onAbout(Audience audience) {
+        return runAsync(() -> audience.sendMessage(getMessage("info-about",
+                "%version%", plugin.getVersion()
+        )));
+    }
+
     @Subcommand("reload configuration")
     @CommandPermission("librepremium.reload.configuration")
     public CompletionStage<Void> onReloadConfiguration(Audience audience) {
