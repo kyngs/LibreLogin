@@ -8,6 +8,7 @@ import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.util.CryptoUtil;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
+import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -20,7 +21,7 @@ public class JPremiumSQLMigrateReadProvider extends SQLMigrateReadProvider {
     @Override
     public Collection<User> getAllUsers() {
         return connector.runQuery(connection -> {
-            var ps = connection.prepareStatement("SELECT * FROM `%s`".formatted(tableName));
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM `%s`".formatted(tableName));
 
             var rs = ps.executeQuery();
 
