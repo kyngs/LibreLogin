@@ -2,6 +2,7 @@ plugins {
     id 'org.cadixdev.licenser' version '0.6.1' apply false
 }
 
+
 defaultTasks 'updateLicenses', 'shadowJar'
 
 subprojects {
