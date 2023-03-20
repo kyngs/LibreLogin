@@ -14,6 +14,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import net.byteflux.libby.BukkitLibraryManager;
 import net.byteflux.libby.Library;
 import net.byteflux.libby.LibraryManager;
+import net.byteflux.libby.PaperLibraryManager;
 import net.kyori.adventure.audience.Audience;
 import org.apache.logging.log4j.LogManager;
 import org.bstats.bukkit.Metrics;
@@ -254,6 +255,11 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     protected LibraryManager provideLibraryManager() {
-        return new BukkitLibraryManager(bootstrap);
+        try {
+            Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
+            return new PaperLibraryManager(bootstrap);
+        } catch (ClassNotFoundException e) {
+            return new BukkitLibraryManager(bootstrap);
+        }
     }
 }

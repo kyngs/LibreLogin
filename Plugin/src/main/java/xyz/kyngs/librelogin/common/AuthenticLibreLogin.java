@@ -207,13 +207,14 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
         var libraryManager = provideLibraryManager();
 
-        libraryManager.addMavenLocal();
+        //libraryManager.addMavenLocal();
         libraryManager.addMavenCentral();
 
         var repos = new ArrayList<>(customRepositories());
 
         repos.add("https://jitpack.io/");
         repos.add("https://mvn.exceptionflug.de/repository/exceptionflug-public/");
+        repos.add("https://repo.kyngs.xyz/repository/maven-libraries/");
 
         repos.forEach(libraryManager::addRepository);
 

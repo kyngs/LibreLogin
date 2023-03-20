@@ -1,0 +1,16 @@
+name: "LibreLogin"
+author: "kyngs"
+version: '${version}'
+main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
+api-version: 1.19
+
+dependencies:
+  - name: ProtocolLib
+    required: true
+  - name: Geyser-Spigot
+  - name: floodgate
+
+load-after:
+  - name: ProtocolLib
+  - name: Geyser-Spigot
+  - name: floodgate
