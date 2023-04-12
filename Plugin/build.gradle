@@ -108,10 +108,10 @@ dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-core:2.19.0'
 
     //Libby
-    implementation 'net.byteflux:libby-bukkit:1.1.5'
-    implementation 'net.byteflux:libby-velocity:1.1.5'
-    implementation 'net.byteflux:libby-bungee:1.1.5'
-    implementation 'net.byteflux:libby-paper:1.1.5'
+    implementation 'net.byteflux:libby-bukkit:1.2.0'
+    implementation 'net.byteflux:libby-velocity:1.2.0'
+    implementation 'net.byteflux:libby-bungee:1.2.0'
+    implementation 'net.byteflux:libby-paper:1.2.0'
 
 }
 
