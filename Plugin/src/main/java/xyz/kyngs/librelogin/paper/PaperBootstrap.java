@@ -8,12 +8,22 @@ package xyz.kyngs.librelogin.paper;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
 public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Player, World> {
 
     private PaperLibreLogin libreLogin;
+
+    @Override
+    public @Nullable ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id) {
+        return id == null ?
+                null
+                : id.equals("void") ? new VoidWorldGenerator() : null;
+    }
 
     @Override
     public void onLoad() {

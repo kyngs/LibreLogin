@@ -30,7 +30,7 @@ public interface PlatformHandle<P, S> {
 
     void kick(P player, Component reason);
 
-    S getServer(String name);
+    S getServer(String name, boolean limbo);
 
     Class<S> getServerClass();
 

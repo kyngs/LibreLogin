@@ -65,7 +65,7 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
     }
 
     @Override
-    public ServerInfo getServer(String name) {
+    public ServerInfo getServer(String name, boolean limbo) {
         return plugin.getBootstrap().getProxy().getServerInfo(name);
     }
 

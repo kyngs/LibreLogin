@@ -154,7 +154,6 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         if (world == null) {
             event.getPlayer().kick(plugin.getMessages().getMessage("kick-no-server"));
         } else {
-            var playedBefore = event.getPlayer().hasPlayedBefore();
             //This is terrible, but should work
             if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(event.getSpawnLocation().getWorld().getName())) {
                 if (plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(world.getName())) {

@@ -8,12 +8,12 @@ package xyz.kyngs.librelogin.paper;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -48,8 +48,36 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
     }
 
     @Override
-    public World getServer(String name) {
-        return Bukkit.getWorld(name);
+    public World getServer(String name, boolean limbo) {
+        var world = Bukkit.getWorld(name);
+
+        if (world != null) return world;
+
+        var file = new File(name);
+        var exists = file.exists();
+
+        if (exists) {
+            plugin.getLogger().info("Found world file for " + name + ", loading...");
+        } else {
+            plugin.getLogger().info("World file for " + name + " not found, creating...");
+        }
+
+        var creator = new WorldCreator(name);
+
+        if (limbo) {
+            creator.generator("librelogin:void");
+        }
+
+        world = Bukkit.createWorld(creator);
+
+        if (limbo) {
+            world.setSpawnLocation(new Location(world, 0.5, world.getHighestBlockYAt(0, 0) + 1, 0.5));
+            world.setKeepSpawnInMemory(true);
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            world.setGameRule(GameRule.DO_INSOMNIA, false);
+        }
+
+        return world;
     }
 
     @Override

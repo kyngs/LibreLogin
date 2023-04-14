@@ -61,7 +61,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
             plugin.getLogger().info("Pinging servers...");
 
         for (String limbo : plugin.getConfiguration().get(LIMBO)) {
-            var server = handle.getServer(limbo);
+            var server = handle.getServer(limbo, true);
             if (server != null) {
                 registerLimboServer(server);
             } else {
@@ -70,7 +70,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
         }
 
         plugin.getConfiguration().get(ConfigurationKeys.PASS_THROUGH).forEach((forced, server) -> {
-            var s = handle.getServer(server);
+            var s = handle.getServer(server, false);
             if (s != null) {
                 registerLobbyServer(s, forced);
             } else {
@@ -92,7 +92,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
             var last = user.getLastServer();
 
             if (last != null) {
-                var server = plugin.getPlatformHandle().getServer(last);
+                var server = plugin.getPlatformHandle().getServer(last, false);
                 if (server != null) {
                     var ping = getLatestPing(server);
                     if (ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server)) {

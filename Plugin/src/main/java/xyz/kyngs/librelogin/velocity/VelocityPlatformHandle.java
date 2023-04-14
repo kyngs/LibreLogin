@@ -56,7 +56,7 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
     }
 
     @Override
-    public RegisteredServer getServer(String name) {
+    public RegisteredServer getServer(String name, boolean limbo) {
         return plugin.getServer().getServer(name).orElse(null);
     }
 
