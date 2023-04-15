@@ -10,10 +10,7 @@ import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
-import xyz.kyngs.librelogin.common.config.migrate.config.FirstConfigurationMigrator;
-import xyz.kyngs.librelogin.common.config.migrate.config.FourthConfigurationMigrator;
-import xyz.kyngs.librelogin.common.config.migrate.config.SecondConfigurationMigrator;
-import xyz.kyngs.librelogin.common.config.migrate.config.ThirdConfigurationMigrator;
+import xyz.kyngs.librelogin.common.config.migrate.config.*;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -56,7 +53,7 @@ public class HoconPluginConfiguration {
                           You can find more information about LibreLogin on the github page:
                           https://github.com/kyngs/LibreLogin
                         """,
-                logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator(), new ThirdConfigurationMigrator(), new FourthConfigurationMigrator()
+                logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator(), new ThirdConfigurationMigrator(), new FourthConfigurationMigrator(), new FifthConfigurationMigrator()
         );
 
         var helperAdept = adept.getHelper();

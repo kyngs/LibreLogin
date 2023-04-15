@@ -78,8 +78,14 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
 
     public void set(String path, Object value) {
         try {
-            resolve(path)
-                    .set(value);
+            var node = resolve(path);
+            if (value instanceof Multimap<?, ?> multimap) {
+                for (Map.Entry<?, ? extends Collection<?>> entry : multimap.asMap().entrySet()) {
+                    node.node(entry.getKey().toString()).set(entry.getValue());
+                }
+            } else {
+                node.set(value);
+            }
         } catch (SerializationException e) {
             throw new RuntimeException(e);
         }
@@ -100,23 +106,10 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
     }
 
     public void setDefault(ConfigurationKey<?> key, String prefix) {
-        try {
-            var node = resolve(prefix + key.key());
+        var defaultValue = key.defaultValue();
 
-            var defaultValue = key.defaultValue();
-
-            if (defaultValue != null) {
-                if (key.defaultValue() instanceof Multimap<?, ?> multimap) {
-                    for (Map.Entry<?, ? extends Collection<?>> entry : multimap.asMap().entrySet()) {
-                        node.node(entry.getKey().toString()).set(entry.getValue());
-                    }
-                } else {
-                    node.set(defaultValue);
-                }
-
-            }
-        } catch (SerializationException e) {
-            throw new RuntimeException(e);
+        if (defaultValue != null) {
+            set(prefix + key.key(), defaultValue);
         }
     }
 

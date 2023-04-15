@@ -37,10 +37,10 @@ public class ConfigurationKeys {
             ConfigurateHelper::getStringList
     );
 
-    public static final Multimap<String, String> PASS_THROUGH_DEFAULT = HashMultimap.create();
-    public static final ConfigurationKey<Multimap<String, String>> PASS_THROUGH = new ConfigurationKey<>(
-            "pass-through",
-            PASS_THROUGH_DEFAULT,
+    public static final Multimap<String, String> LOBBY_DEFAULT = HashMultimap.create();
+    public static final ConfigurationKey<Multimap<String, String>> LOBBY = new ConfigurationKey<>(
+            "lobby",
+            LOBBY_DEFAULT,
             """
                     !!WHEN USING PAPER, PUT ALL WORLDS UNDER "root"!!
                     On Paper, players will be spawned on the world spawn.
@@ -53,8 +53,8 @@ public class ConfigurationKeys {
     );
 
     static {
-        PASS_THROUGH_DEFAULT.put("root", "lobby0");
-        PASS_THROUGH_DEFAULT.put("root", "lobby1");
+        LOBBY_DEFAULT.put("root", "lobby0");
+        LOBBY_DEFAULT.put("root", "lobby1");
     }
 
     public static final ConfigurationKey<String> DEFAULT_CRYPTO_PROVIDER = new ConfigurationKey<>(

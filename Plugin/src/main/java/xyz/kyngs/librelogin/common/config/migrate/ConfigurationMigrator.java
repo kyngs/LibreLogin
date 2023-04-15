@@ -8,9 +8,15 @@ package xyz.kyngs.librelogin.common.config.migrate;
 
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.common.config.ConfigurateHelper;
+import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 
 public interface ConfigurationMigrator {
 
     void migrate(ConfigurateHelper helper, Logger logger);
+
+    default void rename(String from, ConfigurationKey<?> to, ConfigurateHelper helper) {
+        helper.set(to.key(), to.getter().apply(helper, from));
+        helper.set(from, null);
+    }
 
 }

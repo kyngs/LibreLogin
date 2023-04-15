@@ -337,7 +337,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             var lobby = HashMultimap.<String, String>create();
             lobby.put("root", "world");
 
-            PASS_THROUGH.setDefault(lobby);
+            LOBBY.setDefault(lobby);
         }
 
         eventProvider = new AuthenticEventProvider<>(this);
@@ -443,7 +443,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             validateConfiguration(configuration);
 
             var limbos = configuration.get(LIMBO);
-            var lobby = configuration.get(PASS_THROUGH);
+            var lobby = configuration.get(LOBBY);
 
             for (String value : lobby.values()) {
                 if (limbos.contains(value)) {

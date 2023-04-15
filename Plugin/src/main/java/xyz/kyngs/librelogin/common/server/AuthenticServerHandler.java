@@ -69,7 +69,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
             }
         }
 
-        plugin.getConfiguration().get(ConfigurationKeys.PASS_THROUGH).forEach((forced, server) -> {
+        plugin.getConfiguration().get(ConfigurationKeys.LOBBY).forEach((forced, server) -> {
             var s = handle.getServer(server, false);
             if (s != null) {
                 registerLobbyServer(s, forced);
