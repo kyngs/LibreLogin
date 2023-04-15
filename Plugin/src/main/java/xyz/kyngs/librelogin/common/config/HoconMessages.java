@@ -6,8 +6,9 @@
 
 package xyz.kyngs.librelogin.common.config;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
@@ -16,6 +17,7 @@ import xyz.kyngs.librelogin.api.configuration.Messages;
 import xyz.kyngs.librelogin.common.config.migrate.messages.FirstMessagesMigrator;
 import xyz.kyngs.librelogin.common.config.migrate.messages.SecondMessagesMigrator;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
+import xyz.kyngs.utils.legacymessage.LegacyMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,7 +26,8 @@ import java.util.Set;
 
 public class HoconMessages implements Messages {
 
-    private final static LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
+    private static final MiniMessage SERIALIZER = MiniMessage.builder()
+            .build();
     private final Map<String, TextComponent> messages;
     private final Logger logger;
 
@@ -74,6 +77,7 @@ public class HoconMessages implements Messages {
                           LibreLogin Messages
                           ----------------------------------------------------------------------------------------
                           This file contains all of the messages used by the plugin, you are welcome to fit it to your needs.
+                          The messages can be written both in the legacy format and in the MiniMessage format. For example, the following message is completely valid: <bold>&aReloaded!</bold>
                           You can find more information about LibreLogin on the github page:
                           https://github.com/kyngs/LibreLogin
                         """,
@@ -94,7 +98,7 @@ public class HoconMessages implements Messages {
 
                 if (string == null) return;
 
-                messages.put(prefix + str, SERIALIZER.deserialize(string));
+                messages.put(prefix + str, Component.empty().append(SERIALIZER.deserialize(LegacyMessage.fromLegacy(string, "&"))));
             } else {
                 extractKeys(prefix + str + ".", value);
             }
