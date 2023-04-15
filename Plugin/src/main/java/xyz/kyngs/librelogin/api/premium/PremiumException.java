@@ -30,7 +30,7 @@ public class PremiumException extends Exception {
     }
 
     public enum Issue {
-        THROTTLED, SERVER_EXCEPTION, UNDEFINED;
+        THROTTLED, SERVER_EXCEPTION, UNDEFINED
     }
 
 }

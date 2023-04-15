@@ -16,7 +16,6 @@ import xyz.kyngs.librelogin.paper.PaperListeners;
 public class ProtocolListener extends PacketAdapter {
 
     private final PaperListeners delegate;
-    private final PaperLibreLogin plugin;
 
     public ProtocolListener(PaperListeners delegate, PaperLibreLogin plugin) {
         super(params()
@@ -25,7 +24,6 @@ public class ProtocolListener extends PacketAdapter {
                 .optionAsync()
         );
         this.delegate = delegate;
-        this.plugin = plugin;
 
         ProtocolLibrary.getProtocolManager()
                 .getAsynchronousManager()

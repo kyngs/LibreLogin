@@ -126,22 +126,22 @@ public final class EncryptionUtil {
         // key of the signer
         verifier.initVerify(MOJANG_SESSION_KEY);
         verifier.update(toSignable(clientKey, premiumId));
-        return verifier.verify(clientKey.getSignature());
+        return verifier.verify(clientKey.signature());
     }
 
     private static byte[] toSignable(ClientPublicKey clientPublicKey, UUID ownerPremiumId) {
         if (ownerPremiumId == null) {
-            long expiry = clientPublicKey.getExpire().toEpochMilli();
-            String encoded = KEY_ENCODER.encodeToString(clientPublicKey.getKey().getEncoded());
+            long expiry = clientPublicKey.expire().toEpochMilli();
+            String encoded = KEY_ENCODER.encodeToString(clientPublicKey.key().getEncoded());
             return (expiry + "-----BEGIN RSA PUBLIC KEY-----\n" + encoded + "\n-----END RSA PUBLIC KEY-----\n")
                     .getBytes(StandardCharsets.US_ASCII);
         }
 
-        byte[] keyData = clientPublicKey.getKey().getEncoded();
+        byte[] keyData = clientPublicKey.key().getEncoded();
         return ByteBuffer.allocate(keyData.length + UUID_SIZE + MILLISECOND_SIZE)
                 .putLong(ownerPremiumId.getMostSignificantBits())
                 .putLong(ownerPremiumId.getLeastSignificantBits())
-                .putLong(clientPublicKey.getExpire().toEpochMilli())
+                .putLong(clientPublicKey.expire().toEpochMilli())
                 .put(keyData)
                 .array();
     }

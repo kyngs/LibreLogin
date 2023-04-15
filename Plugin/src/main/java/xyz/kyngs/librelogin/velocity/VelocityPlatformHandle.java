@@ -41,7 +41,7 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
             try {
                 var result = player.createConnectionRequest(to).connect().get();
                 var reason = result.getReasonComponent();
-                return result.isSuccessful() ? null : reason.isEmpty() ? new RuntimeException("Failed to move player") : new RuntimeException("Failed to move player: " + Component.empty().append(reason.get()).content());
+                return result.isSuccessful() ? null : reason.map(component -> new RuntimeException("Failed to move player: " + Component.empty().append(component).content())).orElseGet(() -> new RuntimeException("Failed to move player"));
             } catch (InterruptedException ignored) {
                 return null;
             } catch (ExecutionException e) {
@@ -80,11 +80,8 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
         try {
             var players = server.ping().get().getPlayers();
 
-            if (players.isEmpty()) {
-                return null;
-            }
+            return players.map(value -> new ServerPing(value.getMax() == -1 ? Integer.MAX_VALUE : value.getMax())).orElse(null);
 
-            return new ServerPing(players.get().getMax() == -1 ? Integer.MAX_VALUE : players.get().getMax());
         } catch (InterruptedException | ExecutionException e) {
             plugin.getLogger().debug("Failed to ping server " + e.getMessage());
             return null;
@@ -110,7 +107,7 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
     public String getPlayersServerName(Player player) {
         var server = player.getCurrentServer();
 
-        return server.isEmpty() ? null : server.get().getServerInfo().getName();
+        return server.map(serverConnection -> serverConnection.getServerInfo().getName()).orElse(null);
     }
 
     @Override

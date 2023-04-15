@@ -28,7 +28,6 @@ import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
-import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
 import xyz.kyngs.librelogin.paper.log.LogFilter;
@@ -160,11 +159,6 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
         Bukkit.getPluginManager().registerEvents(new Blockers(this), bootstrap);
 
         started = true;
-    }
-
-    @Override
-    public void validateConfiguration(HoconPluginConfiguration configuration) {
-
     }
 
     @Override

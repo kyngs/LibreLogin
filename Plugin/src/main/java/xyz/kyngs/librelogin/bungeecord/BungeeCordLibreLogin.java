@@ -28,8 +28,6 @@ import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
-import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
-import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
@@ -145,10 +143,6 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
         var bungee = (BungeeCommandIssuer) issuer;
 
         return bungee.getPlayer();
-    }
-
-    @Override
-    public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
     }
 
     @Override

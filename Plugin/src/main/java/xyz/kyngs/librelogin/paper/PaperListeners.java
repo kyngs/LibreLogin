@@ -341,7 +341,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
             EquivalentConverter<WrappedProfilePublicKey.WrappedProfileKeyData> converter = BukkitConverters.getWrappedPublicKeyDataConverter();
             var wrappedKey = Optional.ofNullable(clientKey).map(key ->
-                    new WrappedProfilePublicKey.WrappedProfileKeyData(clientKey.getExpire(), clientKey.getKey(), clientKey.getSignature())
+                    new WrappedProfilePublicKey.WrappedProfileKeyData(clientKey.expire(), clientKey.key(), clientKey.signature())
             );
 
             startPacket.getOptionals(converter).write(0, wrappedKey);
@@ -364,7 +364,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         if (hostIp instanceof Inet6Address) {
             url = String.format("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%s&serverId=%s", username, serverHash);
         } else {
-            var encodedIP = URLEncoder.encode(hostIp.getHostAddress(), StandardCharsets.UTF_8.name());
+            var encodedIP = URLEncoder.encode(hostIp.getHostAddress(), StandardCharsets.UTF_8);
             url = String.format("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%s&serverId=%s&ip=%s", username, serverHash, encodedIP);
         }
 
@@ -488,7 +488,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
                     long salt = FuzzyReflection.getFieldValue(signatureData, Long.TYPE, true);
                     byte[] signature = FuzzyReflection.getFieldValue(signatureData, byte[].class, true);
 
-                    PublicKey publicKey = clientPublicKey.getKey();
+                    PublicKey publicKey = clientPublicKey.key();
                     return EncryptionUtil.verifySignedNonce(expectedToken, publicKey, salt, signature);
                 }
             } else {

@@ -23,12 +23,10 @@ public class Blockers {
 
     private final AuthorizationProvider<Player> authorizationProvider;
     private final HoconPluginConfiguration configuration;
-    private final Messages messages;
 
     public Blockers(AuthorizationProvider<Player> authorizationProvider, HoconPluginConfiguration configuration, Messages messages) {
         this.authorizationProvider = authorizationProvider;
         this.configuration = configuration;
-        this.messages = messages;
     }
 
     @Subscribe(order = PostOrder.FIRST)

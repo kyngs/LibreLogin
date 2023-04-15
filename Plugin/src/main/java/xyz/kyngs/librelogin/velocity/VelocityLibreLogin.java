@@ -37,8 +37,6 @@ import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
-import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
-import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
@@ -108,10 +106,6 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     @Override
     public Player getPlayerFromIssuer(CommandIssuer issuer) {
         return ((VelocityCommandIssuer) issuer).getPlayer();
-    }
-
-    @Override
-    public void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException {
     }
 
     @Override

@@ -26,11 +26,9 @@ import java.util.UUID;
 
 public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabaseProvider<SQLDatabaseConnector> {
 
-    private final HoconPluginConfiguration configuration;
-
     public LibreLoginSQLDatabaseProvider(SQLDatabaseConnector connector, AuthenticLibreLogin<?, ?> plugin) {
         super(connector, plugin);
-        this.configuration = plugin.getConfiguration();
+        HoconPluginConfiguration configuration = plugin.getConfiguration();
     }
 
     @Override

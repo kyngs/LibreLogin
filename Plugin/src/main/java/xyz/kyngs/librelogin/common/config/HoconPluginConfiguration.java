@@ -13,18 +13,17 @@ import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 import xyz.kyngs.librelogin.common.config.migrate.config.*;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEFAULT_CRYPTO_PROVIDER;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.NEW_UUID_CREATOR;
 
 public class HoconPluginConfiguration {
 
     private final Logger logger;
     private final Collection<BiHolder<Class<?>, String>> defaultKeys;
     private ConfigurateHelper helper;
-    private Duration sessionTimeout;
 
     public HoconPluginConfiguration(Logger logger, Collection<BiHolder<Class<?>, String>> defaultKeys) {
         this.logger = logger;
@@ -61,10 +60,6 @@ public class HoconPluginConfiguration {
         if (!adept.isNewlyCreated() && plugin.getCryptoProvider(helperAdept.get(DEFAULT_CRYPTO_PROVIDER)) == null) {
             throw new CorruptedConfigurationException("Crypto provider not found");
         }
-
-        var timeoutSecs = helperAdept.get(SESSION_TIMEOUT);
-
-        sessionTimeout = timeoutSecs <= 0 ? null : Duration.ofSeconds(timeoutSecs);
 
         helper = helperAdept;
 

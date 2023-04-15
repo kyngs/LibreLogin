@@ -27,12 +27,10 @@ public class Blockers implements Listener {
 
     private final AuthorizationProvider<Player> authorizationProvider;
     private final HoconPluginConfiguration configuration;
-    private final PaperLibreLogin plugin;
 
     public Blockers(PaperLibreLogin plugin) {
         this.authorizationProvider = plugin.getAuthorizationProvider();
         this.configuration = plugin.getConfiguration();
-        this.plugin = plugin;
     }
 
     private <E extends PlayerEvent & Cancellable> void cancelIfNeeded(E event) {

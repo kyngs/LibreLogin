@@ -63,7 +63,7 @@ public class HoconMessages implements Messages {
     }
 
     @Override
-    public void reload(LibreLoginPlugin plugin) throws IOException, CorruptedConfigurationException {
+    public void reload(LibreLoginPlugin<?, ?> plugin) throws IOException, CorruptedConfigurationException {
         var adept = new ConfigurateConfiguration(
                 plugin.getDataFolder(),
                 "messages.conf",

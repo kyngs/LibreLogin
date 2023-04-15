@@ -440,8 +440,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 shutdownProxy(0);
             }
 
-            validateConfiguration(configuration);
-
             var limbos = configuration.get(LIMBO);
             var lobby = configuration.get(LOBBY);
 
@@ -694,8 +692,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     public abstract CommandManager<?, ?, ?, ?, ?, ?> provideManager();
 
     public abstract P getPlayerFromIssuer(CommandIssuer issuer);
-
-    public abstract void validateConfiguration(HoconPluginConfiguration configuration) throws CorruptedConfigurationException;
 
     public abstract void authorize(P player, User user, Audience audience);
 

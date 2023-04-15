@@ -30,6 +30,10 @@ public class ConfigurationKey<T> {
         });
     }
 
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
     public String key() {
         return key;
     }
