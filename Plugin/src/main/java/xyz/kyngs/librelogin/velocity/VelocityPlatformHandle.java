@@ -124,4 +124,9 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
     public String getUsernameForPlayer(Player player) {
         return player.getUsername();
     }
+
+    @Override
+    public String getPlatformIdentifier() {
+        return "velocity";
+    }
 }

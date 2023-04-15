@@ -129,4 +129,9 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
     public String getUsernameForPlayer(Player player) {
         return player.getName();
     }
+
+    @Override
+    public String getPlatformIdentifier() {
+        return "paper";
+    }
 }

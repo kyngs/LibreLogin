@@ -142,5 +142,10 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
         return player.getName();
     }
 
+    @Override
+    public String getPlatformIdentifier() {
+        return "bungeecord";
+    }
+
 
 }

@@ -10,13 +10,44 @@ import xyz.kyngs.librelogin.common.config.ConfigurateHelper;
 
 import java.util.function.BiFunction;
 
-public record ConfigurationKey<T>(String key, T defaultValue, String comment,
-                                  BiFunction<ConfigurateHelper, String, T> getter) {
+public class ConfigurationKey<T> {
+
+    private final String key;
+    private final BiFunction<ConfigurateHelper, String, T> getter;
+    private T defaultValue;
+    private String comment;
+
+    public ConfigurationKey(String key, T defaultValue, String comment, BiFunction<ConfigurateHelper, String, T> getter) {
+        this.key = key;
+        this.getter = getter;
+        this.defaultValue = defaultValue;
+        this.comment = comment;
+    }
 
     public static ConfigurationKey<?> getComment(String key, String comment) {
         return new ConfigurationKey<>(key, null, comment, (x, y) -> {
             throw new UnsupportedOperationException();
         });
+    }
+
+    public String key() {
+        return key;
+    }
+
+    public BiFunction<ConfigurateHelper, String, T> getter() {
+        return getter;
+    }
+
+    public T defaultValue() {
+        return defaultValue;
+    }
+
+    public String comment() {
+        return comment;
+    }
+
+    public void setDefault(T defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     public T compute(ConfigurateHelper configurateHelper) {

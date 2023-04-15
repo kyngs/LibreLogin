@@ -42,6 +42,7 @@ import java.util.UUID;
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
 
 public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
+
     private final PaperBootstrap bootstrap;
     private PaperListeners listeners;
     private boolean started;

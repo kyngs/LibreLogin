@@ -51,4 +51,6 @@ public interface PlatformHandle<P, S> {
     String getPlayersVirtualHost(P player);
 
     String getUsernameForPlayer(P player);
+
+    String getPlatformIdentifier();
 }
