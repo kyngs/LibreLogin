@@ -19,9 +19,9 @@ repositories {
     maven { url = "https://hub.spigotmc.org/nexus/" }
     maven { url = "https://mvn.exceptionflug.de/repository/exceptionflug-public/" }
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
-    //maven { url = "https://repo.dmulloy2.net/repository/public/" }
+    maven { url = "https://repo.dmulloy2.net/repository/public/" }
     maven { url = "https://repo.alessiodp.com/releases/" }
-    maven { url = "https://repo.kyngs.xyz/repository/maven-public/" }
+    //maven { url = "https://repo.kyngs.xyz/repository/maven-public/" }
 }
 
 blossom {

@@ -205,7 +205,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
             Optional<ClientPublicKey> clientKey;
 
-            if (MinecraftVersion.atOrAbove(new MinecraftVersion(1, 19, 3))) {
+            if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 3))) {
                 clientKey = Optional.empty();
             } else {
                 var profileKey = packet.getOptionals(BukkitConverters.getWrappedPublicKeyDataConverter())
@@ -335,7 +335,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
      */
     private void receiveFakeStartPacket(String username, ClientPublicKey clientKey, Player player) {
         PacketContainer startPacket;
-        if (MinecraftVersion.atOrAbove(new MinecraftVersion(1, 19, 0))) {
+        if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 0))) {
             startPacket = new PacketContainer(START);
             startPacket.getStrings().write(0, username);
 
@@ -468,8 +468,8 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     private boolean verifyNonce(PacketContainer packet,
                                 ClientPublicKey clientPublicKey, byte[] expectedToken) {
         try {
-            if (MinecraftVersion.atOrAbove(new MinecraftVersion(1, 19, 0))
-                    && !MinecraftVersion.atOrAbove(new MinecraftVersion(1, 19, 3))) {
+            if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 0))
+                    && !MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 3))) {
                 Either<byte[], ?> either = packet.getSpecificModifier(Either.class).read(0);
                 if (clientPublicKey == null) {
                     Optional<byte[]> left = either.left();
