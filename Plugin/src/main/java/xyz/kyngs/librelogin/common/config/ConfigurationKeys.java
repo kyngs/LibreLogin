@@ -230,7 +230,7 @@ public class ConfigurationKeys {
 
     public static final ConfigurationKey<Boolean> PING_SERVERS = new ConfigurationKey<>(
             "ping-servers",
-            true,
+            false,
             "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Should we ping servers to check if they are online, and get their player count? If you disable this, the pinging servers message will still appear in the console, even though the servers will not be pinged.",
             ConfigurateHelper::getBoolean
     );
