@@ -78,6 +78,13 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
             }
         });
 
+        plugin.getLogger().debug("List of registered servers: ");
+
+
+        for (S server : plugin.getPlatformHandle().getServers()) {
+            plugin.getLogger().debug("Server: " + plugin.getPlatformHandle().getServerName(server) + " | " + server);
+        }
+
         if (plugin.getConfiguration().get(ConfigurationKeys.PING_SERVERS)) plugin.getLogger().info("Pinged servers...");
     }
 
