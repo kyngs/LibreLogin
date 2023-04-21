@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 import net.byteflux.libby.Library;
 import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
+import org.apache.logging.log4j.LogManager;
 import org.bstats.charts.CustomChart;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.BiHolder;
@@ -51,6 +52,7 @@ import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabasePro
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
+import xyz.kyngs.librelogin.common.log.LogFilter;
 import xyz.kyngs.librelogin.common.migrate.AegisSQLMigrateReadProvider;
 import xyz.kyngs.librelogin.common.migrate.AuthMeSQLMigrateReadProvider;
 import xyz.kyngs.librelogin.common.migrate.DBASQLMigrateReadProvider;
@@ -189,6 +191,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     }
 
     protected void enable() {
+        ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).addFilter(new LogFilter());
+
         version = SemanticVersion.parse(getVersion());
         if (logger == null) logger = provideLogger();
 

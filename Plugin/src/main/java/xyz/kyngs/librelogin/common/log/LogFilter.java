@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package xyz.kyngs.librelogin.paper.log;
+package xyz.kyngs.librelogin.common.log;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
@@ -39,7 +39,8 @@ public class LogFilter implements Filter {
 
     private Result checkMessage(String message) {
 
-        if (!message.contains("issued server command: /")) return Result.NEUTRAL;
+        if (!message.contains("issued server command: /") && !message.contains("executed command /") && !message.contains("executed command: /"))
+            return Result.NEUTRAL;
 
         for (String command : PROTECTED_COMMANDS) {
             if (message.contains(command)) return Result.DENY;

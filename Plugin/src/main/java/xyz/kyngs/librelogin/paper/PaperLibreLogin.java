@@ -16,7 +16,6 @@ import net.byteflux.libby.Library;
 import net.byteflux.libby.LibraryManager;
 import net.byteflux.libby.PaperLibraryManager;
 import net.kyori.adventure.audience.Audience;
-import org.apache.logging.log4j.LogManager;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
@@ -30,7 +29,6 @@ import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
-import xyz.kyngs.librelogin.paper.log.LogFilter;
 
 import java.io.File;
 import java.io.InputStream;
@@ -137,8 +135,6 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             disable();
             return;
         }
-
-        ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).addFilter(new LogFilter());
 
         try {
             super.enable();
