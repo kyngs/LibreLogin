@@ -4,6 +4,19 @@ Open-source, multiplatform, and highly customizable authentication plugin with o
 
 # Quick information
 
+<a href="https://discord.gg/HP3CSfCv2v">
+<img src="https://img.shields.io/badge/Discord-%20SUPPORT-blue?style=for-the-badge&logo=discord&logoColor=white" 
+alt="Support available on Discord">
+</img>
+<a href="https://github.com/kyngs/LibreLogin/wiki">
+<img src="https://img.shields.io/badge/Documentation-555555?style=for-the-badge&logo=wikipedia" alt="Documentation on the Wiki"></img>
+</a>
+<a href="https://github.com/kyngs/LibreLogin/graphs/contributors">
+<br />
+<img src="https://img.shields.io/badge/Contributors-Credits-blue?style=for-the-badge" 
+alt="Contributors listed"></img>
+</a>
+
 ## Basic set of features
 
 - AutoLogin for premium players
