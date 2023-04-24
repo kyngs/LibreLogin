@@ -38,7 +38,13 @@ public class RegisterCommand<P> extends AuthorizationCommand<P> {
 
             var provider = plugin.getDefaultCryptoProvider();
 
-            user.setHashedPassword(provider.createHash(password));
+            var hash = provider.createHash(password);
+
+            if (hash == null) {
+                throw new InvalidCommandArgument(getMessage("error-password-too-long"));
+            }
+
+            user.setHashedPassword(hash);
 
             sender.sendMessage(getMessage("info-registered"));
 

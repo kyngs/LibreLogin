@@ -6,6 +6,8 @@
 
 package xyz.kyngs.librelogin.api.crypto;
 
+import javax.annotation.Nullable;
+
 /**
  * This interface manages passwords for its own algorithm. Each algorithm must implement this interface.
  *
@@ -17,8 +19,9 @@ public interface CryptoProvider {
      * Creates a {@link HashedPassword} from a password.
      *
      * @param password The password (in plaintext).
-     * @return The hashed password.
+     * @return Hashed password or null if hashing failed (e.g. password is too long).
      */
+    @Nullable
     HashedPassword createHash(String password);
 
     /**

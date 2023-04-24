@@ -242,10 +242,16 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
                 throw new InvalidCommandArgument(getMessage("error-occupied-user"));
             }
 
+            var hashedPassword = plugin.getDefaultCryptoProvider().createHash(password);
+
+            if (hashedPassword == null) {
+                throw new InvalidCommandArgument(getMessage("error-password-too-long"));
+            }
+
             user = new AuthenticUser(
                     plugin.generateNewUUID(name, plugin.getUserOrThrowICA(name).uuid()),
                     null,
-                    plugin.getDefaultCryptoProvider().createHash(password),
+                    hashedPassword,
                     name,
                     Timestamp.valueOf(LocalDateTime.now()),
                     Timestamp.valueOf(LocalDateTime.now()),
@@ -311,7 +317,13 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
 
             var defaultProvider = plugin.getDefaultCryptoProvider();
 
-            user.setHashedPassword(defaultProvider.createHash(password));
+            var hashedPassword = defaultProvider.createHash(password);
+
+            if (hashedPassword == null) {
+                throw new InvalidCommandArgument(getMessage("error-password-too-long"));
+            }
+
+            user.setHashedPassword(hashedPassword);
 
             getDatabaseProvider().updateUser(user);
 

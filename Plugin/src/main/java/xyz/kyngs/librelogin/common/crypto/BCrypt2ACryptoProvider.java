@@ -11,6 +11,8 @@ import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 import xyz.kyngs.librelogin.common.util.CryptoUtil;
 
+import javax.annotation.Nullable;
+
 public class BCrypt2ACryptoProvider implements CryptoProvider {
 
     public static final BCrypt.Hasher HASHER = BCrypt
@@ -19,18 +21,30 @@ public class BCrypt2ACryptoProvider implements CryptoProvider {
             .verifyer(BCrypt.Version.VERSION_2A);
 
     @Override
+    @Nullable
     public HashedPassword createHash(String password) {
+        String hash;
+        try {
+            hash = HASHER.hashToString(10, password.toCharArray());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
         return CryptoUtil.convertFromBCryptRaw(
-                HASHER.hashToString(10, password.toCharArray())
+                hash
         );
     }
 
     @Override
     public boolean matches(String input, HashedPassword password) {
         var raw = CryptoUtil.rawFromHashed(password).toCharArray();
-        var result = VERIFIER.verify(input.toCharArray(),
-                raw
-        );
+        BCrypt.Result result;
+        try {
+            result = VERIFIER.verify(input.toCharArray(),
+                    raw
+            );
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
 
         return result.verified;
     }

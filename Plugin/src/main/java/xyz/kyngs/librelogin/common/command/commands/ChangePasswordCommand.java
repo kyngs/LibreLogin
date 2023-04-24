@@ -39,7 +39,13 @@ public class ChangePasswordCommand<P> extends Command<P> {
 
             var defaultProvider = plugin.getDefaultCryptoProvider();
 
-            user.setHashedPassword(defaultProvider.createHash(newPass));
+            var hash = defaultProvider.createHash(newPass);
+
+            if (hash == null) {
+                throw new InvalidCommandArgument(getMessage("error-password-too-long"));
+            }
+
+            user.setHashedPassword(hash);
 
             getDatabaseProvider().updateUser(user);
 

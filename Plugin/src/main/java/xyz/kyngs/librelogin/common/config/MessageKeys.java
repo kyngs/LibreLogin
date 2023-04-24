@@ -231,6 +231,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_PASSWORD_TOO_LONG = new ConfigurationKey<>(
+            "error-password-too-long",
+            "The password is too long!",
+            "This message is displayed when the player tries to register with a password that is too long.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_PASSWORD_CORRUPTED = new ConfigurationKey<>(
             "error-password-corrupted",
             "Your password is corrupted, please contact an administrator!",
