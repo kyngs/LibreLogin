@@ -58,4 +58,4 @@ LibrePremium is FOSS software, licensed under the Mozilla Public License 2.0.
 
 [Read the license here.](https://github.com/kyngs/LibreLogin/blob/master/LICENSE)
 
-The plugin **is and always** will be completely open-source, so you don't need to be worried about malicous copies.
+The plugin **is and always** will be completely open-source, so you don't need to worry about malicous copies.
