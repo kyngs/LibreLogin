@@ -1,3 +1,4 @@
+
 # LibreLogin
 
 Open-source, multiplatform, and highly customizable authentication plugin with outstanding features and API.
@@ -23,11 +24,12 @@ alt="Contributors listed"></img>
 ## Basic set of features
 
 - AutoLogin for premium players
+- TOTP 2FA (Authy, Google Authenticator..) [details](https://github.com/kyngs/LibreLogin/wiki/2FA)
 - Session system
 - Name Validation (Including case sensitivity check)
 - Automatic data migration for premium players
 - Migration of a player's data by using one command
-- Geyser support [Floodgate](https://github.com/kyngs/LibreLogin/wiki/Floodgate)
+- Geyser (Bedrock) support using [Floodgate](https://github.com/kyngs/LibreLogin/wiki/Floodgate)
 
 ## Considerations
 
@@ -43,13 +45,15 @@ alt="Contributors listed"></img>
 
 Please check our wiki for guides, features and other things.
 
-# Contact
-
-[Please join our discord](https://discord.gg/HP3CSfCv2v).
-
 # Special thanks
 
 - [Raixo](https://github.com/RAIXOCZ) - for developing the original bungeecord port
 - [FastLogin contributors](https://github.com/games647/FastLogin) - for their work, which was used as a base for the
   paper port
 - [Fejby](https://github.com/Fejby) - For providing Floodgate test server and helping with testing
+
+# License
+
+LibrePremium is FOSS software, licensed under the Mozilla Public License 2.0.
+[Read the license here.](https://github.com/kyngs/LibreLogin/blob/master/LICENSE)
+The plugin *is and always* will be completely open-source, so you don't need to be worried about malicous copies.
