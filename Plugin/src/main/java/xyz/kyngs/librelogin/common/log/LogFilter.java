@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.common.log;
 
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LogEvent;
@@ -35,6 +36,10 @@ public class LogFilter implements Filter {
         PROTECTED_COMMANDS.add("changepass");
         PROTECTED_COMMANDS.add("passch");
         PROTECTED_COMMANDS.add("passwd");
+    }
+
+    public void injectToRoot() {
+        ((Logger) LogManager.getRootLogger()).addFilter(new LogFilter());
     }
 
     private Result checkMessage(String message) {
