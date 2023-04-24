@@ -40,6 +40,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         fetchers = new ArrayList<>(3);
 
         fetchers.add(this::getUserFromMojang);
+        fetchers.add(this::getUserFromPlayerDB);
         fetchers.add(this::getUserFromAschon);
     }
 
@@ -96,11 +97,40 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 case 404 -> {
                     return null;
                 }
-                case 429 -> throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
-                default -> throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+                case 429 ->
+                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             }
         } catch (IOException e) {
-            throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
+            throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, e);
+        }
+    }
+
+    private PremiumUser getUserFromPlayerDB(String name) throws PremiumException {
+        try {
+            plugin.reportMainThread();
+            var connection = (HttpURLConnection) new URL("https://playerdb.co/api/player/minecraft/" + name).openConnection();
+
+            switch (connection.getResponseCode()) {
+                case 200 -> {
+                    var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+
+                    var id = data.get("data").getAsJsonObject().get("player").getAsJsonObject().get("id").getAsString();
+
+                    return new PremiumUser(
+                            GeneralUtil.fromUnDashedUUID(id),
+                            data.get("data").getAsJsonObject().get("player").getAsJsonObject().get("username").getAsString()
+                    );
+                }
+                case 500 -> {
+                    return null;
+                }
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+            }
+        } catch (IOException e) {
+            throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, e);
         }
     }
 
@@ -110,9 +140,11 @@ public class AuthenticPremiumProvider implements PremiumProvider {
             var connection = (HttpURLConnection) new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openConnection();
 
             return switch (connection.getResponseCode()) {
-                case 429 -> throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                case 429 ->
+                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 204, 404 -> null;
-                default -> throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 200 -> {
                     var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
@@ -124,7 +156,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                             data.get("name").getAsString()
                     );
                 }
-                case 500 -> throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
+                case 500 ->
+                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
             };
         } catch (IOException e) {
             throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
