@@ -587,7 +587,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         var file = new File(getDataFolder(), "forbidden-passwords.txt");
 
         if (!file.exists()) {
-            Files.copy(getResourceAsStream("forbidden-passwords.txt"), file.toPath());
+            Files.copy(getResourceAsStream("forbidden-passwords-template.txt"), file.toPath());
         }
 
         try (var reader = new BufferedReader(new FileReader(file))) {
