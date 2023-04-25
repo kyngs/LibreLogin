@@ -6,10 +6,7 @@
 
 package xyz.kyngs.librelogin.common.command.commands.staff;
 
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
@@ -21,7 +18,6 @@ import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
-import javax.annotation.Syntax;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
