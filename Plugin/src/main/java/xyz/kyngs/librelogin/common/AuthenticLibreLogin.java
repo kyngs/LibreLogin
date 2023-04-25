@@ -88,6 +88,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private final Multimap<P, CancellableTask> cancelOnExit;
     private final PlatformHandle<P, S> platformHandle;
     private final Set<String> forbiddenPasswords;
+    protected Logger logger;
     private AuthenticPremiumProvider premiumProvider;
     private AuthenticEventProvider<P, S> eventProvider;
     private AuthenticServerHandler<P, S> serverHandler;
@@ -95,7 +96,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
     private SemanticVersion version;
-    protected Logger logger;
     private HoconPluginConfiguration configuration;
     private HoconMessages messages;
     private AuthenticAuthorizationProvider<P, S> authorizationProvider;
@@ -587,13 +587,30 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         var file = new File(getDataFolder(), "forbidden-passwords.txt");
 
         if (!file.exists()) {
-            Files.copy(getResourceAsStream("forbidden-passwords-template.txt"), file.toPath());
+            logger.info("Forbidden passwords list doesn't exist, downloading...");
+            try (BufferedInputStream in = new BufferedInputStream(new URL("https://raw.githubusercontent.com/kyngs/LibreLogin/dev/forbidden-passwords.txt").openStream())) {
+                if (!file.createNewFile()) {
+                    throw new IOException("Failed to create file");
+                }
+                try (var fos = new FileOutputStream(file)) {
+                    var dataBuffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                        fos.write(dataBuffer, 0, bytesRead);
+                    }
+                }
+                logger.info("Successfully downloaded forbidden passwords list");
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.warn("Failed to download forbidden passwords list, using template instead");
+                Files.copy(getResourceAsStream("forbidden-passwords-template.txt"), file.toPath());
+            }
         }
 
         try (var reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.startsWith("#")) {
+                if (line.startsWith("# ")) {
                     continue;
                 }
                 forbiddenPasswords.add(line.toUpperCase(Locale.ROOT));
