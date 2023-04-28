@@ -1,7 +1,7 @@
 
 # LibreLogin
 
-Formerly LibrePremium is an open-source, multiplatform, and highly customizable authentication plugin with outstanding features and API.
+(formerly LibrePremium) is an open-source, multiplatform, and highly customizable authentication plugin with outstanding features and API.
 
 # Quick information
 
@@ -26,7 +26,7 @@ alt="Contributors listed"></img>
 - AutoLogin for premium players
 - TOTP 2FA (Authy, Google Authenticator..) [details](https://github.com/kyngs/LibreLogin/wiki/2FA)
 - session system
-- name Validation (Including case sensitivity check)
+- name validation (including case sensitivity check)
 - automatic data migration for premium players
 - migration of a player's data by using one command
 - Geyser (Bedrock) support using [Floodgate](https://github.com/kyngs/LibreLogin/wiki/Floodgate)
