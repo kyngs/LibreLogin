@@ -33,7 +33,7 @@ alt="Contributors listed"></img>
 
 ## Considerations
 
-- when using on Proxy, you need to secure your limbo
+- when using on proxy, you need to secure your limbo
 
 ## Platforms
 
