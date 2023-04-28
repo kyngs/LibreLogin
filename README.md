@@ -1,7 +1,7 @@
 
 # LibreLogin
 
-Open-source, multiplatform, and highly customizable authentication plugin with outstanding features and API.
+Formerly LibrePremium is an open-source, multiplatform, and highly customizable authentication plugin with outstanding features and API.
 
 # Quick information
 
@@ -25,15 +25,15 @@ alt="Contributors listed"></img>
 
 - AutoLogin for premium players
 - TOTP 2FA (Authy, Google Authenticator..) [details](https://github.com/kyngs/LibreLogin/wiki/2FA)
-- Session system
-- Name Validation (Including case sensitivity check)
-- Automatic data migration for premium players
-- Migration of a player's data by using one command
+- session system
+- name Validation (Including case sensitivity check)
+- automatic data migration for premium players
+- migration of a player's data by using one command
 - Geyser (Bedrock) support using [Floodgate](https://github.com/kyngs/LibreLogin/wiki/Floodgate)
 
 ## Considerations
 
-- When using on Proxy, you need to secure your limbo
+- when using on Proxy, you need to secure your limbo
 
 ## Platforms
 
@@ -41,9 +41,9 @@ alt="Contributors listed"></img>
 - [x] BungeeCord
 - [x] Paper
 
-## Wiki
+## References
 
-Please check our wiki for guides, features and other things.
+- check out [reviews](https://www.spigotmc.org/resources/librelogin-authorization-plugin-automatic-login-2fa.101040/reviews) on spigotmc.org  
 
 # Special thanks
 
@@ -54,8 +54,8 @@ Please check our wiki for guides, features and other things.
 
 # License
 
-LibrePremium is FOSS software, licensed under the Mozilla Public License 2.0.
+LibrePremium is [FOSS](https://en.wikipedia.org/wiki/Free_and_open-source_software), licensed under the Mozilla Public License 2.0.
 
 [Read the license here.](https://github.com/kyngs/LibreLogin/blob/master/LICENSE)
 
-The plugin **is and always** will be completely open-source, so you don't need to worry about malicous copies.
+The plugin **is and always will be** completely open-source, so you don't need to worry about malicous copies.
