@@ -65,6 +65,7 @@ public class ConfigurationKeys {
                     SHA-256 - Older, not recommended. Kept for compatibility reasons.
                     SHA-512 - More safer than SHA-256, but still not recommended. Kept for compatibility reasons.
                     BCrypt-2A - Newer, more safe, recommended
+                    Argon-2ID - Newest, should be safer than BCrypt-2A, however, it can slow down the server.
                     """,
             ConfigurateHelper::getString
     );

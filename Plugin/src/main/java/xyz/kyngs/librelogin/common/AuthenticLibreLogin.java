@@ -40,6 +40,7 @@ import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.common.config.HoconMessages;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
+import xyz.kyngs.librelogin.common.crypto.Argon2IDCryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.BCrypt2ACryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.MessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
@@ -336,6 +337,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 .version("3.4.0")
                 .build()
         );
+        dependencies.add(Library.builder()
+                .groupId("org{}bouncycastle")
+                .artifactId("bcprov-jdk18on")
+                .version("1.73")
+                .build()
+        );
 
         dependencies.forEach(libraryManager::loadLibrary);
 
@@ -354,6 +361,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
+        registerCryptoProvider(new Argon2IDCryptoProvider(logger));
 
         registerDatabaseConnector(new DatabaseConnectorRegistration<>(
                         prefix -> new AuthenticMySQLDatabaseConnector(this, prefix),
