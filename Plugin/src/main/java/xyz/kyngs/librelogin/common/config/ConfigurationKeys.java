@@ -24,7 +24,10 @@ public class ConfigurationKeys {
                     "login",
                     "register",
                     "2fa",
-                    "2faconfirm"
+                    "2faconfirm",
+                    "l",
+                    "log",
+                    "reg"
             ),
             "Commands that are allowed while the user is not authorized.",
             ConfigurateHelper::getStringList
