@@ -123,7 +123,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
         var data = readOnlyUserCache.getIfPresent(event.getPlayer().getUniqueId());
-        if (data == null) {
+        if (data == null && !plugin.fromFloodgate(event.getPlayer().getName())) {
             event.getPlayer().kick(Component.text("Internal error, please try again later."));
             return;
         }
