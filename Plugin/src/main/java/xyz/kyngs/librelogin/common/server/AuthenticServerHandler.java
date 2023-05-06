@@ -10,6 +10,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.LimboServerChooseEvent;
 import xyz.kyngs.librelogin.api.event.events.LobbyServerChooseEvent;
@@ -94,8 +95,8 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
     }
 
     @Override
-    public S chooseLobbyServer(User user, P player, boolean remember) {
-        if (remember && plugin.getConfiguration().get(REMEMBER_LAST_SERVER)) {
+    public S chooseLobbyServer(@Nullable User user, P player, boolean remember) {
+        if (user != null && remember && plugin.getConfiguration().get(REMEMBER_LAST_SERVER)) {
             var last = user.getLastServer();
 
             if (last != null) {

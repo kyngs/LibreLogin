@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.api.server;
 
 import com.google.common.collect.Multimap;
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.database.User;
 
 import java.util.Collection;
@@ -31,12 +32,12 @@ public interface ServerHandler<P, S> {
     /**
      * Chooses an optimal lobby server to connect the player to. Usually the one with the lowest player count.
      *
-     * @param user     The user of the player
+     * @param user     The user of the player, or null if the player is from bedrock
      * @param player   The player we're choosing the server for
      * @param remember Whether to respect the remember last server option
      * @return An optimal lobby server, or null if there are no lobby servers
      */
-    S chooseLobbyServer(User user, P player, boolean remember);
+    S chooseLobbyServer(@Nullable User user, P player, boolean remember);
 
     /**
      * Chooses an optimal limbo server to connect the player to. Usually the one with the lowest player count.
