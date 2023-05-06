@@ -33,6 +33,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
     }
 
     @Subcommand("about")
+    @Default
     public CompletionStage<Void> onAbout(Audience audience) {
         return runAsync(() -> audience.sendMessage(getMessage("info-about",
                 "%version%", plugin.getVersion()
