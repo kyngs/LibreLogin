@@ -422,6 +422,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 SQLiteDatabaseConnector.class
         ));
 
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
+                "nlogin-mysql",
+                MySQLDatabaseConnector.class
+        ));
+
         checkDataFolder();
 
         logger.info("Loading messages...");
