@@ -2,7 +2,7 @@ name: "LibreLogin"
 author: "kyngs"
 version: '${version}'
 main: "xyz.kyngs.librelogin.bungeecord.BungeeCordBootstrap"
-softdepends:
+softDepends:
   - "RedisBungee"
   - "floodgate"
   - "Protocolize"
