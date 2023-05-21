@@ -259,4 +259,11 @@ public class ConfigurationKeys {
             "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Should we fallback players to lobby servers if the server they are on shutdowns? If set to false, they will be kicked.",
             ConfigurateHelper::getBoolean
     );
+
+    public static final ConfigurationKey<Integer> TOTP_DELAY = new ConfigurationKey<>(
+            "totp.delay",
+            1000,
+            "The delay in milliseconds until player is given a map to scan the QR code. Increase this value if the map disappears too quickly.",
+            ConfigurateHelper::getInt
+    );
 }

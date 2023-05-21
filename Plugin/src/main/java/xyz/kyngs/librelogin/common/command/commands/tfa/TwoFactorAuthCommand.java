@@ -12,6 +12,7 @@ import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.Command;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 
 import java.util.concurrent.CompletionStage;
 
@@ -49,7 +50,7 @@ public class TwoFactorAuthCommand<P> extends Command<P> {
                 plugin.getImageProjector().project(data.qr(), player);
 
                 sender.sendMessage(getMessage("totp-show-info"));
-            }, 250), player);
+            }, plugin.getConfiguration().get(ConfigurationKeys.TOTP_DELAY)), player);
         });
     }
 }
