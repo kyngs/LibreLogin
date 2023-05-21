@@ -53,10 +53,7 @@ import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
 import xyz.kyngs.librelogin.common.log.LogFilter;
-import xyz.kyngs.librelogin.common.migrate.AegisSQLMigrateReadProvider;
-import xyz.kyngs.librelogin.common.migrate.AuthMeSQLMigrateReadProvider;
-import xyz.kyngs.librelogin.common.migrate.DBASQLMigrateReadProvider;
-import xyz.kyngs.librelogin.common.migrate.JPremiumSQLMigrateReadProvider;
+import xyz.kyngs.librelogin.common.migrate.*;
 import xyz.kyngs.librelogin.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librelogin.common.server.AuthenticServerHandler;
 import xyz.kyngs.librelogin.common.totp.AuthenticTOTPProvider;
@@ -417,6 +414,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "jpremium-mysql",
                 MySQLDatabaseConnector.class
+        ));
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
+                "nlogin-sqlite",
+                SQLiteDatabaseConnector.class
         ));
 
         checkDataFolder();
