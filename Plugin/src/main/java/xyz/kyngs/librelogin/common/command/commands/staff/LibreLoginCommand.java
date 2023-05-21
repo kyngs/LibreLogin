@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.common.command.commands.staff;
 
 import co.aikar.commands.annotation.*;
+import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
@@ -18,12 +19,16 @@ import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletionStage;
 
 import static xyz.kyngs.librelogin.common.AuthenticLibreLogin.DATE_TIME_FORMATTER;
+import static xyz.kyngs.librelogin.common.AuthenticLibreLogin.GSON;
 
 @CommandAlias("librelogin")
 public class LibreLoginCommand<P> extends StaffCommand<P> {
@@ -38,6 +43,59 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         return runAsync(() -> audience.sendMessage(getMessage("info-about",
                 "%version%", plugin.getVersion()
         )));
+    }
+
+    @Subcommand("dump")
+    @CommandPermission("librelogin.dump")
+    public CompletionStage<Void> onDump(Audience audience) {
+        return runAsync(() -> {
+            audience.sendMessage(getMessage("info-dumping"));
+
+            var dumpFolder = new File(plugin.getDataFolder(), "dumps");
+
+            if (!dumpFolder.exists()) {
+                dumpFolder.mkdirs();
+            }
+
+            var dumpFile = new File(dumpFolder, "dump-%date%.json".replace("%date%", DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss").format(LocalDateTime.now())));
+
+            if (dumpFile.exists()) {
+                dumpFile.delete();
+            }
+
+            try {
+                dumpFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new InvalidCommandArgument(getMessage("error-unknown"));
+            }
+
+            var dump = new JsonObject();
+
+            dump.addProperty("version", plugin.getVersion());
+            dump.addProperty("date", DATE_TIME_FORMATTER.format(LocalDateTime.now()));
+
+            var server = new JsonObject();
+
+            var proxyData = plugin.getPlatformHandle().getProxyData();
+
+            server.addProperty("name", proxyData.name());
+            server.add("plugins", GSON.toJsonTree(proxyData.plugins()));
+            server.add("servers", GSON.toJsonTree(proxyData.servers()));
+            server.add("limbos", GSON.toJsonTree(proxyData.limbos()));
+            server.add("lobbies", GSON.toJsonTree(proxyData.lobbies()));
+
+            dump.add("server", server);
+
+            try (var writer = new FileWriter(dumpFile)) {
+                writer.write(GSON.toJson(dump));
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new InvalidCommandArgument(getMessage("error-unknown"));
+            }
+
+            audience.sendMessage(getMessage("info-dumped", "%file%", dumpFile.getPath()));
+        });
     }
 
     @Subcommand("reload configuration")

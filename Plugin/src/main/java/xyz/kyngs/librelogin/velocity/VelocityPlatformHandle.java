@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.velocity;
 
+import com.google.common.base.MoreObjects;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.audience.Audience;
@@ -125,5 +126,20 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
     @Override
     public String getPlatformIdentifier() {
         return "velocity";
+    }
+
+    @Override
+    public ProxyData getProxyData() {
+        return new ProxyData(
+                plugin.getServer().getVersion().toString(),
+                getServers().stream().map(Object::toString).toList(),
+                plugin.getServer().getPluginManager().getPlugins().stream().map(plugin ->
+                        MoreObjects.toStringHelper(plugin.getInstance().orElse(null))
+                                .add("desc", plugin.getDescription().toString())
+                                .toString()
+                ).toList(),
+                plugin.getServerHandler().getLimboServers().stream().map(Object::toString).toList(),
+                plugin.getServerHandler().getLobbyServers().values().stream().map(Object::toString).toList()
+        );
     }
 }

@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.bungeecord;
 
+import com.google.common.base.MoreObjects;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -145,6 +146,36 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
     @Override
     public String getPlatformIdentifier() {
         return "bungeecord";
+    }
+
+    @Override
+    public ProxyData getProxyData() {
+        return new ProxyData(
+                plugin.getBootstrap().getProxy().getName() + " " + plugin.getBootstrap().getProxy().getVersion(),
+                getServers().stream().map(this::fromServer).toList(),
+                plugin.getBootstrap().getProxy().getPluginManager().getPlugins().stream().map(plugin ->
+                        MoreObjects.toStringHelper(plugin)
+                                .add("name", plugin.getDescription().getName())
+                                .add("version", plugin.getDescription().getVersion())
+                                .add("author", plugin.getDescription().getAuthor())
+                                .add("main", plugin.getDescription().getMain())
+                                .toString()
+                ).toList(),
+                plugin.getServerHandler().getLimboServers().stream().map(this::fromServer).toList(),
+                plugin.getServerHandler().getLobbyServers().values().stream().map(this::fromServer).toList()
+        );
+    }
+
+    private String fromServer(ServerInfo server) {
+        return MoreObjects.toStringHelper(server)
+                .add("name", server.getName())
+                .add("address", server.getAddress().getAddress().getHostAddress())
+                .add("port", server.getAddress().getPort())
+                .add("motd", server.getMotd())
+                .add("restricted", server.isRestricted())
+                .add("online", server.getPlayers().size())
+                .add("max", server.getPlayers().size())
+                .toString();
     }
 
 

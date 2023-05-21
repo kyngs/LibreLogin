@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -53,4 +54,10 @@ public interface PlatformHandle<P, S> {
     String getUsernameForPlayer(P player);
 
     String getPlatformIdentifier();
+
+    ProxyData getProxyData();
+
+    record ProxyData(String name, List<String> servers, List<String> plugins, List<String> limbos,
+                     List<String> lobbies) {
+    }
 }

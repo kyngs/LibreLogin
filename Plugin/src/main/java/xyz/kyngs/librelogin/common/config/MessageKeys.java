@@ -451,6 +451,20 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> INFO_DUMPING = new ConfigurationKey<>(
+            "info-dumping",
+            "Creating dump...",
+            "This message is displayed when a user executes /librelogin dump.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_DUMPED = new ConfigurationKey<>(
+            "info-dumped",
+            "Dump saved to %file%!",
+            "This message is displayed when a user executes /librelogin dump.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> INFO_DELETING = new ConfigurationKey<>(
             "info-deleting",
             "Deleting...",

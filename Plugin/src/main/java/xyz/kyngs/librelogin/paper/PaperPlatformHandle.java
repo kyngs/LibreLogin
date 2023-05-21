@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.paper;
 
+import com.google.common.base.MoreObjects;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
@@ -14,6 +15,7 @@ import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -134,4 +136,32 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
     public String getPlatformIdentifier() {
         return "paper";
     }
+
+    @Override
+    public ProxyData getProxyData() {
+        return new ProxyData(
+                Bukkit.getName() + " " + Bukkit.getVersion(),
+                getServers().stream().map(this::fromWorld).toList(),
+                Arrays.stream(Bukkit.getPluginManager().getPlugins()).map(plugin ->
+                        MoreObjects.toStringHelper(plugin)
+                                .add("name", plugin.getName())
+                                .add("version", plugin.getDescription().getVersion())
+                                .add("authors", plugin.getDescription().getAuthors())
+                                .toString()
+                ).toList(),
+                plugin.getServerHandler().getLimboServers().stream().map(this::fromWorld).toList(),
+                plugin.getServerHandler().getLobbyServers().values().stream().map(this::fromWorld).toList()
+        );
+    }
+
+    private String fromWorld(World world) {
+        return MoreObjects.toStringHelper(world)
+                .add("name", world.getName())
+                .add("environment", world.getEnvironment())
+                .add("difficulty", world.getDifficulty())
+                .add("players", world.getPlayers().size())
+                .toString();
+
+    }
+
 }
