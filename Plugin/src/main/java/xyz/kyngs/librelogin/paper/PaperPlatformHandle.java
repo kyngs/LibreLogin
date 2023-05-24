@@ -94,7 +94,7 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
 
     @Override
     public String getIP(Player player) {
-        return player.getAddress().getHostName();
+        return player.getAddress().getAddress().getHostAddress();
     }
 
     @Override

@@ -117,7 +117,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPostLogin(PlayerLoginEvent event) {
-        ipCache.put(event.getPlayer(), event.getAddress().getHostName());
+        ipCache.put(event.getPlayer(), event.getAddress().getHostAddress());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
