@@ -92,7 +92,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
         if (event.kickedDuringServerConnect()) {
             event.setResult(KickedFromServerEvent.Notify.create(message));
         } else {
-            if (!plugin.getConfiguration().get(ConfigurationKeys.FALLBACK)) {
+            if (!plugin.getConfiguration().get(ConfigurationKeys.FALLBACK) || plugin.getServerHandler().getLobbyServers().containsValue(event.getServer())) {
                 event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
             } else {
                 var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);

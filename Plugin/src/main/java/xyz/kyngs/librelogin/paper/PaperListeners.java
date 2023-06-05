@@ -189,6 +189,8 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         var type = event.getPacketType();
         var packet = event.getPacket();
 
+        plugin.getLogger().info("Packet received " + type + " from " + sender.getName());
+
         if (type == PacketType.Login.Client.START) {
             var sessionKey = sender.getAddress().toString();
 
