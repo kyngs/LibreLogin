@@ -27,8 +27,13 @@ public class ChangePasswordCommand<P> extends Command<P> {
     @CommandCompletion("%autocomplete.change-password")
     public CompletionStage<Void> onPasswordChange(Audience sender, P player, String oldPass, @Single String newPass) {
         return runAsync(() -> {
-            sender.sendMessage(getMessage("info-editing"));
             var user = getUser(player);
+
+            if (!user.isRegistered()) {
+                throw new InvalidCommandArgument(getMessage("error-no-password"));
+            }
+
+            sender.sendMessage(getMessage("info-editing"));
 
             var hashed = user.getHashedPassword();
             var crypto = getCrypto(hashed);

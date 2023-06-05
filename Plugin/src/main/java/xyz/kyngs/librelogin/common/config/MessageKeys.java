@@ -196,6 +196,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_NO_PASSWORD = new ConfigurationKey<>(
+            "error-no-password",
+            "You don't have a password. You can try using /cracked to disable autologin, and then register.",
+            "This message is displayed when the player tries to change password without having one.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> TOTP_NOT_PROVIDED = new ConfigurationKey<>(
             "totp-not-provided",
             "You must provide a 2FA code! Use /login <password> <2FA code>, if you lost your code, contact the admins.",
