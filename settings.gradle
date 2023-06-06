@@ -1,3 +1,4 @@
 rootProject.name = 'LibreLogin'
 include 'Plugin'
+include 'API'
 

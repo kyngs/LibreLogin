@@ -13,6 +13,7 @@ import org.spongepowered.configurate.CommentedConfigurationNode;
 import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
+import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.Messages;
 import xyz.kyngs.librelogin.common.config.migrate.messages.FirstMessagesMigrator;
 import xyz.kyngs.librelogin.common.config.migrate.messages.SecondMessagesMigrator;

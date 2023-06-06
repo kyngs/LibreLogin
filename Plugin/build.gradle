@@ -5,8 +5,6 @@ plugins {
     id 'java-library'
 }
 
-version '0.16.0-DEVELOPMENT'
-
 compileJava {
     options.encoding('UTF-8')
 }
@@ -64,6 +62,9 @@ jar {
 
 
 dependencies {
+    //API
+    implementation project(':API')
+
     //Velocity
     annotationProcessor 'com.velocitypowered:velocity-api:3.1.1'
     compileOnly 'com.velocitypowered:velocity-api:3.1.1'
@@ -96,7 +97,6 @@ dependencies {
 
     //Bungeecord
     compileOnly 'net.md-5:bungeecord-api:1.18-R0.1-SNAPSHOT'
-    implementation 'net.kyori:adventure-platform-bungeecord:4.1.2'
     compileOnly 'com.github.limework.redisbungee:RedisBungee-API:0.7.2'
 
     //BStats

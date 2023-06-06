@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package xyz.kyngs.librelogin.common.config;
+package xyz.kyngs.librelogin.api.configuration;
 
 /**
  * This exception is thrown when the configuration is corrupted.

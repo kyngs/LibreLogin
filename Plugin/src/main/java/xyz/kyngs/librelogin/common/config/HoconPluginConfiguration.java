@@ -9,6 +9,7 @@ package xyz.kyngs.librelogin.common.config;
 import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
+import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 import xyz.kyngs.librelogin.common.config.migrate.config.*;
 

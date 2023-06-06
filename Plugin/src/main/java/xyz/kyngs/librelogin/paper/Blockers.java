@@ -18,6 +18,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
@@ -124,6 +125,18 @@ public class Blockers implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         if (cancellable(event.getPlayer())) {
             event.getPlayer().setInvisible(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDrop(PlayerDropItemEvent event) {
+        cancelIfNeeded(event);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onClick(InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player player) {
+            cancelIfNeeded(player, event);
         }
     }
 
