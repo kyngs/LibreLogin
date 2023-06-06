@@ -11,7 +11,6 @@ import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
-import xyz.kyngs.librelogin.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.config.CorruptedConfigurationException;
@@ -171,7 +170,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
 
         user.setPremiumUUID(id.uuid());
 
-        plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
+        plugin.getEventProvider().unsafeFire(plugin.getEventTypes().premiumLoginSwitch, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
     }
 
     @Subcommand("user migrate")
@@ -195,7 +194,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             user.setLastNickname(newName);
             if (user.getPremiumUUID() != null) {
                 user.setPremiumUUID(null);
-                plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, null, plugin));
+                plugin.getEventProvider().unsafeFire(plugin.getEventTypes().premiumLoginSwitch, new AuthenticPremiumLoginSwitchEvent<>(user, null, plugin));
             }
             getDatabaseProvider().updateUser(user);
 

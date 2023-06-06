@@ -9,7 +9,6 @@ package xyz.kyngs.librelogin.common.command.commands.premium;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Default;
 import net.kyori.adventure.audience.Audience;
-import xyz.kyngs.librelogin.api.event.events.PremiumLoginSwitchEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
 
@@ -32,7 +31,7 @@ public class PremiumDisableCommand<P> extends PremiumCommand<P> {
 
             user.setPremiumUUID(null);
 
-            plugin.getEventProvider().fire(PremiumLoginSwitchEvent.class, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
+            plugin.getEventProvider().unsafeFire(plugin.getEventTypes().premiumLoginSwitch, new AuthenticPremiumLoginSwitchEvent<>(user, player, plugin));
 
             getDatabaseProvider().updateUser(user);
 

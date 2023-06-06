@@ -15,6 +15,7 @@ import xyz.kyngs.librelogin.api.database.ReadWriteDatabaseProvider;
 import xyz.kyngs.librelogin.api.database.WriteDatabaseProvider;
 import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.event.EventProvider;
+import xyz.kyngs.librelogin.api.event.EventTypes;
 import xyz.kyngs.librelogin.api.image.ImageProjector;
 import xyz.kyngs.librelogin.api.premium.PremiumProvider;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
@@ -226,4 +227,13 @@ public interface LibreLoginPlugin<P, S> {
      * @return The server handler
      */
     ServerHandler<P, S> getServerHandler();
+
+    /**
+     * Gets the event types.
+     *
+     * @return The event types
+     */
+    default EventTypes<P, S> getEventTypes() {
+        return getEventProvider().getTypes();
+    }
 }

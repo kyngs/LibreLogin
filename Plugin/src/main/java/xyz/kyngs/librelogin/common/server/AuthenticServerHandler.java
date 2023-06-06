@@ -12,8 +12,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.api.event.events.LimboServerChooseEvent;
-import xyz.kyngs.librelogin.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
@@ -112,7 +110,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
         var event = new AuthenticLobbyServerChooseEvent<>(user, player, plugin);
 
-        plugin.getEventProvider().fire(LobbyServerChooseEvent.class, event);
+        plugin.getEventProvider().fire(plugin.getEventTypes().lobbyServerChoose, event);
 
         if (event.getServer() != null) return event.getServer();
 
@@ -138,7 +136,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
     public S chooseLimboServer(User user, P player) {
         var event = new AuthenticLimboServerChooseEvent<>(user, player, plugin);
 
-        plugin.getEventProvider().fire(LimboServerChooseEvent.class, event);
+        plugin.getEventProvider().fire(plugin.getEventTypes().limboServerChoose, event);
 
         if (event.getServer() != null) return event.getServer();
 

@@ -65,7 +65,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         var audience = platformHandle.getAudienceForPlayer(player);
 
         audience.clearTitle();
-        plugin.getEventProvider().fire(AuthenticatedEvent.class, new AuthenticAuthenticatedEvent<>(user, player, plugin, reason));
+        plugin.getEventProvider().fire(plugin.getEventTypes().authenticated, new AuthenticAuthenticatedEvent<>(user, player, plugin, reason));
         plugin.authorize(player, user, audience);
     }
 

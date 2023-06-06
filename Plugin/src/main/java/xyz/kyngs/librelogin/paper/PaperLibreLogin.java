@@ -24,7 +24,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.database.User;
-import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
@@ -144,8 +143,8 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
         var provider = getEventProvider();
 
-        provider.subscribe(AuthenticatedEvent.class, event -> {
-            var player = (Player) event.getPlayer(); //Not optimal
+        provider.subscribe(provider.getTypes().authenticated, event -> {
+            var player = event.getPlayer();
             player.setInvisible(false);
         });
 

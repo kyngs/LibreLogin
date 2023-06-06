@@ -8,7 +8,6 @@ package xyz.kyngs.librelogin.common.command.commands;
 
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
-import xyz.kyngs.librelogin.api.event.events.PasswordChangeEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.Command;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
@@ -56,7 +55,7 @@ public class ChangePasswordCommand<P> extends Command<P> {
 
             sender.sendMessage(getMessage("info-edited"));
 
-            plugin.getEventProvider().fire(PasswordChangeEvent.class, new AuthenticPasswordChangeEvent<>(user, player, plugin, hashed));
+            plugin.getEventProvider().unsafeFire(plugin.getEventTypes().passwordChange, new AuthenticPasswordChangeEvent<>(user, player, plugin, hashed));
         });
     }
 
