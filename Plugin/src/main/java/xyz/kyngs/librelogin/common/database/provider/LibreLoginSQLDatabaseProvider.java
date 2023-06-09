@@ -163,7 +163,7 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
     public void insertUsers(Collection<User> users) {
         plugin.reportMainThread();
         connector.runQuery(connection -> {
-            var ps = connection.prepareStatement("INSERT " + getIgnoreSyntax() + " INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            var ps = connection.prepareStatement("INSERT " + getIgnoreSyntax() + " INTO librepremium_data(uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" + getIgnoreSuffix());
 
             for (User user : users) {
                 insertToStatement(ps, user);
@@ -258,4 +258,8 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
     protected abstract List<String> getColumnNames(Connection connection) throws SQLException;
 
     protected abstract String getIgnoreSyntax();
+
+    protected String getIgnoreSuffix() {
+        return "";
+    }
 }

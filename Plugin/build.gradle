@@ -77,6 +77,9 @@ dependencies {
     //SQLite
     compileOnly 'org.xerial:sqlite-jdbc:3.40.1.0'
 
+    //PostgreSQL
+    compileOnly 'org.postgresql:postgresql:42.6.0'
+
     //ACF
     implementation 'com.github.kyngs.commands:acf-velocity:object-fix-SNAPSHOT'
     implementation 'com.github.kyngs.commands:acf-bungee:object-fix-SNAPSHOT'

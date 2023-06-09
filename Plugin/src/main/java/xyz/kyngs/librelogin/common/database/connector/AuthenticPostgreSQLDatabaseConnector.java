@@ -8,7 +8,7 @@ package xyz.kyngs.librelogin.common.database.connector;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
+import xyz.kyngs.librelogin.api.database.connector.PostgreSQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.config.ConfigurateHelper;
@@ -18,25 +18,27 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLTransientConnectionException;
 
-public class AuthenticMySQLDatabaseConnector extends AuthenticDatabaseConnector<SQLException, Connection> implements MySQLDatabaseConnector {
+public class AuthenticPostgreSQLDatabaseConnector extends AuthenticDatabaseConnector<SQLException, Connection> implements PostgreSQLDatabaseConnector {
 
     private final HikariConfig hikariConfig;
     private HikariDataSource dataSource;
 
-    public AuthenticMySQLDatabaseConnector(AuthenticLibreLogin<?, ?> plugin, String prefix) {
+    public AuthenticPostgreSQLDatabaseConnector(AuthenticLibreLogin<?, ?> plugin, String prefix) {
         super(plugin, prefix);
 
         this.hikariConfig = new HikariConfig();
 
-        hikariConfig.setPoolName("LibreLogin MySQL Pool");
-        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        hikariConfig.setPoolName("LibreLogin PostgreSQL Pool");
+        hikariConfig.setDriverClassName("org.postgresql.Driver");
         hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        hikariConfig.addDataSourceProperty("ssl", "false");
+        hikariConfig.addDataSourceProperty("sslmode", "disable");
 
         hikariConfig.setUsername(get(Configuration.USER));
         hikariConfig.setPassword(get(Configuration.PASSWORD));
-        hikariConfig.setJdbcUrl("jdbc:mysql://" + get(Configuration.HOST) + ":" + get(Configuration.PORT) + "/" + get(Configuration.NAME) + "?autoReconnect=true&zeroDateTimeBehavior=convertToNull");
+        hikariConfig.setJdbcUrl("jdbc:postgresql://" + get(Configuration.HOST) + ":" + get(Configuration.PORT) + "/" + get(Configuration.NAME) + "?sslmode=disable&autoReconnect=true&zeroDateTimeBehavior=convertToNull&ssl=false");
         hikariConfig.setMaxLifetime(get(Configuration.MAX_LIFE_TIME));
     }
 
@@ -101,7 +103,7 @@ public class AuthenticMySQLDatabaseConnector extends AuthenticDatabaseConnector<
 
         public static final ConfigurationKey<Integer> PORT = new ConfigurationKey<>(
                 "port",
-                5432,
+                3306,
                 "The port of the database.",
                 ConfigurateHelper::getInt
         );

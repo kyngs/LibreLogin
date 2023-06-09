@@ -9,8 +9,6 @@ package xyz.kyngs.librelogin.api.database.connector;
 import xyz.kyngs.librelogin.api.util.ThrowableConsumer;
 import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 
-import java.sql.SQLException;
-
 /**
  * An interface used to connect to a database.
  *
@@ -60,7 +58,7 @@ public interface DatabaseConnector<E extends Exception, I> {
      * @return The result of the function.
      * @throws IllegalStateException If the database is not connected.
      */
-    <V> V runQuery(ThrowableFunction<I, V, SQLException> function) throws IllegalStateException;
+    <V> V runQuery(ThrowableFunction<I, V, E> function) throws IllegalStateException;
 
     /**
      * Runs a query on the database and handles the exception.
@@ -70,7 +68,7 @@ public interface DatabaseConnector<E extends Exception, I> {
      * @param consumer The consumer to run.
      * @throws IllegalStateException If the database is not connected.
      */
-    default void runQuery(ThrowableConsumer<I, SQLException> consumer) throws IllegalStateException {
+    default void runQuery(ThrowableConsumer<I, E> consumer) throws IllegalStateException {
         runQuery((i) -> {
             consumer.accept(i);
             return null;

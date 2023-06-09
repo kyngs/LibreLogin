@@ -152,6 +152,7 @@ public class ConfigurationKeys {
             """
                     The type of the database. Built-in types:
                     librelogin-mysql - MySQL database, you must fill out the mysql section below.
+                    librelogin-postgresql - PostgreSQL database, you must fill out the postgresql section below.
                     librelogin-sqlite - SQLite database, default file is "database.db", you can change it in the sqlite section below.
                     """,
             ConfigurateHelper::getString

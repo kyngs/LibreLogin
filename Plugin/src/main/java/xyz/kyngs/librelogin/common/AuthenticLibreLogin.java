@@ -27,6 +27,7 @@ import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.database.*;
 import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
+import xyz.kyngs.librelogin.api.database.connector.PostgreSQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
@@ -45,9 +46,11 @@ import xyz.kyngs.librelogin.common.crypto.BCrypt2ACryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.MessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.connector.AuthenticMySQLDatabaseConnector;
+import xyz.kyngs.librelogin.common.database.connector.AuthenticPostgreSQLDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.connector.AuthenticSQLiteDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.connector.DatabaseConnectorRegistration;
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginMySQLDatabaseProvider;
+import xyz.kyngs.librelogin.common.database.provider.LibreLoginPostgreSQLDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabaseProvider;
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
@@ -341,6 +344,13 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 .build()
         );
 
+        dependencies.add(Library.builder()
+                .groupId("org.postgresql")
+                .artifactId("postgresql")
+                .version("42.6.0")
+                .build()
+        );
+
         dependencies.forEach(libraryManager::loadLibrary);
 
         if (platformHandle.getPlatformIdentifier().equals("paper")) {
@@ -366,62 +376,64 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                         "mysql"
                 ),
                 MySQLDatabaseConnector.class);
-
         registerDatabaseConnector(new DatabaseConnectorRegistration<>(
                         prefix -> new AuthenticSQLiteDatabaseConnector(this, prefix),
                         AuthenticSQLiteDatabaseConnector.Configuration.class,
                         "sqlite"
                 ),
                 SQLiteDatabaseConnector.class);
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
+                        prefix -> new AuthenticPostgreSQLDatabaseConnector(this, prefix),
+                        AuthenticPostgreSQLDatabaseConnector.Configuration.class,
+                        "postgresql"
+                ),
+                PostgreSQLDatabaseConnector.class);
 
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new LibreLoginMySQLDatabaseProvider(connector, this),
                 "librelogin-mysql",
                 MySQLDatabaseConnector.class
         ));
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new LibreLoginSQLiteDatabaseProvider(connector, this),
                 "librelogin-sqlite",
                 SQLiteDatabaseConnector.class
         ));
-
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LibreLoginPostgreSQLDatabaseProvider(connector, this),
+                "librelogin-postgresql",
+                PostgreSQLDatabaseConnector.class
+        ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "aegis-mysql",
                 MySQLDatabaseConnector.class
         ));
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "authme-mysql",
                 MySQLDatabaseConnector.class
         ));
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new AuthMeSQLMigrateReadProvider("authme", logger, connector),
                 "authme-sqlite",
                 SQLiteDatabaseConnector.class
         ));
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "dba-mysql",
                 MySQLDatabaseConnector.class
         ));
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "jpremium-mysql",
                 MySQLDatabaseConnector.class
         ));
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
                 "nlogin-sqlite",
                 SQLiteDatabaseConnector.class
         ));
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
                 "nlogin-mysql",
