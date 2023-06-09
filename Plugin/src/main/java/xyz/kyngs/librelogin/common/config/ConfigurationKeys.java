@@ -107,6 +107,7 @@ public class ConfigurationKeys {
             """
                     Sets the maximum amount of accounts that can be registered from the same IP address.
                     Set to zero or less to disable.
+                    !!THIS IS NOT RECOMMENDED!! Due to the lack of IPv4 addresses, sometimes even entire villages share the same IP address.
                     """,
             ConfigurateHelper::getInt
     );
