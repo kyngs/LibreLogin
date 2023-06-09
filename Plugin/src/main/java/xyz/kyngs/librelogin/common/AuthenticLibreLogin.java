@@ -212,6 +212,280 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             }
         }
 
+        loadLibraries();
+
+        if (platformHandle.getPlatformIdentifier().equals("paper")) {
+            LIMBO.setDefault(List.of("limbo"));
+
+            var lobby = HashMultimap.<String, String>create();
+            lobby.put("root", "world");
+
+            LOBBY.setDefault(lobby);
+        }
+
+        eventProvider = new AuthenticEventProvider<>(this);
+        premiumProvider = new AuthenticPremiumProvider(this);
+
+        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
+        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
+        registerCryptoProvider(new BCrypt2ACryptoProvider());
+        registerCryptoProvider(new Argon2IDCryptoProvider(logger));
+
+        setupDB();
+
+        checkDataFolder();
+
+        loadConfigs();
+
+        logger.info("Loading forbidden passwords...");
+
+        try {
+            loadForbiddenPasswords();
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.info("An unknown exception occurred while attempting to load the forbidden passwords, this most likely isn't your fault");
+            shutdownProxy(1);
+        }
+
+        logger.info("Loaded %s forbidden passwords".formatted(forbiddenPasswords.size()));
+
+        connectToDB();
+
+        serverHandler = new AuthenticServerHandler<>(this);
+
+        // Moved to a different class to avoid class loading issues
+        GeneralUtil.checkAndMigrate(configuration, logger, this);
+
+        imageProjector = provideImageProjector();
+
+        if (imageProjector != null) {
+            if (!configuration.get(TOTP_ENABLED)) {
+                imageProjector = null;
+                logger.warn("2FA is disabled in the configuration, aborting...");
+            } else {
+                imageProjector.enable();
+            }
+        }
+
+        totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
+
+        authorizationProvider = new AuthenticAuthorizationProvider<>(this);
+        commandProvider = new CommandProvider<>(this);
+
+        if (getVersion().contains("DEVELOPMENT")) {
+            logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBRELOGIN !!");
+            logger.warn("!! THIS IS NOT A RELEASE, USE THIS ONLY IF YOU WERE INSTRUCTED TO DO SO. DO NOT USE THIS IN PRODUCTION !!");
+        } else {
+            initMetrics();
+        }
+
+        delay(this::checkForUpdates, 1000);
+
+        if (pluginPresent("floodgate")) {
+            logger.info("Floodgate detected, enabling bedrock support...");
+            floodgateApi = new FloodgateIntegration();
+        }
+
+        if (multiProxyEnabled()) {
+            logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
+        }
+    }
+
+    public <C extends DatabaseConnector<?, ?>> DatabaseConnectorRegistration<?, C> getDatabaseConnector(Class<C> clazz) {
+        return (DatabaseConnectorRegistration<?, C>) databaseConnectors.get(clazz);
+    }
+
+    protected abstract LibraryManager provideLibraryManager();
+
+    private void connectToDB() {
+        logger.info("Connecting to the database...");
+
+        try {
+            var registration = readProviders.get(configuration.get(DATABASE_TYPE));
+            if (registration == null) {
+                logger.error("Database type %s doesn't exist, please check your configuration".formatted(configuration.get(DATABASE_TYPE)));
+                shutdownProxy(1);
+            }
+
+            DatabaseConnector<?, ?> connector = null;
+
+            if (registration.databaseConnector() != null) {
+                var connectorRegistration = getDatabaseConnector(registration.databaseConnector());
+
+                if (connectorRegistration == null) {
+                    logger.error("Database type %s is corrupted, please use a different one".formatted(configuration.get(DATABASE_TYPE)));
+                    shutdownProxy(1);
+                }
+
+                connector = connectorRegistration.factory().apply("database.properties." + connectorRegistration.id() + ".");
+
+                connector.connect();
+            }
+
+            var provider = registration.create(connector);
+
+            if (provider instanceof ReadWriteDatabaseProvider casted) {
+                databaseProvider = casted;
+                databaseConnector = connector;
+            } else {
+                logger.error("Database type %s cannot be used for writing, please use a different one".formatted(configuration.get(DATABASE_TYPE)));
+                shutdownProxy(1);
+            }
+
+        } catch (Exception e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
+            logger.error("Failed to connect to the database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            shutdownProxy(1);
+        }
+
+        logger.info("Successfully connected to the database");
+
+        if (databaseProvider instanceof AuthenticDatabaseProvider<?> casted) {
+            logger.info("Validating schema");
+
+            try {
+                casted.validateSchema();
+            } catch (Exception e) {
+                var cause = GeneralUtil.getFurthestCause(e);
+                logger.error("Failed to validate schema! Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+                logger.error("Please open an issue on our GitHub, or visit Discord support");
+                shutdownProxy(1);
+            }
+
+            logger.info("Schema validated");
+        }
+    }
+
+    private void loadConfigs() {
+        logger.info("Loading messages...");
+
+        messages = new HoconMessages(logger);
+
+        try {
+            messages.reload(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.info("An unknown exception occurred while attempting to load the messages, this most likely isn't your fault");
+            shutdownProxy(1);
+        } catch (CorruptedConfigurationException e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
+            logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            shutdownProxy(1);
+        }
+
+        logger.info("Loading configuration...");
+
+        var defaults = new ArrayList<BiHolder<Class<?>, String>>();
+
+        for (DatabaseConnectorRegistration<?, ?> value : databaseConnectors.values()) {
+            if (value.configClass() == null) continue;
+            defaults.add(new BiHolder<>(value.configClass(), "database.properties." + value.id() + "."));
+            defaults.add(new BiHolder<>(value.configClass(), "migration.old-database." + value.id() + "."));
+        }
+
+        configuration = new HoconPluginConfiguration(logger, defaults);
+
+        try {
+            if (configuration.reload(this)) {
+                logger.warn("!! A new configuration was generated, please fill it out, if in doubt, see the wiki !!");
+                shutdownProxy(0);
+            }
+
+            var limbos = configuration.get(LIMBO);
+            var lobby = configuration.get(LOBBY);
+
+            for (String value : lobby.values()) {
+                if (limbos.contains(value)) {
+                    throw new CorruptedConfigurationException("Lobby server/world %s is also a limbo server/world, this is not allowed".formatted(value));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.info("An unknown exception occurred while attempting to load the configuration, this most likely isn't your fault");
+            shutdownProxy(1);
+        } catch (CorruptedConfigurationException e) {
+            var cause = GeneralUtil.getFurthestCause(e);
+            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
+            logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
+            shutdownProxy(1);
+        }
+    }
+
+    private void setupDB() {
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
+                        prefix -> new AuthenticMySQLDatabaseConnector(this, prefix),
+                        AuthenticMySQLDatabaseConnector.Configuration.class,
+                        "mysql"
+                ),
+                MySQLDatabaseConnector.class);
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
+                        prefix -> new AuthenticSQLiteDatabaseConnector(this, prefix),
+                        AuthenticSQLiteDatabaseConnector.Configuration.class,
+                        "sqlite"
+                ),
+                SQLiteDatabaseConnector.class);
+        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
+                        prefix -> new AuthenticPostgreSQLDatabaseConnector(this, prefix),
+                        AuthenticPostgreSQLDatabaseConnector.Configuration.class,
+                        "postgresql"
+                ),
+                PostgreSQLDatabaseConnector.class);
+
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LibreLoginMySQLDatabaseProvider(connector, this),
+                "librelogin-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LibreLoginSQLiteDatabaseProvider(connector, this),
+                "librelogin-sqlite",
+                SQLiteDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LibreLoginPostgreSQLDatabaseProvider(connector, this),
+                "librelogin-postgresql",
+                PostgreSQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "aegis-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "authme-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthMeSQLMigrateReadProvider("authme", logger, connector),
+                "authme-sqlite",
+                SQLiteDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "dba-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                "jpremium-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
+                "nlogin-sqlite",
+                SQLiteDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
+                "nlogin-mysql",
+                MySQLDatabaseConnector.class
+        ));
+    }
+
+    private void loadLibraries() {
         logger.info("Loading libraries...");
 
         var libraryManager = provideLibraryManager();
@@ -352,265 +626,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         );
 
         dependencies.forEach(libraryManager::loadLibrary);
-
-        if (platformHandle.getPlatformIdentifier().equals("paper")) {
-            LIMBO.setDefault(List.of("limbo"));
-
-            var lobby = HashMultimap.<String, String>create();
-            lobby.put("root", "world");
-
-            LOBBY.setDefault(lobby);
-        }
-
-        eventProvider = new AuthenticEventProvider<>(this);
-        premiumProvider = new AuthenticPremiumProvider(this);
-
-        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-256"));
-        registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
-        registerCryptoProvider(new BCrypt2ACryptoProvider());
-        registerCryptoProvider(new Argon2IDCryptoProvider(logger));
-
-        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
-                        prefix -> new AuthenticMySQLDatabaseConnector(this, prefix),
-                        AuthenticMySQLDatabaseConnector.Configuration.class,
-                        "mysql"
-                ),
-                MySQLDatabaseConnector.class);
-        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
-                        prefix -> new AuthenticSQLiteDatabaseConnector(this, prefix),
-                        AuthenticSQLiteDatabaseConnector.Configuration.class,
-                        "sqlite"
-                ),
-                SQLiteDatabaseConnector.class);
-        registerDatabaseConnector(new DatabaseConnectorRegistration<>(
-                        prefix -> new AuthenticPostgreSQLDatabaseConnector(this, prefix),
-                        AuthenticPostgreSQLDatabaseConnector.Configuration.class,
-                        "postgresql"
-                ),
-                PostgreSQLDatabaseConnector.class);
-
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new LibreLoginMySQLDatabaseProvider(connector, this),
-                "librelogin-mysql",
-                MySQLDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new LibreLoginSQLiteDatabaseProvider(connector, this),
-                "librelogin-sqlite",
-                SQLiteDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new LibreLoginPostgreSQLDatabaseProvider(connector, this),
-                "librelogin-postgresql",
-                PostgreSQLDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
-                "aegis-mysql",
-                MySQLDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
-                "authme-mysql",
-                MySQLDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AuthMeSQLMigrateReadProvider("authme", logger, connector),
-                "authme-sqlite",
-                SQLiteDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
-                "dba-mysql",
-                MySQLDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
-                "jpremium-mysql",
-                MySQLDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
-                "nlogin-sqlite",
-                SQLiteDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
-                "nlogin-mysql",
-                MySQLDatabaseConnector.class
-        ));
-
-        checkDataFolder();
-
-        logger.info("Loading messages...");
-
-        messages = new HoconMessages(logger);
-
-        try {
-            messages.reload(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.info("An unknown exception occurred while attempting to load the messages, this most likely isn't your fault");
-            shutdownProxy(1);
-        } catch (CorruptedConfigurationException e) {
-            var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
-            logger.error("!!The messages are corrupted, please look below for further clues. If you are clueless, delete the messages and a new ones will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            shutdownProxy(1);
-        }
-
-        logger.info("Loading configuration...");
-
-        var defaults = new ArrayList<BiHolder<Class<?>, String>>();
-
-        for (DatabaseConnectorRegistration<?, ?> value : databaseConnectors.values()) {
-            if (value.configClass() == null) continue;
-            defaults.add(new BiHolder<>(value.configClass(), "database.properties." + value.id() + "."));
-            defaults.add(new BiHolder<>(value.configClass(), "migration.old-database." + value.id() + "."));
-        }
-
-        configuration = new HoconPluginConfiguration(logger, defaults);
-
-        try {
-            if (configuration.reload(this)) {
-                logger.warn("!! A new configuration was generated, please fill it out, if in doubt, see the wiki !!");
-                shutdownProxy(0);
-            }
-
-            var limbos = configuration.get(LIMBO);
-            var lobby = configuration.get(LOBBY);
-
-            for (String value : lobby.values()) {
-                if (limbos.contains(value)) {
-                    throw new CorruptedConfigurationException("Lobby server/world %s is also a limbo server/world, this is not allowed".formatted(value));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.info("An unknown exception occurred while attempting to load the configuration, this most likely isn't your fault");
-            shutdownProxy(1);
-        } catch (CorruptedConfigurationException e) {
-            var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
-            logger.error("!!The configuration is corrupted, please look below for further clues. If you are clueless, delete the config and a new one will be created for you. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            shutdownProxy(1);
-        }
-
-        logger.info("Loading forbidden passwords...");
-
-        try {
-            loadForbiddenPasswords();
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.info("An unknown exception occurred while attempting to load the forbidden passwords, this most likely isn't your fault");
-            shutdownProxy(1);
-        }
-
-        logger.info("Loaded %s forbidden passwords".formatted(forbiddenPasswords.size()));
-
-        logger.info("Connecting to the database...");
-
-        try {
-            var registration = readProviders.get(configuration.get(DATABASE_TYPE));
-            if (registration == null) {
-                logger.error("Database type %s doesn't exist, please check your configuration".formatted(configuration.get(DATABASE_TYPE)));
-                shutdownProxy(1);
-            }
-
-            DatabaseConnector<?, ?> connector = null;
-
-            if (registration.databaseConnector() != null) {
-                var connectorRegistration = getDatabaseConnector(registration.databaseConnector());
-
-                if (connectorRegistration == null) {
-                    logger.error("Database type %s is corrupted, please use a different one".formatted(configuration.get(DATABASE_TYPE)));
-                    shutdownProxy(1);
-                }
-
-                connector = connectorRegistration.factory().apply("database.properties." + connectorRegistration.id() + ".");
-
-                connector.connect();
-            }
-
-            var provider = registration.create(connector);
-
-            if (provider instanceof ReadWriteDatabaseProvider casted) {
-                databaseProvider = casted;
-                databaseConnector = connector;
-            } else {
-                logger.error("Database type %s cannot be used for writing, please use a different one".formatted(configuration.get(DATABASE_TYPE)));
-                shutdownProxy(1);
-            }
-
-        } catch (Exception e) {
-            var cause = GeneralUtil.getFurthestCause(e);
-            logger.error("!! THIS IS MOST LIKELY NOT AN ERROR CAUSED BY LIBRELOGIN !!");
-            logger.error("Failed to connect to the database, this most likely is caused by wrong credentials. Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-            shutdownProxy(1);
-        }
-
-        logger.info("Successfully connected to the database");
-
-        if (databaseProvider instanceof AuthenticDatabaseProvider<?> casted) {
-            logger.info("Validating schema");
-
-            try {
-                casted.validateSchema();
-            } catch (Exception e) {
-                var cause = GeneralUtil.getFurthestCause(e);
-                logger.error("Failed to validate schema! Cause: %s: %s".formatted(cause.getClass().getSimpleName(), cause.getMessage()));
-                logger.error("Please open an issue on our GitHub, or visit Discord support");
-                shutdownProxy(1);
-            }
-
-            logger.info("Schema validated");
-        }
-
-        serverHandler = new AuthenticServerHandler<>(this);
-
-        // Moved to a different class to avoid class loading issues
-        GeneralUtil.checkAndMigrate(configuration, logger, this);
-
-        imageProjector = provideImageProjector();
-
-        if (imageProjector != null) {
-            if (!configuration.get(TOTP_ENABLED)) {
-                imageProjector = null;
-                logger.warn("2FA is disabled in the configuration, aborting...");
-            } else {
-                imageProjector.enable();
-            }
-        }
-
-        totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
-
-        authorizationProvider = new AuthenticAuthorizationProvider<>(this);
-        commandProvider = new CommandProvider<>(this);
-
-        if (getVersion().contains("DEVELOPMENT")) {
-            logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBRELOGIN !!");
-            logger.warn("!! THIS IS NOT A RELEASE, USE THIS ONLY IF YOU WERE INSTRUCTED TO DO SO. DO NOT USE THIS IN PRODUCTION !!");
-        } else {
-            initMetrics();
-        }
-
-        delay(this::checkForUpdates, 1000);
-
-        if (pluginPresent("floodgate")) {
-            logger.info("Floodgate detected, enabling bedrock support...");
-            floodgateApi = new FloodgateIntegration();
-        }
-
-        if (multiProxyEnabled()) {
-            logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
-        }
     }
-
-    public <C extends DatabaseConnector<?, ?>> DatabaseConnectorRegistration<?, C> getDatabaseConnector(Class<C> clazz) {
-        return (DatabaseConnectorRegistration<?, C>) databaseConnectors.get(clazz);
-    }
-
-    protected abstract LibraryManager provideLibraryManager();
 
     private void loadForbiddenPasswords() throws IOException {
         var file = new File(getDataFolder(), "forbidden-passwords.txt");

@@ -33,11 +33,6 @@ public class LibreLoginPostgreSQLDatabaseProvider extends LibreLoginSQLDatabaseP
     }
 
     @Override
-    protected String getIgnoreSyntax() {
-        return "";
-    }
-
-    @Override
     protected String getIgnoreSuffix() {
         return " ON CONFLICT DO NOTHING";
     }

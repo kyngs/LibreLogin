@@ -257,7 +257,9 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
 
     protected abstract List<String> getColumnNames(Connection connection) throws SQLException;
 
-    protected abstract String getIgnoreSyntax();
+    protected String getIgnoreSyntax() {
+        return "";
+    }
 
     protected String getIgnoreSuffix() {
         return "";
