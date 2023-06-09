@@ -55,7 +55,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
         if (!event.getResult().isAllowed() || event.getResult() == PreLoginEvent.PreLoginComponentResult.forceOfflineMode())
             return; // The offline mode checking thingy indicates that the player is coming from Floodgate. I know this is a terrible solution, but it's the best I have for now.
 
-        var result = onPreLogin(event.getUsername());
+        var result = onPreLogin(event.getUsername(), event.getConnection().getRemoteAddress().getAddress());
 
         event.setResult(
                 switch (result.state()) {

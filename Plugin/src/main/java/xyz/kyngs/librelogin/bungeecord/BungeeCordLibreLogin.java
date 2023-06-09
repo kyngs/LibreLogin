@@ -121,7 +121,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
             @Override
             public void error(String message) {
-                bootstrap.getLogger().log(Level.SEVERE, message);
+                bootstrap.getLogger().severe(message);
             }
 
             @Override

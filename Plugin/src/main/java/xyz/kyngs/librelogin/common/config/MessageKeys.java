@@ -101,6 +101,15 @@ public class MessageKeys {
     Other kicks
      */
 
+    public static final ConfigurationKey<String> KICK_IP_LIMIT = new ConfigurationKey<>(
+            "kick-ip-limit",
+            "You have reached the maximum amount of accounts per IP!",
+            """
+                    This message is displayed when the player's IP has reached the maximum amount of accounts.
+                    See the configuration key "ip-limit" for more information.""",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> KICK_NO_SERVER = new ConfigurationKey<>(
             "kick-no-server",
             "There's no available server to connect you to. Please try again later.",

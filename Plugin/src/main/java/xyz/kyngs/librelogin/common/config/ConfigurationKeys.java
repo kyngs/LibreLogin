@@ -101,6 +101,16 @@ public class ConfigurationKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<Integer> IP_LIMIT = new ConfigurationKey<>(
+            "ip-limit",
+            -1,
+            """
+                    Sets the maximum amount of accounts that can be registered from the same IP address.
+                    Set to zero or less to disable.
+                    """,
+            ConfigurateHelper::getInt
+    );
+
     public static final ConfigurationKey<Boolean> AUTO_REGISTER = new ConfigurationKey<>(
             "auto-register",
             false,

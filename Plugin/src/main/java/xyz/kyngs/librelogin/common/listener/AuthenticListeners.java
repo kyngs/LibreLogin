@@ -19,6 +19,7 @@ import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
 
+import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -70,7 +71,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         plugin.getAuthorizationProvider().onExit(player);
     }
 
-    protected PreLoginResult onPreLogin(String username) {
+    protected PreLoginResult onPreLogin(String username, InetAddress address) {
         if (username.length() > 16 || !NAME_PATTERN.matcher(username).matches()) {
             return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-illegal-username"), null);
         }
@@ -95,7 +96,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         if (premium == null) {
             User user;
             try {
-                user = checkAndValidateByName(username, null, true);
+                user = checkAndValidateByName(username, null, true, address);
             } catch (InvalidCommandArgument e) {
                 return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
             }
@@ -113,7 +114,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             if (user == null) {
                 User userByName;
                 try {
-                    userByName = checkAndValidateByName(username, premiumID, true);
+                    userByName = checkAndValidateByName(username, premiumID, true, address);
                 } catch (InvalidCommandArgument e) {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
                 }
@@ -124,7 +125,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             } else {
                 User byName;
                 try {
-                    byName = checkAndValidateByName(username, premiumID, false);
+                    byName = checkAndValidateByName(username, premiumID, false, address);
                 } catch (InvalidCommandArgument e) {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
                 }
@@ -149,7 +150,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         return new PreLoginResult(PreLoginState.FORCE_OFFLINE, null, null);
     }
 
-    private User checkAndValidateByName(String username, @Nullable UUID premiumID, boolean generate) throws InvalidCommandArgument {
+    private User checkAndValidateByName(String username, @Nullable UUID premiumID, boolean generate, InetAddress ip) throws InvalidCommandArgument {
         var user = plugin.getDatabaseProvider().getByName(username);
 
         if (user != null) {
@@ -164,6 +165,17 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                 throw new InvalidCommandArgument(plugin.getMessages().getMessage("kick-short-username",
                         "%length%", String.valueOf(minLength)
                 ));
+            }
+
+            var ipLimit = plugin.getConfiguration().get(ConfigurationKeys.IP_LIMIT);
+            if (ipLimit > 0) {
+                var ipCount = plugin.getDatabaseProvider().getByIP(ip.getHostAddress()).size(); // Ideally, this should be a count query, but I'm too lazy to implement that and the performance impact is negligible.
+
+                if (ipCount >= ipLimit) {
+                    throw new InvalidCommandArgument(plugin.getMessages().getMessage("kick-ip-limit",
+                            "%limit%", String.valueOf(ipLimit)
+                    ));
+                }
             }
 
             var newID = plugin.generateNewUUID(
@@ -188,7 +200,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                         Timestamp.valueOf(LocalDateTime.now()),
                         Timestamp.valueOf(LocalDateTime.now()),
                         null,
-                        null,
+                        ip.getHostAddress(),
                         null,
                         null);
             } else {
@@ -200,7 +212,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                         Timestamp.valueOf(LocalDateTime.now()),
                         Timestamp.valueOf(LocalDateTime.now()),
                         null,
-                        null,
+                        ip.getHostAddress(),
                         null,
                         null);
             }

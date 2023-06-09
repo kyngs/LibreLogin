@@ -223,7 +223,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
             try {
                 if (plugin.fromFloodgate(username)) return; //Floodgate player, won't handle it
-                var preLoginResult = onPreLogin(username);
+                var preLoginResult = onPreLogin(username, event.getPlayer().getAddress().getAddress());
                 switch (preLoginResult.state()) {
                     case DENIED -> {
                         assert preLoginResult.message() != null;

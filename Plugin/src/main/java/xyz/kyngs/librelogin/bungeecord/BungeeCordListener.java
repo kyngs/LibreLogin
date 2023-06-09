@@ -46,7 +46,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
         event.registerIntent(plugin.getBootstrap());
 
         GeneralUtil.ASYNC_POOL.execute(() -> {
-            var result = onPreLogin(event.getConnection().getName());
+            var result = onPreLogin(event.getConnection().getName(), event.getConnection().getVirtualHost().getAddress());
 
             switch (result.state()) {
                 case DENIED -> {
