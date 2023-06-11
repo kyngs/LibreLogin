@@ -4,25 +4,22 @@ steps:
     commands:
       - "./gradlew licenseCheck shadowJar"
 
-  setup-velocity:
-    image: "debian"
+  setup-and-run-velocity:
+    image: "alpine"
     commands:
       - "pwd"
-      - "apt update && apt install -y curl"
+      - "pkg update && pkg install -y curl java"
       - "mkdir -p velocity/plugins"
       - "ls -la"
       - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
-      - "curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/184/downloads/velocity-3.1.2-SNAPSHOT-184.jar -o velocity/velocity.jar"
-
-  run-velocity:
-    image: "openjdk:17-jdk"
-    commands:
+      - "curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/258/downloads/velocity-3.2.0-SNAPSHOT-258.jar -o velocity/velocity.jar"
       - "cd velocity"
       - "java -jar velocity.jar"
 
   publish:
     image: "alpine"
     commands:
+      - "pkg update && pkg install -y java"
       - "./gradlew :API:publish -PkyngsRepoUsername=$${KYNGS_REPO_TOKEN} -PkyngsRepoPassword=$${KYNGS_REPO_SECRET}"
     when:
       - event: push
