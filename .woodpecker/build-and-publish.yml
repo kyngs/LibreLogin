@@ -6,7 +6,7 @@ steps:
       - "./gradlew licenseCheck shadowJar"
 
   setup-and-run-velocity:
-    image: "alpine"
+    image: "eclipse-temurin:17-alpine"
     commands:
       - "pwd"
       - "apk update && apk add curl"
