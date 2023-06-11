@@ -1,15 +1,15 @@
 steps:
   shadowJar:
-    image: "alpine"
+    image: "eclipse-temurin:17-alpine"
     commands:
-      - "apk update && apk add openjdk17"
+      - "apk update"
       - "./gradlew licenseCheck shadowJar"
 
   setup-and-run-velocity:
     image: "alpine"
     commands:
       - "pwd"
-      - "apk update && apk add curl openjdk17"
+      - "apk update && apk add curl"
       - "mkdir -p velocity/plugins"
       - "ls -la"
       - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
@@ -18,9 +18,8 @@ steps:
       - "java -jar velocity.jar"
 
   publish:
-    image: "alpine"
+    image: "eclipse-temurin:17-alpine"
     commands:
-      - "apk update && apk add openjdk17"
       - "./gradlew :API:publish -PkyngsRepoUsername=$${KYNGS_REPO_TOKEN} -PkyngsRepoPassword=$${KYNGS_REPO_SECRET}"
     when:
       - event: push
