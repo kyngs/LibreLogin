@@ -2,14 +2,14 @@ steps:
   shadowJar:
     image: "alpine"
     commands:
-      - "apk update && apk install -y java"
+      - "apk update && apk install java"
       - "./gradlew licenseCheck shadowJar"
 
   setup-and-run-velocity:
     image: "alpine"
     commands:
       - "pwd"
-      - "apk update && apk install -y curl java"
+      - "apk update && apk install curl java"
       - "mkdir -p velocity/plugins"
       - "ls -la"
       - "cp Plugin/build/libs/LibreLogin.jar velocity/plugins/"
@@ -20,7 +20,7 @@ steps:
   publish:
     image: "alpine"
     commands:
-      - "apk update && apk install -y java"
+      - "apk update && apk install java"
       - "./gradlew :API:publish -PkyngsRepoUsername=$${KYNGS_REPO_TOKEN} -PkyngsRepoPassword=$${KYNGS_REPO_SECRET}"
     when:
       - event: push
@@ -29,7 +29,7 @@ steps:
   update-wiki:
     image: "alpine"
     commands:
-      - "apk update && apk install -y git"
+      - "apk update && apk install git"
       - "git clone https://github.com/kyngs/LibreLogin.wiki.git wiki"
       - "cd wiki"
       - "echo '```hocon' > Config.md && cat ../velocity/plugins/librelogin/config.conf >> Config.md && echo '```' >> Config.md"
