@@ -2,7 +2,6 @@ steps:
   shadowJar:
     image: "eclipse-temurin:17-alpine"
     commands:
-      - "apk update"
       - "./gradlew licenseCheck shadowJar"
 
   setup-and-run-velocity:
