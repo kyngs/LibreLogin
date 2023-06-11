@@ -2,6 +2,7 @@ steps:
   shadowJar:
     image: "alpine"
     commands:
+      - "pkg update && pkg install -y java"
       - "./gradlew licenseCheck shadowJar"
 
   setup-and-run-velocity:
