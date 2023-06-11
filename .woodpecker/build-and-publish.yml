@@ -1,8 +1,8 @@
-pipeline:
+steps:
   shadowJar:
-    image: "gradle:jdk17-focal"
+    image: "alpine"
     commands:
-      - "gradle licenseCheck shadowJar --no-daemon"
+      - "./gradlew licenseCheck shadowJar"
 
   setup-velocity:
     image: "debian"
@@ -20,22 +20,22 @@ pipeline:
       - "cd velocity"
       - "java -jar velocity.jar"
 
-  checkout-wiki:
-    image: "bitnami/git"
+  publish:
+    image: "alpine"
     commands:
-      - "git clone https://github.com/kyngs/LibreLogin.wiki.git wiki"
+      - "./gradlew :API:publish -PkyngsRepoUsername=$${KYNGS_REPO_TOKEN} -PkyngsRepoPassword=$${KYNGS_REPO_SECRET}"
+    when:
+      - event: push
+    secrets: [ kyngs_repo_token, kyngs_repo_secret ]
 
   update-wiki:
-    image: "debian"
+    image: "alpine"
     commands:
+      - "pkg update && pkg install -y git"
+      - "git clone https://github.com/kyngs/LibreLogin.wiki.git wiki"
       - "cd wiki"
       - "echo '```hocon' > Config.md && cat ../velocity/plugins/librelogin/config.conf >> Config.md && echo '```' >> Config.md"
       - "echo '```hocon' > Messages.md && cat ../velocity/plugins/librelogin/messages.conf >> Messages.md && echo '```' >> Messages.md"
-
-  commit-and-push-wiki:
-    image: "bitnami/git"
-    commands:
-      - "cd wiki"
       - "git config --local user.email 'kyngs@users.noreply.github.com'"
       - "git config --local user.name 'Kyngs CI (ci.kyngs.xyz)'"
       - "git add ."

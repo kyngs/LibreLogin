@@ -272,7 +272,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         authorizationProvider = new AuthenticAuthorizationProvider<>(this);
         commandProvider = new CommandProvider<>(this);
 
-        if (getVersion().contains("DEVELOPMENT")) {
+        if (version.dev()) {
             logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBRELOGIN !!");
             logger.warn("!! THIS IS NOT A RELEASE, USE THIS ONLY IF YOU WERE INSTRUCTED TO DO SO. DO NOT USE THIS IN PRODUCTION !!");
         } else {

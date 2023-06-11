@@ -18,8 +18,8 @@ package xyz.kyngs.librelogin.api.util;
 public record SemanticVersion(int major, int minor, int patch, boolean dev) {
 
     public static SemanticVersion parse(String version) {
-        String[] split = version.replace("-DEVELOPMENT", "").split("\\.");
-        return new SemanticVersion(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]), version.endsWith("-DEVELOPMENT"));
+        String[] split = version.replace("-SNAPSHOT", "").split("\\.");
+        return new SemanticVersion(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]), version.endsWith("-SNAPSHOT"));
     }
 
     /**
@@ -46,6 +46,6 @@ public record SemanticVersion(int major, int minor, int patch, boolean dev) {
 
     @Override
     public String toString() {
-        return major + "." + minor + "." + patch + (dev ? "-DEVELOPMENT" : "");
+        return major + "." + minor + "." + patch + (dev ? "-SNAPSHOT" : "");
     }
 }
