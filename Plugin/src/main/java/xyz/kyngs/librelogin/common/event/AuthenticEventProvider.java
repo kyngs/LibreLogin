@@ -33,6 +33,11 @@ public class AuthenticEventProvider<P, S> extends AuthenticHandler<P, S> impleme
     }
 
     @Override
+    public void unsubscribe(Consumer<? extends Event<P, S>> handler) {
+        listeners.values().forEach(x -> x.remove(handler));
+    }
+
+    @Override
     public <E extends Event<P, S>> void fire(EventType<P, S, E> type, E event) {
         var set = listeners.get(type);
 

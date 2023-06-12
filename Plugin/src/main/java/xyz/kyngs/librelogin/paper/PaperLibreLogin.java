@@ -145,6 +145,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
         provider.subscribe(provider.getTypes().authenticated, event -> {
             var player = event.getPlayer();
+            if (player == null) return;
             player.setInvisible(false);
         });
 
