@@ -32,8 +32,9 @@ public interface EventProvider<P, S> {
      * @param type    The type of the event see {@link #getTypes()}
      * @param handler The handler to call when the event is fired
      * @param <E>     The event type
+     * @return The handler you passed as a parameter, this is useful for unsubscribing
      */
-    <E extends Event<P, S>> void subscribe(EventType<P, S, E> type, Consumer<E> handler);
+    <E extends Event<P, S>> Consumer<E> subscribe(EventType<P, S, E> type, Consumer<E> handler);
 
     /**
      * Allows you to unsubscribe from an event.

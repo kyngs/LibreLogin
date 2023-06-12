@@ -28,8 +28,9 @@ public class AuthenticEventProvider<P, S> extends AuthenticHandler<P, S> impleme
     }
 
     @Override
-    public <E extends Event<P, S>> void subscribe(EventType<P, S, E> type, Consumer<E> handler) {
+    public <E extends Event<P, S>> Consumer<E> subscribe(EventType<P, S, E> type, Consumer<E> handler) {
         listeners.computeIfAbsent(type, x -> new HashSet<>()).add((Consumer<Event<P, S>>) handler);
+        return handler;
     }
 
     @Override
