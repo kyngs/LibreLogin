@@ -6,18 +6,10 @@
 
 package xyz.kyngs.librelogin.common.log;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.LogEvent;
-import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.message.Message;
-
 import java.util.HashSet;
 import java.util.Set;
 
-public class LogFilter implements Filter {
+public abstract class LogFilter {
 
     private static final Set<String> PROTECTED_COMMANDS;
 
@@ -38,121 +30,17 @@ public class LogFilter implements Filter {
         PROTECTED_COMMANDS.add("passwd");
     }
 
-    public void injectToRoot() {
-        ((Logger) LogManager.getRootLogger()).addFilter(new LogFilter());
-    }
-
-    private Result checkMessage(String message) {
-
+    protected boolean checkMessage(String message) {
         if (!message.contains("issued server command: /") && !message.contains("executed command /") && !message.contains("executed command: /"))
-            return Result.NEUTRAL;
+            return true;
 
         for (String command : PROTECTED_COMMANDS) {
-            if (message.contains(command)) return Result.DENY;
+            if (message.contains(command)) return false;
         }
 
-        return Result.NEUTRAL;
-    }
-
-    @Override
-    public Result getOnMatch() {
-        return Result.NEUTRAL;
-    }
-
-    @Override
-    public Result getOnMismatch() {
-        return Result.NEUTRAL;
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object... params) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6, Object p7) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6, Object p7, Object p8) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6, Object p7, Object p8, Object p9) {
-        return checkMessage(message);
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, Object msg, Throwable t) {
-        return checkMessage(msg.toString());
-    }
-
-    @Override
-    public Result filter(Logger logger, Level level, Marker marker, Message msg, Throwable t) {
-        return checkMessage(msg.getFormattedMessage());
-    }
-
-    @Override
-    public Result filter(LogEvent event) {
-        return checkMessage(event.getMessage().getFormattedMessage());
-    }
-
-    @Override
-    public State getState() {
-        return State.STARTED;
-    }
-
-    public void initialize() {
-    }
-
-    public boolean isStarted() {
         return true;
     }
 
-    public boolean isStopped() {
-        return false;
-    }
+    public abstract void inject();
 
-    public void start() {
-    }
-
-    public void stop() {
-    }
 }

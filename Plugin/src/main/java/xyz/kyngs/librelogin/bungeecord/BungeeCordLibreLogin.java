@@ -240,6 +240,11 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
     }
 
     @Override
+    protected java.util.logging.Logger getSimpleLogger() {
+        return bootstrap.getProxy().getLogger();
+    }
+
+    @Override
     protected LibraryManager provideLibraryManager() {
         return new BungeeLibraryManager(bootstrap);
     }

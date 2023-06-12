@@ -55,7 +55,8 @@ import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabasePro
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
-import xyz.kyngs.librelogin.common.log.LogFilter;
+import xyz.kyngs.librelogin.common.log.Log4JFilter;
+import xyz.kyngs.librelogin.common.log.SimpleLogFilter;
 import xyz.kyngs.librelogin.common.migrate.*;
 import xyz.kyngs.librelogin.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librelogin.common.server.AuthenticServerHandler;
@@ -195,10 +196,15 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         if (logger == null) logger = provideLogger();
 
         try {
-            new LogFilter().injectToRoot();
+            new Log4JFilter().inject();
         } catch (Throwable ignored) {
             logger.info("LogFilter is not supported on this platform");
-            // LogFilter is not supported on this platform
+            var simpleLogger = getSimpleLogger();
+
+            if (simpleLogger != null) {
+                logger.info("Using SimpleLogFilter");
+                new SimpleLogFilter(simpleLogger).inject();
+            }
         }
 
         var folder = getDataFolder();
@@ -875,5 +881,9 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public boolean fromFloodgate(String username) {
         return floodgateApi != null && floodgateApi.getPlayer(username) != null;
+    }
+
+    protected java.util.logging.Logger getSimpleLogger() {
+        return null;
     }
 }
