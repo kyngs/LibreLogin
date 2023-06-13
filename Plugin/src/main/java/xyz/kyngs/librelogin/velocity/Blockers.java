@@ -41,10 +41,10 @@ public class Blockers {
         if (authorizationProvider.isAuthorized(player) && !authorizationProvider.isAwaiting2FA(player))
             return;
 
-        var command = event.getCommand();
+        var command = event.getCommand().split(" ")[0];
 
         for (String allowed : configuration.get(ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED)) {
-            if (command.startsWith(allowed)) return;
+            if (command.equals(allowed)) return;
         }
 
         event.setResult(CommandExecuteEvent.CommandResult.denied());

@@ -21,8 +21,9 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
-import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
+
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED;
 
 public class Blockers implements Listener {
 
@@ -63,10 +64,10 @@ public class Blockers implements Listener {
         if (authorizationProvider.isAuthorized(event.getPlayer()) && !authorizationProvider.isAwaiting2FA(event.getPlayer()))
             return;
 
-        var command = event.getMessage().substring(1);
+        var command = event.getMessage().substring(1).split(" ")[0];
 
-        for (String allowed : configuration.get(ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED)) {
-            if (command.startsWith(allowed)) return;
+        for (String allowed : configuration.get(ALLOWED_COMMANDS_WHILE_UNAUTHORIZED)) {
+            if (command.equals(allowed)) return;
         }
 
         event.setCancelled(true);

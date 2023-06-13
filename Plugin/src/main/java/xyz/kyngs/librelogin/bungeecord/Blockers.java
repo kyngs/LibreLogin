@@ -54,7 +54,7 @@ public class Blockers implements Listener {
         var command = event.getMessage().substring(1).split(" ")[0];
 
         for (String allowed : configuration.get(ALLOWED_COMMANDS_WHILE_UNAUTHORIZED)) {
-            if (command.startsWith(allowed)) return;
+            if (command.equals(allowed)) return;
         }
 
         event.setCancelled(true);
