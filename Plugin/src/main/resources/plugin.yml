@@ -3,6 +3,7 @@ author: "kyngs"
 version: '${version}'
 main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
 api-version: 1.13
+folia-supported: true
 
 depend:
   - ProtocolLib

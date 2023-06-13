@@ -175,7 +175,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             }
 
             var finalLocation = location;
-            PaperUtil.runSyncAndWait(() -> player.teleportAsync(finalLocation), this);
+            PaperUtil.runSyncAndWait(() -> player.teleportAsync(finalLocation), this, player);
 
         } catch (NoSuchElementException e) {
             getPlatformHandle().kick(player, getMessages().getMessage("kick-no-server"));
@@ -184,15 +184,12 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     public CancellableTask delay(Runnable runnable, long delayInMillis) {
-        var task = Bukkit.getScheduler().runTaskLaterAsynchronously(bootstrap, runnable, delayInMillis / 50);
-        return task::cancel;
+        return PaperUtil.runTaskLaterAsynchronously(this, runnable, delayInMillis);
     }
 
     @Override
     public CancellableTask repeat(Runnable runnable, long delayInMillis, long repeatInMillis) {
-        var task = Bukkit.getScheduler()
-                .runTaskTimerAsynchronously(bootstrap, runnable, delayInMillis / 50, repeatInMillis / 50);
-        return task::cancel;
+        return PaperUtil.runTaskTimerAsynchronously(this, runnable, delayInMillis, repeatInMillis);
     }
 
     @Override

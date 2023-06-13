@@ -46,7 +46,7 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
 
     @Override
     public void kick(Player player, Component reason) {
-        PaperUtil.runSyncAndWait(() -> player.kick(reason), plugin);
+        PaperUtil.runSyncAndWait(() -> player.kick(reason), plugin, player);
     }
 
     @Override
