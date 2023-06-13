@@ -153,7 +153,8 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
             if (key.startsWith("syntax")) {
                 localeMap.put(key, ACF_SERIALIZER.serialize(value));
             } else if (key.startsWith("autocomplete")) {
-                manager.getCommandReplacements().addReplacement(key, ACF_SERIALIZER.serialize(value));
+                var serialized = ACF_SERIALIZER.serialize(value);
+                manager.getCommandReplacements().addReplacement(key, serialized.isBlank() ? serialized : serialized + " @nothing");
             }
         });
 
