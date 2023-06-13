@@ -22,6 +22,9 @@ steps:
       - "./gradlew :API:publish -PkyngsRepoUsername=$${KYNGS_REPO_TOKEN} -PkyngsRepoPassword=$${KYNGS_REPO_SECRET}"
     when:
       - event: push
+        branch:
+          - master
+          - dev
     secrets: [ kyngs_repo_token, kyngs_repo_secret ]
 
   update-wiki:
