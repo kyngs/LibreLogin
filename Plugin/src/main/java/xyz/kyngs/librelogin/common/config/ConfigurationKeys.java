@@ -87,6 +87,13 @@ public class ConfigurationKeys {
             ConfigurateHelper::getBoolean
     );
 
+    public static final ConfigurationKey<Boolean> USE_ACTION_BAR = new ConfigurationKey<>(
+            "use-action-bar",
+            false,
+            "Whether or not to use action bar when player is awaiting authentication.",
+            ConfigurateHelper::getBoolean
+    );
+
     public static final ConfigurationKey<String> NEW_UUID_CREATOR = new ConfigurationKey<>(
             "new-uuid-creator",
             "CRACKED",

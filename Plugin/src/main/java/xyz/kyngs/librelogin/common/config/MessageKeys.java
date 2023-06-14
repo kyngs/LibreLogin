@@ -620,6 +620,24 @@ public class MessageKeys {
     );
 
     /*
+    Actionbar
+     */
+
+    public static final ConfigurationKey<String> ACTION_BAR_REGISTER = new ConfigurationKey<>(
+            "action-bar-register",
+            "&e/register &b<password> <password>",
+            "This actionbar is displayed when the player is prompted to register. Make sure that you have use-action-bar set to true in the configuration.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> ACTION_BAR_LOGIN = new ConfigurationKey<>(
+            "action-bar-login",
+            "&e/login &b<password>",
+            "This actionbar is displayed when the player is prompted to login. Make sure that you have use-action-bar set to true in the configuration.",
+            ConfigurateHelper::getString
+    );
+
+    /*
     TOTP
      */
 

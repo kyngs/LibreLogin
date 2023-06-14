@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.common.authorization;
 
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librelogin.api.database.User;
@@ -39,6 +40,8 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         if (millis > 0) {
             plugin.repeat(this::notifyUnauthorized, 0, millis);
         }
+
+        plugin.repeat(this::broadcastActionbars, 0, 1000);
     }
 
     @Override
@@ -65,6 +68,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         var audience = platformHandle.getAudienceForPlayer(player);
 
         audience.clearTitle();
+        audience.sendActionBar(Component.empty());
         plugin.getEventProvider().fire(plugin.getEventTypes().authenticated, new AuthenticAuthenticatedEvent<>(user, player, plugin, reason));
         plugin.authorize(player, user, audience);
     }
@@ -97,6 +101,31 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
                 if (!unAuthorized.containsKey(player)) return;
                 platformHandle.kick(player, plugin.getMessages().getMessage("kick-time-limit"));
             }, limit * 1000L), player);
+        }
+
+        sendInfoMessage(user.isRegistered(), audience);
+    }
+
+    private void broadcastActionbars() {
+        var wrong = new HashSet<P>();
+        unAuthorized.forEach((player, registered) -> {
+            var audience = platformHandle.getAudienceForPlayer(player);
+
+            if (audience == null) {
+                wrong.add(player);
+                return;
+            }
+
+            sendActionBar(registered, audience);
+
+        });
+
+        wrong.forEach(unAuthorized::remove);
+    }
+
+    private void sendActionBar(boolean registered, Audience audience) {
+        if (plugin.getConfiguration().get(ConfigurationKeys.USE_ACTION_BAR)) {
+            audience.sendActionBar(plugin.getMessages().getMessage(registered ? "action-bar-login" : "action-bar-register"));
         }
     }
 
