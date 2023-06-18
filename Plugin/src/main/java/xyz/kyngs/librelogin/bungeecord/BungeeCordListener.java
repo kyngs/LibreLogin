@@ -107,7 +107,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
     @EventHandler(priority = LOW)
     public void onKick(ServerKickEvent event) {
         var reason = plugin.getSerializer().deserialize(event.getKickReasonComponent());
-        var message = plugin.getMessages().getMessage("info-kick").replaceText("%reason%", reason);
+        var message = plugin.getMessages().getMessage("info-kick").replaceText(builder -> builder.matchLiteral("%reason%").replacement(reason));
         var player = event.getPlayer();
         var audience = platformHandle.getAudienceForPlayer(event.getPlayer());
 

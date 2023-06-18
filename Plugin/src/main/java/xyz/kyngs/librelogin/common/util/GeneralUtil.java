@@ -6,7 +6,6 @@
 
 package xyz.kyngs.librelogin.common.util;
 
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.Logger;
@@ -66,8 +65,7 @@ public class GeneralUtil {
         if (component == null) return null;
 
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
-            //noinspection UnstableApiUsage
-            component = (TextComponent) component.replaceText(entry.getKey(), Component.text(entry.getValue()));
+            component = (TextComponent) component.replaceText(builder -> builder.matchLiteral(entry.getKey()).replacement(entry.getValue()));
         }
         return component;
     }
