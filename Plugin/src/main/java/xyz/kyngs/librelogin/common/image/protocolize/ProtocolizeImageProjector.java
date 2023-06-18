@@ -85,7 +85,7 @@ public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, 
         }
 
         int[] pixels = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
-        byte[] data = new byte[16384];
+        byte[] data = new byte[pixels.length];
 
         for (int i = 0; i < pixels.length; i++) {
             data[i] = (byte) (pixels[i] == -16777216 ? 116 : 56);
@@ -100,7 +100,7 @@ public class ProtocolizeImageProjector<P, S> extends AuthenticImageProjector<P, 
 
         var protocolize = Protocolize.playerProvider().player(id);
 
-        return protocolize.protocolVersion() >= ProtocolVersions.MINECRAFT_1_13 && protocolize.protocolVersion() <= ProtocolVersions.MINECRAFT_1_19;
+        return protocolize.protocolVersion() >= ProtocolVersions.MINECRAFT_1_13 && protocolize.protocolVersion() <= 763; // 1.20.(1)
     }
 
 }

@@ -11,7 +11,6 @@ import dev.samstevens.totp.code.DefaultCodeGenerator;
 import dev.samstevens.totp.code.DefaultCodeVerifier;
 import dev.samstevens.totp.exceptions.QrGenerationException;
 import dev.samstevens.totp.qr.QrData;
-import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.qr.ZxingPngQrGenerator;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
@@ -30,13 +29,14 @@ public class AuthenticTOTPProvider implements TOTPProvider {
 
     private final AuthenticLibreLogin<?, ?> plugin;
     private final SecretGenerator secretGenerator;
-    private final QrGenerator qrGenerator;
+    private final ZxingPngQrGenerator qrGenerator;
     private final CodeVerifier verifier;
 
     public AuthenticTOTPProvider(AuthenticLibreLogin<?, ?> plugin) {
         this.plugin = plugin;
         secretGenerator = new DefaultSecretGenerator();
         qrGenerator = new ZxingPngQrGenerator();
+        qrGenerator.setImageSize(256);
 
         verifier = new DefaultCodeVerifier(new DefaultCodeGenerator(), new SystemTimeProvider());
     }
