@@ -64,7 +64,6 @@ public class Blockers implements Listener {
     public void onServerConnect(ServerConnectEvent event) {
         if (!authorizationProvider.isAuthorized(event.getPlayer()) && event.getReason() != ServerConnectEvent.Reason.JOIN_PROXY) {
             event.setCancelled(true);
-            event.getPlayer().disconnect(plugin.getSerializer().serialize(plugin.getMessages().getMessage("kick-no-server")));
         } else if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
             if (!configuration.get(LIMBO).contains(event.getTarget().getName())) {
                 event.setCancelled(true);

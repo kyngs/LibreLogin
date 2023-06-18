@@ -151,19 +151,19 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         var world = chooseServer(event.getPlayer(), ipCache.getIfPresent(event.getPlayer()), readOnlyUserCache.getIfPresent(event.getPlayer().getUniqueId()));
         ipCache.invalidate(event.getPlayer());
         spawnLocationCache.invalidate(event.getPlayer());
-        if (world == null) {
-            event.getPlayer().kick(plugin.getMessages().getMessage("kick-no-server"));
+        if (world.value() == null) {
+            event.getPlayer().kick(plugin.getMessages().getMessage("kick-no-" + (world.key() ? "lobby" : "limbo")));
         } else {
             //This is terrible, but should work
             if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(event.getSpawnLocation().getWorld().getName())) {
-                if (plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(world.getName())) {
+                if (plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(world.value().getName())) {
                     spawnLocationCache.put(event.getPlayer(), event.getSpawnLocation());
                 } else {
                     return;
                 }
             }
 
-            event.setSpawnLocation(world.getSpawnLocation());
+            event.setSpawnLocation(world.value().getSpawnLocation());
 
         }
     }

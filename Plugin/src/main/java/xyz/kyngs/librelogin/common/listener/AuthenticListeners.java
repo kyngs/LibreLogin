@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.common.listener;
 
 import org.jetbrains.annotations.Nullable;
+import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
@@ -223,7 +224,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         return user;
     }
 
-    protected S chooseServer(P player, @Nullable String ip, @Nullable User user) {
+    protected BiHolder<Boolean, S> chooseServer(P player, @Nullable String ip, @Nullable User user) {
         var id = platformHandle.getUUIDForPlayer(player);
         var fromFloodgate = plugin.fromFloodgate(id);
 
@@ -240,9 +241,9 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         }
 
         if (fromFloodgate || user.autoLoginEnabled() || (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
-            return plugin.getServerHandler().chooseLobbyServer(user, player, true);
+            return new BiHolder<>(true, plugin.getServerHandler().chooseLobbyServer(user, player, true));
         } else {
-            return plugin.getServerHandler().chooseLimboServer(user, player);
+            return new BiHolder<>(false, plugin.getServerHandler().chooseLimboServer(user, player));
         }
     }
 }

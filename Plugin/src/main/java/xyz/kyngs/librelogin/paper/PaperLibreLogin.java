@@ -178,7 +178,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             PaperUtil.runSyncAndWait(() -> player.teleportAsync(finalLocation), this);
 
         } catch (NoSuchElementException e) {
-            getPlatformHandle().kick(player, getMessages().getMessage("kick-no-server"));
+            getPlatformHandle().kick(player, getMessages().getMessage("kick-no-lobby"));
         }
     }
 

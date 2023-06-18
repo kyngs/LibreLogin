@@ -74,11 +74,11 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
     public void chooseServer(PlayerChooseInitialServerEvent event) {
         var server = chooseServer(event.getPlayer(), null, null);
 
-        if (server == null) {
-            event.getPlayer().disconnect(plugin.getMessages().getMessage("kick-no-server"));
+        if (server.value() == null) {
+            event.getPlayer().disconnect(plugin.getMessages().getMessage("kick-no-" + (server.key() ? "lobby" : "limbo")));
             event.setInitialServer(null);
         } else {
-            event.setInitialServer(server);
+            event.setInitialServer(server.value());
         }
 
     }

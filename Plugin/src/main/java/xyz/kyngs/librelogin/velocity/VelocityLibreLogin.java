@@ -126,7 +126,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
                             player.disconnect(Component.text("Unable to connect"));
                     });
         } catch (NoSuchElementException e) {
-            player.disconnect(getMessages().getMessage("kick-no-server"));
+            player.disconnect(getMessages().getMessage("kick-no-lobby"));
         }
     }
 

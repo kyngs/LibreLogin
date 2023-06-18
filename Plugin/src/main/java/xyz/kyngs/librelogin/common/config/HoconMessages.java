@@ -17,6 +17,7 @@ import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.Messages;
 import xyz.kyngs.librelogin.common.config.migrate.messages.FirstMessagesMigrator;
 import xyz.kyngs.librelogin.common.config.migrate.messages.SecondMessagesMigrator;
+import xyz.kyngs.librelogin.common.config.migrate.messages.ThirdMessagesMigrator;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import xyz.kyngs.utils.legacymessage.LegacyMessage;
 
@@ -84,7 +85,8 @@ public class HoconMessages implements Messages {
                         """,
                 logger,
                 new FirstMessagesMigrator(),
-                new SecondMessagesMigrator()
+                new SecondMessagesMigrator(),
+                new ThirdMessagesMigrator()
         );
 
         extractKeys("", adept.getHelper().configuration());
