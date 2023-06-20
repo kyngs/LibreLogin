@@ -368,6 +368,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_PASSWORD_RESETTING_DISABLED = new ConfigurationKey<>(
+            "error-password-resetting-disabled",
+            "Password resetting is disabled!",
+            "This message is displayed when someone attempts to reset password while it is disabled.",
+            ConfigurateHelper::getString
+    );
+
     /*
     ACF Related errors
      */
@@ -513,6 +520,20 @@ public class MessageKeys {
             "info-reloaded",
             "Reloaded!",
             "This message is displayed when something has been reloaded.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_SENDING_EMAIL = new ConfigurationKey<>(
+            "info-sending-email",
+            "Sending email...",
+            "This message is displayed when the user executes a command that sends an email.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_SENT_EMAIL = new ConfigurationKey<>(
+            "info-sent-email",
+            "Email sent!",
+            "This message is displayed when the user executes a command that sends an email.",
             ConfigurateHelper::getString
     );
 
@@ -793,6 +814,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_EMAIL_TEST = new ConfigurationKey<>(
+            "syntax.email-test",
+            "<address>",
+            "This message is displayed when the player attempts to test email with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     /*
     Commands autocomplete
      */
@@ -914,6 +942,13 @@ public class MessageKeys {
             "autocomplete.change-password",
             "oldPassword newPassword",
             "This hint is displayed when the player starts typing the /changepassword command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_EMAIL_TEST = new ConfigurationKey<>(
+            "autocomplete.email-test",
+            "address",
+            "This hint is displayed when the player starts typing the /librelogin email test command.",
             ConfigurateHelper::getString
     );
 }

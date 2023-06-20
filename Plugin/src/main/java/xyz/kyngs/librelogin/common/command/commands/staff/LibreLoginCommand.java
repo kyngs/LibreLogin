@@ -44,6 +44,19 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         )));
     }
 
+    @Subcommand("email test")
+    @CommandPermission("librelogin.email.test")
+    @Syntax("{@@syntax.email-test}")
+    @CommandCompletion("%autocomplete.email-test")
+    public CompletionStage<Void> onEmailTest(Audience audience, String email) {
+        return runAsync(() -> {
+            requirePasswordResetting();
+            audience.sendMessage(getMessage("info-sending-email"));
+            plugin.getEmailHandler().sendTestMail(email);
+            audience.sendMessage(getMessage("info-sent-email"));
+        });
+    }
+
     @Subcommand("dump")
     @CommandPermission("librelogin.dump")
     public CompletionStage<Void> onDump(Audience audience) {

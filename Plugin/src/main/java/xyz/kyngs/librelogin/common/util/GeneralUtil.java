@@ -147,7 +147,7 @@ public class GeneralUtil {
                 future.complete(null);
             } catch (InvalidCommandArgument e) {
                 future.completeExceptionally(e);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 future.completeExceptionally(e);
             }

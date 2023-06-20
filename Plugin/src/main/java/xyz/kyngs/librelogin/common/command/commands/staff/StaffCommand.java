@@ -11,6 +11,7 @@ import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.Command;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 
 public class StaffCommand<P> extends Command<P> {
     public StaffCommand(AuthenticLibreLogin<P, ?> plugin) {
@@ -48,6 +49,11 @@ public class StaffCommand<P> extends Command<P> {
     protected void requireRegistered(User user) {
         if (!user.isRegistered())
             throw new InvalidCommandArgument(getMessage("error-player-not-registered"));
+    }
+
+    protected void requirePasswordResetting() {
+        if (!plugin.getConfiguration().get(ConfigurationKeys.MAIL_ENABLED))
+            throw new InvalidCommandArgument(getMessage("error-password-resetting-disabled"));
     }
 
 }

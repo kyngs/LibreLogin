@@ -285,4 +285,47 @@ public class ConfigurationKeys {
             "The delay in milliseconds until player is given a map to scan the QR code. Increase this value if the map disappears too quickly.",
             ConfigurateHelper::getInt
     );
+
+    public static final ConfigurationKey<Boolean> MAIL_ENABLED = new ConfigurationKey<>(
+            "mail.enabled",
+            false,
+            "Should we enable the email password recovery feature?",
+            ConfigurateHelper::getBoolean
+    );
+    public static final ConfigurationKey<String> MAIL_HOST = new ConfigurationKey<>(
+            "mail.host",
+            "smtp.gmail.com",
+            "The host of the SMTP server.",
+            ConfigurateHelper::getString
+    );
+    public static final ConfigurationKey<Integer> MAIL_PORT = new ConfigurationKey<>(
+            "mail.port",
+            587,
+            "The port of the SMTP server.",
+            ConfigurateHelper::getInt
+    );
+    public static final ConfigurationKey<String> MAIL_USERNAME = new ConfigurationKey<>(
+            "mail.username",
+            "username",
+            "The username used to login to the SMTP server.",
+            ConfigurateHelper::getString
+    );
+    public static final ConfigurationKey<String> MAIL_PASSWORD = new ConfigurationKey<>(
+            "mail.password",
+            "password",
+            "The password used to login to the SMTP server. We highly recommend you use a unique one-time password for this.",
+            ConfigurateHelper::getString
+    );
+    public static final ConfigurationKey<String> MAIL_SENDER = new ConfigurationKey<>(
+            "mail.sender",
+            "LibreLogin",
+            "The sender of the email.",
+            ConfigurateHelper::getString
+    );
+    private static final ConfigurationKey<?> MAIL = ConfigurationKey.getComment(
+            "mail",
+            """
+                    This section is used for configuring the email password recovery feature.
+                    """
+    );
 }

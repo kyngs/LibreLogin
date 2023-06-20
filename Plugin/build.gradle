@@ -92,6 +92,7 @@ dependencies {
     compileOnly 'dev.samstevens.totp:totp:1.7.1'
     compileOnly 'dev.simplix:protocolize-api:2.3.0'
     compileOnly 'org.bouncycastle:bcprov-jdk18on:1.73'
+    compileOnly 'org.apache.commons:commons-email:1.5'
     implementation 'net.kyori:adventure-text-minimessage:4.2.0-SNAPSHOT'
     implementation 'com.github.kyngs:LegacyMessage:0.2.0'
 

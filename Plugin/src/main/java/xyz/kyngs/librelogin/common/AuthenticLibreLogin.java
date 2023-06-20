@@ -29,6 +29,7 @@ import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.PostgreSQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
+import xyz.kyngs.librelogin.api.mail.EmailHandler;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
@@ -57,6 +58,7 @@ import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
 import xyz.kyngs.librelogin.common.log.Log4JFilter;
 import xyz.kyngs.librelogin.common.log.SimpleLogFilter;
+import xyz.kyngs.librelogin.common.mail.AuthenticEMailHandler;
 import xyz.kyngs.librelogin.common.migrate.*;
 import xyz.kyngs.librelogin.common.premium.AuthenticPremiumProvider;
 import xyz.kyngs.librelogin.common.server.AuthenticServerHandler;
@@ -104,6 +106,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private CommandProvider<P, S> commandProvider;
     private ReadWriteDatabaseProvider databaseProvider;
     private DatabaseConnector<?, ?> databaseConnector;
+    private AuthenticEMailHandler eMailHandler;
 
     protected AuthenticLibreLogin() {
         cryptoProviders = new HashMap<>();
@@ -126,6 +129,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     @Override
     public void registerReadProvider(ReadDatabaseProviderRegistration<?, ?, ?> registration) {
         readProviders.put(registration.id(), registration);
+    }
+
+    @Nullable
+    @Override
+    public EmailHandler getEmailHandler() {
+        return eMailHandler;
     }
 
     public void registerDatabaseConnector(DatabaseConnectorRegistration<?, ?> registration, Class<?> clazz) {
@@ -277,6 +286,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
         authorizationProvider = new AuthenticAuthorizationProvider<>(this);
         commandProvider = new CommandProvider<>(this);
+        eMailHandler = configuration.get(MAIL_ENABLED) ? new AuthenticEMailHandler(this) : null;
 
         if (version.dev()) {
             logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBRELOGIN !!");
@@ -625,9 +635,30 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         );
 
         dependencies.add(Library.builder()
-                .groupId("org.postgresql")
+                .groupId("org{}postgresql")
                 .artifactId("postgresql")
                 .version("42.6.0")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("javax{}activation")
+                .artifactId("activation")
+                .version("1.1")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("com{}sun{}mail")
+                .artifactId("javax.mail")
+                .version("1.5.6")
+                .build()
+        );
+
+        dependencies.add(Library.builder()
+                .groupId("org{}apache{}commons")
+                .artifactId("commons-email")
+                .version("1.5")
                 .build()
         );
 
