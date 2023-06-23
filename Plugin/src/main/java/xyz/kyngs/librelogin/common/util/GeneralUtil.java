@@ -183,4 +183,13 @@ public class GeneralUtil {
                 .toString();
     }
 
+    public static Field getFieldByType(Class<?> clazz, Class<?> fieldType) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getType().equals(fieldType)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
 }

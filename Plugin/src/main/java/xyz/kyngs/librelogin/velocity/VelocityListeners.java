@@ -14,14 +14,64 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.player.GameProfileRequestEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
+import com.velocitypowered.api.proxy.InboundConnection;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
 import net.kyori.adventure.text.Component;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
+import xyz.kyngs.librelogin.common.util.GeneralUtil;
+
+import java.lang.reflect.Field;
+import java.util.Objects;
 
 public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Player, RegisteredServer> {
+
+    private static final AttributeKey<?> FLOODGATE_ATTR = AttributeKey.valueOf("floodgate-player");
+    private static final Field INITIAL_MINECRAFT_CONNECTION;
+    private static final Field INITIAL_CONNECTION_DELEGATE;
+    private static final Field CHANNEL;
+
+    static {
+        try {
+            Class<?> initialConnection = Class.forName("com.velocitypowered.proxy.connection.client.InitialInboundConnection");
+            Class<?> minecraftConnection = Class.forName("com.velocitypowered.proxy.connection.MinecraftConnection");
+            INITIAL_MINECRAFT_CONNECTION = GeneralUtil.getFieldByType(initialConnection, minecraftConnection);
+            if (INITIAL_MINECRAFT_CONNECTION != null) {
+                INITIAL_MINECRAFT_CONNECTION.setAccessible(true);
+            }
+
+            // Since Velocity 3.1.0
+            Class<?> loginInboundConnection;
+            try {
+                loginInboundConnection = Class.forName("com.velocitypowered.proxy.connection.client.LoginInboundConnection");
+            } catch (ClassNotFoundException e) {
+                loginInboundConnection = null;
+            }
+
+            if (loginInboundConnection != null) {
+                INITIAL_CONNECTION_DELEGATE = loginInboundConnection.getDeclaredField("delegate");
+                INITIAL_CONNECTION_DELEGATE.setAccessible(true);
+                Objects.requireNonNull(
+                        INITIAL_CONNECTION_DELEGATE,
+                        "initial inbound connection delegate cannot be null"
+                );
+            } else {
+                INITIAL_CONNECTION_DELEGATE = null;
+            }
+
+            CHANNEL = GeneralUtil.getFieldByType(minecraftConnection, Channel.class);
+            if (CHANNEL != null) {
+                CHANNEL.setAccessible(true);
+            }
+        } catch (ClassNotFoundException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public VelocityListeners(VelocityLibreLogin plugin) {
         super(plugin);
     }
@@ -52,8 +102,31 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
     @Subscribe(order = PostOrder.LAST)
     public void onPreLogin(PreLoginEvent event) {
 
-        if (!event.getResult().isAllowed() || event.getResult() == PreLoginEvent.PreLoginComponentResult.forceOfflineMode())
-            return; // The offline mode checking thingy indicates that the player is coming from Floodgate. I know this is a terrible solution, but it's the best I have for now.
+        if (!event.getResult().isAllowed())
+            return;
+
+        // If floodgate is present, attempt to extract the floodgate player from the connection channel.
+        if (plugin.floodgateEnabled()) {
+            Channel channel;
+            InboundConnection connection = event.getConnection();
+            try {
+                if (INITIAL_CONNECTION_DELEGATE != null) {
+                    connection = (InboundConnection) INITIAL_CONNECTION_DELEGATE.get(connection);
+                }
+
+                Object mcConnection = INITIAL_MINECRAFT_CONNECTION.get(connection);
+                channel = (Channel) CHANNEL.get(mcConnection);
+
+                if (channel.attr(FLOODGATE_ATTR).get() != null) {
+                    return; // Player is coming from Floodgate
+                }
+            } catch (Exception e) {
+                plugin.getLogger().warn("Failed to check if player is coming from Floodgate.");
+                e.printStackTrace();
+                event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("Internal LibreLogin error")));
+                return;
+            }
+        }
 
         var result = onPreLogin(event.getUsername(), event.getConnection().getRemoteAddress().getAddress());
 
