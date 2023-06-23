@@ -60,4 +60,8 @@ public interface User {
 
     boolean autoLoginEnabled();
 
+    String getEmail();
+
+    void setEmail(String email);
+
 }

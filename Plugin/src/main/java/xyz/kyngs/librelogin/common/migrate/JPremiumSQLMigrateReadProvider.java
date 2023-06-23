@@ -68,7 +68,9 @@ public class JPremiumSQLMigrateReadProvider extends SQLMigrateReadProvider {
                             null,
                             null,
                             null,
-                            null));
+                            null,
+                            null
+                    ));
 
                 } catch (Exception e) {
                     logger.error("Failed to read user from JPremium db, omitting");

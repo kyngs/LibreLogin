@@ -43,7 +43,6 @@ public interface EmailHandler {
      *
      * @param email The email to send the email to.
      * @param token The token to verify the email.
-     * @param ip    The ip of the user.
      */
-    void sendVerificationMail(String email, String token, String ip);
+    void sendVerificationMail(String email, String token, String username);
 }

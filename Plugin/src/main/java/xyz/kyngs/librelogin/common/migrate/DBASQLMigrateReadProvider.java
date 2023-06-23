@@ -60,7 +60,9 @@ public class DBASQLMigrateReadProvider extends SQLMigrateReadProvider {
                                     null,
                                     null,
                                     null,
-                                    null)
+                                    null,
+                                    null
+                            )
                     );
 
                 } catch (Exception e) {

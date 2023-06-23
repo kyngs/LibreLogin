@@ -298,6 +298,27 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_NO_MAIL_CONFIRM = new ConfigurationKey<>(
+            "error-no-mail-confirm",
+            "Please use /setemail <email> <password> first!",
+            "This message is displayed when the player tries to run /mailconfirm, before running /mail.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> ERROR_MAIL_THROTTLE = new ConfigurationKey<>(
+            "error-mail-throttle",
+            "You are sending emails too fast! Please wait a bit.",
+            "This message is displayed when the player tries to send mail too fast.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> ERROR_WRONG_MAIL_VERIFY = new ConfigurationKey<>(
+            "error-wrong-mail-verify",
+            "Wrong verification code!",
+            "This message is displayed when the player tries to verify their email with a wrong verification code.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_CORRUPTED_MESSAGES = new ConfigurationKey<>(
             "error-corrupted-messages",
             "Messages are corrupted, old ones are going to be kept. Cause: %cause%",
@@ -397,6 +418,13 @@ public class MessageKeys {
             "error-unknown-command",
             "Unknown command!",
             "This message is displayed when the player uses an unknown command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> ERROR_MAIL_NOT_SENT = new ConfigurationKey<>(
+            "error-mail-not-sent",
+            "Failed to send email, perhaps you typed your address wrong? If you are sure that you typed it correctly, please contact an administrator.",
+            "This message is displayed when the player tries to send a mail, but it fails to send.",
             ConfigurateHelper::getString
     );
 
@@ -586,6 +614,27 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> INFO_MAIL_SENDING = new ConfigurationKey<>(
+            "info-mail-sending",
+            "Sending email...",
+            "This message is displayed when the user executes a command that sends an email.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_MAIL_VERIFIED = new ConfigurationKey<>(
+            "info-mail-verified",
+            "Email verified! You can now reset your password if you forget it.",
+            "This message is displayed when the user verifies their email.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_VERIFICATION_MAIL_SENT = new ConfigurationKey<>(
+            "info-verification-mail-sent",
+            "Verification email sent! If you don't see anything in your inbox, check your spam folder. You have 10 minutes to verify your email.",
+            "This message is displayed when the user executes a command that sends an email.",
+            ConfigurateHelper::getString
+    );
+
     /*
     Prompts
      */
@@ -690,6 +739,30 @@ public class MessageKeys {
             "totp-wrong-version",
             "You must connect with client version %low% - %high%, in order to enable 2FA. You can then connect back with old version again.",
             "This message is displayed when the player attempts to enable 2FA with an old client.",
+            ConfigurateHelper::getString
+    );
+
+    /*
+    Emails
+     */
+
+    public static final ConfigurationKey<String> EMAIL_VERIFICATION = new ConfigurationKey<>(
+            "email-verification-content",
+            """
+                    Hello %name%!<br>
+                    You have requested to add a recovery email on %server%.<br>
+                    If you did not request this, please ignore this email.<br>
+                    To confirm this action, please <b>run the following command in-game: </b><br>
+                    <b><code>/verifyemail %code%</code></b><br>
+                    """,
+            "This emails is sent to the player when they request to add a recovery email. You can insert any HTML code into this message.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> EMAIL_VERIFICATION_SUBJECT = new ConfigurationKey<>(
+            "email-verification-subject",
+            "Verify your email on %server%",
+            "This is the subject of the email sent to the player when they request to add a recovery email.",
             ConfigurateHelper::getString
     );
 
@@ -821,6 +894,20 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_SET_EMAIL = new ConfigurationKey<>(
+            "syntax.set-email",
+            "<address> <password>",
+            "This message is displayed when the player attempts to set email with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_VERIFY_EMAIL = new ConfigurationKey<>(
+            "syntax.verify-email",
+            "<code>",
+            "This message is displayed when the player attempts to verify email with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     /*
     Commands autocomplete
      */
@@ -949,6 +1036,20 @@ public class MessageKeys {
             "autocomplete.email-test",
             "address",
             "This hint is displayed when the player starts typing the /librelogin email test command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_SET_EMAIL = new ConfigurationKey<>(
+            "autocomplete.set-email",
+            "address password",
+            "This hint is displayed when the player starts typing the /librelogin email set command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_VERIFY_EMAIL = new ConfigurationKey<>(
+            "autocomplete.verify-email",
+            "code",
+            "This hint is displayed when the player starts typing the /librelogin email verify command.",
             ConfigurateHelper::getString
     );
 }

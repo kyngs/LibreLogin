@@ -6,6 +6,8 @@
 
 package xyz.kyngs.librelogin.common.authorization;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -24,11 +26,15 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S> implements AuthorizationProvider<P> {
 
     private final Map<P, Boolean> unAuthorized;
     private final Map<P, String> awaiting2FA;
+    private final Cache<UUID, EmailVerifyData> emailConfirmCache;
+    private final Cache<UUID, String> passwordResetCache;
 
     public AuthenticAuthorizationProvider(AuthenticLibreLogin<P, S> plugin) {
         super(plugin);
@@ -42,6 +48,29 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         }
 
         plugin.repeat(this::broadcastActionbars, 0, 1000);
+
+        emailConfirmCache = Caffeine.newBuilder()
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .build();
+
+        passwordResetCache = Caffeine.newBuilder()
+                .expireAfterWrite(10, TimeUnit.MINUTES)
+                .build();
+    }
+
+    public Cache<UUID, EmailVerifyData> getEmailConfirmCache() {
+        return emailConfirmCache;
+    }
+
+    public Cache<UUID, String> getPasswordResetCache() {
+        return passwordResetCache;
+    }
+
+    public void onExit(P player) {
+        stopTracking(player);
+        awaiting2FA.remove(player);
+        emailConfirmCache.invalidate(platformHandle.getUUIDForPlayer(player));
+        passwordResetCache.invalidate(platformHandle.getUUIDForPlayer(player));
     }
 
     @Override
@@ -169,9 +198,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         wrong.forEach(unAuthorized::remove);
     }
 
-    public void onExit(P player) {
-        stopTracking(player);
-        awaiting2FA.remove(player);
+    public record EmailVerifyData(String email, String token, UUID uuid) {
     }
 
     public void beginTwoFactorAuth(User user, P player, TOTPData data) {

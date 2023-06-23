@@ -325,6 +325,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
                     null,
                     null,
                     Timestamp.valueOf(LocalDateTime.now()),
+                    null,
                     null
             );
 

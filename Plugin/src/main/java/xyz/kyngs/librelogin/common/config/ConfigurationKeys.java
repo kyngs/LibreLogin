@@ -318,7 +318,7 @@ public class ConfigurationKeys {
     );
     public static final ConfigurationKey<String> MAIL_SENDER = new ConfigurationKey<>(
             "mail.sender",
-            "LibreLogin",
+            "LibreLogin Network",
             "The sender of the email.",
             ConfigurateHelper::getString
     );

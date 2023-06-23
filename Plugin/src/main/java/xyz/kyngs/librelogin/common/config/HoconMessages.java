@@ -32,6 +32,7 @@ public class HoconMessages implements Messages {
             .build();
     private final Map<String, TextComponent> messages;
     private final Logger logger;
+    private ConfigurateConfiguration rawMessages;
 
     public HoconMessages(Logger logger) {
         this.logger = logger;
@@ -90,6 +91,7 @@ public class HoconMessages implements Messages {
         );
 
         extractKeys("", adept.getHelper().configuration());
+        rawMessages = adept;
     }
 
     private void extractKeys(String prefix, CommentedConfigurationNode node) {
@@ -106,5 +108,9 @@ public class HoconMessages implements Messages {
                 extractKeys(prefix + str + ".", value);
             }
         });
+    }
+
+    public String getRawMessage(String key) {
+        return rawMessages.getHelper().getString(key);
     }
 }

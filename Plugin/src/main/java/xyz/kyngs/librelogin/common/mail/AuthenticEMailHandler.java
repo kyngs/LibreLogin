@@ -76,7 +76,14 @@ public class AuthenticEMailHandler implements EmailHandler {
     }
 
     @Override
-    public void sendVerificationMail(String email, String token, String ip) {
-
+    public void sendVerificationMail(String email, String token, String username) {
+        sendEmail(email,
+                plugin.getMessages().getRawMessage("email-verification-subject")
+                        .replace("%server%", plugin.getConfiguration().get(ConfigurationKeys.MAIL_SENDER)),
+                plugin.getMessages().getRawMessage("email-verification-content")
+                        .replace("%name%", username)
+                        .replace("%server%", plugin.getConfiguration().get(ConfigurationKeys.MAIL_SENDER))
+                        .replace("%code%", token)
+        );
     }
 }

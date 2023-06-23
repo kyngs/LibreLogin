@@ -203,7 +203,9 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                         null,
                         ip.getHostAddress(),
                         null,
-                        null);
+                        null,
+                        null
+                );
             } else {
                 user = new AuthenticUser(
                         newID,
@@ -215,7 +217,9 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                         null,
                         ip.getHostAddress(),
                         null,
-                        null);
+                        null,
+                        null
+                );
             }
 
             plugin.getDatabaseProvider().insertUser(user);

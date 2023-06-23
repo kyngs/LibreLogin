@@ -69,6 +69,7 @@ public class NLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
                             null,
                             ip,
                             Timestamp.from(Instant.EPOCH),
+                            null,
                             null
                     ));
 

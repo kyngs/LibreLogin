@@ -71,7 +71,9 @@ public class AuthMeSQLMigrateReadProvider extends SQLMigrateReadProvider {
                                     null,
                                     null,
                                     null,
-                                    null)
+                                    null,
+                                    null
+                            )
                     );
 
                 } catch (Exception e) {

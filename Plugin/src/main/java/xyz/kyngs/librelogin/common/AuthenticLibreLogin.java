@@ -29,7 +29,6 @@ import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.PostgreSQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
-import xyz.kyngs.librelogin.api.mail.EmailHandler;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
@@ -131,9 +130,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         readProviders.put(registration.id(), registration);
     }
 
-    @Nullable
     @Override
-    public EmailHandler getEmailHandler() {
+    public AuthenticEMailHandler getEmailHandler() {
         return eMailHandler;
     }
 
@@ -283,10 +281,10 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         }
 
         totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
+        eMailHandler = configuration.get(MAIL_ENABLED) ? new AuthenticEMailHandler(this) : null;
 
         authorizationProvider = new AuthenticAuthorizationProvider<>(this);
         commandProvider = new CommandProvider<>(this);
-        eMailHandler = configuration.get(MAIL_ENABLED) ? new AuthenticEMailHandler(this) : null;
 
         if (version.dev()) {
             logger.warn("!! YOU ARE RUNNING A DEVELOPMENT BUILD OF LIBRELOGIN !!");

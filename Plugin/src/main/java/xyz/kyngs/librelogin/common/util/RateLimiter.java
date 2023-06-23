@@ -8,7 +8,6 @@ package xyz.kyngs.librelogin.common.util;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.Ticker;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,7 +24,6 @@ public class RateLimiter<T> {
 
     public RateLimiter(long amount, TimeUnit unit) {
         expiring = Caffeine.newBuilder()
-                .ticker(Ticker.systemTicker())
                 .expireAfterWrite(amount, unit)
                 .build();
     }
