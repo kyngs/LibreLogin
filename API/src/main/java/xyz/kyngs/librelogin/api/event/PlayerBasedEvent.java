@@ -29,7 +29,7 @@ public interface PlayerBasedEvent<P, S> extends Event<P, S> {
     /**
      * Gets the player
      *
-     * @return the player
+     * @return the player, or null if the affected player did not execute the change
      */
     @Nullable
     P getPlayer();

@@ -156,6 +156,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_NO_EMAIL = new ConfigurationKey<>(
+            "error-no-email",
+            "You don't have a recovery email set!",
+            "This message is displayed when the player tries to recover their password, but they don't have a recovery email set.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_ALREADY_AUTHORIZED = new ConfigurationKey<>(
             "error-already-authorized",
             "You are already authorized!",
@@ -305,6 +312,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> ERROR_NO_PASSWORD_RESET = new ConfigurationKey<>(
+            "error-no-password-reset",
+            "Please use /resetpassword first!",
+            "This message is displayed when the player tries to run /resetpasswordconfirm, before running /resetpassword.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> ERROR_MAIL_THROTTLE = new ConfigurationKey<>(
             "error-mail-throttle",
             "You are sending emails too fast! Please wait a bit.",
@@ -316,6 +330,13 @@ public class MessageKeys {
             "error-wrong-mail-verify",
             "Wrong verification code!",
             "This message is displayed when the player tries to verify their email with a wrong verification code.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> ERROR_WRONG_PASSWORD_RESET = new ConfigurationKey<>(
+            "error-wrong-password-reset",
+            "Wrong password reset code!",
+            "This message is displayed when the player tries to reset their password with a wrong password reset code.",
             ConfigurateHelper::getString
     );
 
@@ -509,6 +530,20 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> INFO_RESETTING_PASSWORD = new ConfigurationKey<>(
+            "info-resetting-password",
+            "Resetting password...",
+            "This message is displayed when the player attempts to reset their password.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_PASSWORD_RESET = new ConfigurationKey<>(
+            "info-password-reset",
+            "Password reset! You can now log in with your new password.",
+            "This message is displayed when the player resets their password.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> INFO_DUMPING = new ConfigurationKey<>(
             "info-dumping",
             "Creating dump...",
@@ -631,7 +666,14 @@ public class MessageKeys {
     public static final ConfigurationKey<String> INFO_VERIFICATION_MAIL_SENT = new ConfigurationKey<>(
             "info-verification-mail-sent",
             "Verification email sent! If you don't see anything in your inbox, check your spam folder. You have 10 minutes to verify your email.",
-            "This message is displayed when the user executes a command that sends an email.",
+            "This message is displayed when the user executes a command that sends a verification email.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> INFO_RESET_PASSWORD_MAIL_SENT = new ConfigurationKey<>(
+            "info-reset-password-mail-sent",
+            "Password reset email sent! If you don't see anything in your inbox, check your spam folder. You have 10 minutes to reset your password.",
+            "This message is displayed when the user executes a command that sends a reset email.",
             ConfigurateHelper::getString
     );
 
@@ -746,16 +788,16 @@ public class MessageKeys {
     Emails
      */
 
-    public static final ConfigurationKey<String> EMAIL_VERIFICATION = new ConfigurationKey<>(
+    public static final ConfigurationKey<String> EMAIL_VERIFICATION_CONTENT = new ConfigurationKey<>(
             "email-verification-content",
             """
                     Hello %name%!<br>
                     You have requested to add a recovery email on %server%.<br>
                     If you did not request this, please ignore this email.<br>
                     To confirm this action, please <b>run the following command in-game: </b><br>
-                    <b><code>/verifyemail %code%</code></b><br>
+                    <b><code><h1>/verifyemail %code%</h1></code></b><br>
                     """,
-            "This emails is sent to the player when they request to add a recovery email. You can insert any HTML code into this message.",
+            "This email is sent to the player when they request to add a recovery email. You can insert any HTML code into this message.",
             ConfigurateHelper::getString
     );
 
@@ -763,6 +805,26 @@ public class MessageKeys {
             "email-verification-subject",
             "Verify your email on %server%",
             "This is the subject of the email sent to the player when they request to add a recovery email.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> EMAIL_PASSWORD_RESET_CONTENT = new ConfigurationKey<>(
+            "email-password-reset-content",
+            """
+                    Hello %name%!<br>
+                    You (from IP %ip%) have requested to reset your password on %server%.<br>
+                    If you did not request this, please ignore this email.<br>
+                    To confirm this action, please <b>run the following command in-game: </b><br>
+                    <b><code><h1>/confirmpasswordreset %code%</h1></code></b><br>
+                    """,
+            "This email is sent to the player when they request to reset their password. You can insert any HTML code into this message.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> EMAIL_PASSWORD_RESET_SUBJECT = new ConfigurationKey<>(
+            "email-password-reset-subject",
+            "Reset your password on %server%",
+            "This is the subject of the email sent to the player when they request to reset their password.",
             ConfigurateHelper::getString
     );
 
@@ -908,6 +970,20 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_RESET_PASSWORD = new ConfigurationKey<>(
+            "syntax.reset-password",
+            "",
+            "This message is displayed when the player attempts to reset password with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_CONFIRM_PASSWORD_RESET = new ConfigurationKey<>(
+            "syntax.confirm-password-reset",
+            "<code> <password> <passwordRepeat>",
+            "This message is displayed when the player attempts to confirm password reset with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     /*
     Commands autocomplete
      */
@@ -1042,14 +1118,28 @@ public class MessageKeys {
     public static final ConfigurationKey<String> AUTOCOMPLETE_SET_EMAIL = new ConfigurationKey<>(
             "autocomplete.set-email",
             "address password",
-            "This hint is displayed when the player starts typing the /librelogin email set command.",
+            "This hint is displayed when the player starts typing the /setemail command.",
             ConfigurateHelper::getString
     );
 
     public static final ConfigurationKey<String> AUTOCOMPLETE_VERIFY_EMAIL = new ConfigurationKey<>(
             "autocomplete.verify-email",
             "code",
-            "This hint is displayed when the player starts typing the /librelogin email verify command.",
+            "This hint is displayed when the player starts typing the /verifyemail command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_RESET_PASSWORD = new ConfigurationKey<>(
+            "autocomplete.reset-password",
+            "",
+            "This hint is displayed when the player starts typing the /resetpassword command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_CONFIRM_PASSWORD_RESET = new ConfigurationKey<>(
+            "autocomplete.confirm-password-reset",
+            "code newPassword newPassword",
+            "This hint is displayed when the player starts typing the /confirmpasswordreset command.",
             ConfigurateHelper::getString
     );
 }

@@ -15,6 +15,7 @@ import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
+import xyz.kyngs.librelogin.common.event.events.AuthenticPasswordChangeEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
@@ -50,7 +51,8 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
     @CommandCompletion("%autocomplete.email-test")
     public CompletionStage<Void> onEmailTest(Audience audience, String email) {
         return runAsync(() -> {
-            requirePasswordResetting();
+            if (plugin.getEmailHandler() == null)
+                throw new InvalidCommandArgument(getMessage("error-password-resetting-disabled"));
             audience.sendMessage(getMessage("info-sending-email"));
             plugin.getEmailHandler().sendTestMail(email);
             audience.sendMessage(getMessage("info-sent-email"));
@@ -380,22 +382,15 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
     public CompletionStage<Void> onUserPasswordChange(Audience audience, String name, String password) {
         return runAsync(() -> {
             var user = getUserOtherWiseInform(name);
+            var old = user.getHashedPassword();
 
-            audience.sendMessage(getMessage("info-editing"));
-
-            var defaultProvider = plugin.getDefaultCryptoProvider();
-
-            var hashedPassword = defaultProvider.createHash(password);
-
-            if (hashedPassword == null) {
-                throw new InvalidCommandArgument(getMessage("error-password-too-long"));
-            }
-
-            user.setHashedPassword(hashedPassword);
+            setPassword(audience, user, password, "info-editing");
 
             getDatabaseProvider().updateUser(user);
 
             audience.sendMessage(getMessage("info-edited"));
+
+            plugin.getEventProvider().unsafeFire(plugin.getEventTypes().passwordChange, new AuthenticPasswordChangeEvent<>(user, null, plugin, old));
         });
     }
 

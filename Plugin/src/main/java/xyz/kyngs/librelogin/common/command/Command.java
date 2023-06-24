@@ -8,6 +8,7 @@ package xyz.kyngs.librelogin.common.command;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.MessageKeys;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.TextComponent;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.configuration.Messages;
@@ -72,6 +73,23 @@ public class Command<P> extends BaseCommand {
         if (plugin.fromFloodgate(uuid)) throw new InvalidCommandArgument(getMessage("error-from-floodgate"));
 
         return plugin.getDatabaseProvider().getByUUID(uuid);
+    }
+
+    protected void setPassword(Audience sender, User user, String password, String messageKey) {
+        if (!plugin.validPassword(password))
+            throw new InvalidCommandArgument(getMessage("error-forbidden-password"));
+
+        sender.sendMessage(getMessage(messageKey));
+
+        var defaultProvider = plugin.getDefaultCryptoProvider();
+
+        var hash = defaultProvider.createHash(password);
+
+        if (hash == null) {
+            throw new InvalidCommandArgument(getMessage("error-password-too-long"));
+        }
+
+        user.setHashedPassword(hash);
     }
 
 }

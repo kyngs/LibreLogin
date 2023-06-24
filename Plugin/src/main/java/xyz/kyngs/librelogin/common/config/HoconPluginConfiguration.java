@@ -53,7 +53,7 @@ public class HoconPluginConfiguration {
                           You can find more information about LibreLogin on the github page:
                           https://github.com/kyngs/LibreLogin
                         """,
-                logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator(), new ThirdConfigurationMigrator(), new FourthConfigurationMigrator(), new FifthConfigurationMigrator()
+                logger, new FirstConfigurationMigrator(), new SecondConfigurationMigrator(), new ThirdConfigurationMigrator(), new FourthConfigurationMigrator(), new FifthConfigurationMigrator(), new SixthConfigurationMigrator()
         );
 
         var helperAdept = adept.getHelper();

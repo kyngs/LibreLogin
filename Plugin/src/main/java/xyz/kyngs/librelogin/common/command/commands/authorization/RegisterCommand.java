@@ -31,20 +31,8 @@ public class RegisterCommand<P> extends AuthorizationCommand<P> {
             if (user.isRegistered()) throw new InvalidCommandArgument(getMessage("error-already-registered"));
             if (!password.contentEquals(passwordRepeat))
                 throw new InvalidCommandArgument(getMessage("error-password-not-match"));
-            if (!plugin.validPassword(password))
-                throw new InvalidCommandArgument(getMessage("error-forbidden-password"));
 
-            sender.sendMessage(getMessage("info-registering"));
-
-            var provider = plugin.getDefaultCryptoProvider();
-
-            var hash = provider.createHash(password);
-
-            if (hash == null) {
-                throw new InvalidCommandArgument(getMessage("error-password-too-long"));
-            }
-
-            user.setHashedPassword(hash);
+            setPassword(sender, user, password, "info-registering");
 
             sender.sendMessage(getMessage("info-registered"));
 

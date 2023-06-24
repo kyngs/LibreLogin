@@ -32,8 +32,6 @@ public class ChangePasswordCommand<P> extends Command<P> {
                 throw new InvalidCommandArgument(getMessage("error-no-password"));
             }
 
-            sender.sendMessage(getMessage("info-editing"));
-
             var hashed = user.getHashedPassword();
             var crypto = getCrypto(hashed);
 
@@ -41,15 +39,7 @@ public class ChangePasswordCommand<P> extends Command<P> {
                 throw new InvalidCommandArgument(getMessage("error-password-wrong"));
             }
 
-            var defaultProvider = plugin.getDefaultCryptoProvider();
-
-            var hash = defaultProvider.createHash(newPass);
-
-            if (hash == null) {
-                throw new InvalidCommandArgument(getMessage("error-password-too-long"));
-            }
-
-            user.setHashedPassword(hash);
+            setPassword(sender, user, newPass, "info-editing");
 
             getDatabaseProvider().updateUser(user);
 

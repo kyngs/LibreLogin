@@ -71,8 +71,16 @@ public class AuthenticEMailHandler implements EmailHandler {
     }
 
     @Override
-    public void sendPasswordResetMail(String email, String token, String ip) {
-
+    public void sendPasswordResetMail(String email, String token, String username, String ip) {
+        sendEmail(email,
+                plugin.getMessages().getRawMessage("email-password-reset-subject")
+                        .replace("%server%", plugin.getConfiguration().get(ConfigurationKeys.MAIL_SENDER)),
+                plugin.getMessages().getRawMessage("email-password-reset-content")
+                        .replace("%server%", plugin.getConfiguration().get(ConfigurationKeys.MAIL_SENDER))
+                        .replace("%code%", token)
+                        .replace("%ip%", ip)
+                        .replace("%name%", username)
+        );
     }
 
     @Override

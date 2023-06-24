@@ -36,7 +36,7 @@ public interface EmailHandler {
      * @param token The token to reset the password.
      * @param ip    The ip of the user.
      */
-    void sendPasswordResetMail(String email, String token, String ip);
+    void sendPasswordResetMail(String email, String token, String username, String ip);
 
     /**
      * This method sends a verification email to the user.

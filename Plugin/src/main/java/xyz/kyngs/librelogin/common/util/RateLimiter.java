@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Basic rate limiter using Caffeine's cache as a backend
+ * Basic rate limiter using Caffeine's cache as a backend.<br>
+ * <b>This implementation is thread-safe.</b>
  *
  * @param <T> key type
  * @author kyngs
