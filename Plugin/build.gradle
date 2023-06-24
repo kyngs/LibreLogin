@@ -71,7 +71,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-proxy:3.0.1'
 
     //MySQL
-    compileOnly 'mysql:mysql-connector-java:8.0.30'
+    compileOnly 'mysql:mysql-connector-java:8.0.33'
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
 
     //SQLite
