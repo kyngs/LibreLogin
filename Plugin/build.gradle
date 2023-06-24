@@ -104,7 +104,7 @@ dependencies {
     compileOnly 'com.github.limework.redisbungee:RedisBungee-API:0.7.2'
 
     //BStats
-    implementation 'org.bstats:bstats-velocity:3.0.0'
+    implementation 'org.bstats:bstats-velocity:3.0.2'
     implementation 'org.bstats:bstats-bungeecord:3.0.0'
     implementation 'org.bstats:bstats-bukkit:3.0.0'
 
