@@ -75,7 +75,7 @@ dependencies {
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
 
     //SQLite
-    compileOnly 'org.xerial:sqlite-jdbc:3.40.1.0'
+    compileOnly 'org.xerial:sqlite-jdbc:3.42.0.0'
 
     //PostgreSQL
     compileOnly 'org.postgresql:postgresql:42.6.0'
