@@ -106,7 +106,7 @@ dependencies {
     //BStats
     implementation 'org.bstats:bstats-velocity:3.0.2'
     implementation 'org.bstats:bstats-bungeecord:3.0.2'
-    implementation 'org.bstats:bstats-bukkit:3.0.0'
+    implementation 'org.bstats:bstats-bukkit:3.0.2'
 
     //Paper
     compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
