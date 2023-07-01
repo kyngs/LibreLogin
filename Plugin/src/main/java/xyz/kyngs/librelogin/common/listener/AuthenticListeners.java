@@ -14,6 +14,7 @@ import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.authorization.ProfileConflictResolutionStrategy;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
@@ -77,10 +78,10 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-illegal-username"), null);
         }
 
-        PremiumUser premium;
+        PremiumUser mojangData;
 
         try {
-            premium = plugin.getPremiumProvider().getUserForName(username);
+            mojangData = plugin.getPremiumProvider().getUserForName(username);
         } catch (PremiumException e) {
             var message = switch (e.getIssue()) {
                 case THROTTLED -> plugin.getMessages().getMessage("kick-premium-error-throttled");
@@ -94,7 +95,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             return new PreLoginResult(PreLoginState.DENIED, message, null);
         }
 
-        if (premium == null) {
+        if (mojangData == null) {
+            // A user with this name does not exist in the Mojang database. It is impossible for this user to be premium.
             User user;
             try {
                 user = checkAndValidateByName(username, null, true, address);
@@ -104,12 +106,14 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
 
             //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
             if (user.getPremiumUUID() != null) {
+                // Disable auto login
                 user.setPremiumUUID(null);
                 plugin.getDatabaseProvider().updateUser(user);
                 plugin.getEventProvider().fire(plugin.getEventTypes().premiumLoginSwitch, new AuthenticPremiumLoginSwitchEvent<>(user, null, plugin));
             }
         } else {
-            var premiumID = premium.uuid();
+            // A user with this name exists in the Mojang database, we need to figure out whether to encrypt
+            var premiumID = mojangData.uuid();
             var user = plugin.getDatabaseProvider().getByPremiumUUID(premiumID);
 
             if (user == null) {
@@ -120,6 +124,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
                 }
 
+                // The following condition may be true if we've generated a new user
                 //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
                 if (userByName.autoLoginEnabled())
                     return new PreLoginResult(PreLoginState.FORCE_ONLINE, null, userByName);
@@ -132,14 +137,13 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                 }
 
                 if (byName != null && !user.equals(byName)) {
-                    // Oh, no
-                    return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-name-mismatch",
-                            "%nickname%", username
-                    ), null);
+                    // A user with this name already exists, however, it is not the same user as the premium one.
+                    return handleProfileConflict(user, byName);
                 }
 
-                if (!user.getLastNickname().contentEquals(premium.name())) {
-                    user.setLastNickname(premium.name());
+                if (!user.getLastNickname().contentEquals(mojangData.name())) {
+                    // User changed nickname, update DB
+                    user.setLastNickname(mojangData.name());
 
                     plugin.getDatabaseProvider().updateUser(user);
                 }
@@ -151,10 +155,38 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         return new PreLoginResult(PreLoginState.FORCE_OFFLINE, null, null);
     }
 
+    private PreLoginResult handleProfileConflict(User conflicting, User conflicted) {
+        return switch (ProfileConflictResolutionStrategy.valueOf(plugin.getConfiguration().get(ConfigurationKeys.PROFILE_CONFLICT_RESOLUTION_STRATEGY))) {
+            case BLOCK -> new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-name-mismatch",
+                    "%nickname%", conflicting.getLastNickname()
+            ), null);
+            case USE_OFFLINE -> new PreLoginResult(PreLoginState.FORCE_OFFLINE, null, null);
+            case OVERWRITE -> {
+                plugin.getDatabaseProvider().deleteUser(conflicted);
+                conflicting.setLastNickname(conflicted.getLastNickname());
+                plugin.getDatabaseProvider().updateUser(conflicting);
+                yield new PreLoginResult(PreLoginState.FORCE_ONLINE, null, conflicting);
+            }
+        };
+
+    }
+
+    /**
+     * Checks and validates a user by their username.
+     *
+     * @param username  The username of the user.
+     * @param premiumID The premium ID of the user.
+     * @param generate  True if a new user should be generated if the user doesn't exist, false otherwise.
+     * @param ip        The IP address of the user.
+     * @return The validated user, or null if the user doesn't exist and {@code generate} is false.
+     * @throws InvalidCommandArgument If the username is invalid or there are other validation issues.
+     */
     private User checkAndValidateByName(String username, @Nullable UUID premiumID, boolean generate, InetAddress ip) throws InvalidCommandArgument {
+        // Get the user by the name not case-sensitively
         var user = plugin.getDatabaseProvider().getByName(username);
 
         if (user != null) {
+            // Check for casing mismatch
             if (!user.getLastNickname().contentEquals(username)) {
                 throw new InvalidCommandArgument(plugin.getMessages().getMessage("kick-invalid-case-username",
                         "%username%", user.getLastNickname()

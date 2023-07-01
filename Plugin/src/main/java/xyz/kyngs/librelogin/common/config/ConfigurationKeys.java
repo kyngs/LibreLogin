@@ -8,6 +8,7 @@ package xyz.kyngs.librelogin.common.config;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import xyz.kyngs.librelogin.common.authorization.ProfileConflictResolutionStrategy;
 import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 
 import java.util.List;
@@ -71,6 +72,18 @@ public class ConfigurationKeys {
                     Argon-2ID - Newest, should be safer than BCrypt-2A, however, it can slow down the server.
                     """,
             ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> PROFILE_CONFLICT_RESOLUTION_STRATEGY = new ConfigurationKey<>(
+            "profile-conflict-resolution-strategy",
+            "BLOCK",
+            """
+                    Sets the strategy for resolving profile conflicts. Available strategies:
+                    BLOCK - Kick both players with the message key "kick-name-mismatch". An admin must resolve the conflict manually.
+                    USE_OFFLINE - Use the offline profile. When both of the players attempt to join, they will be provided with a login screen and will be able to login with the offline player's password. The online player will have to change their nickname to a available one in order to recover their account. Beware, that there's a 30 days cool down for changing nicknames.
+                    OVERWRITE - Overwrite the offline profile's data with the online profile's data. This will irreversibly delete the offline player's data. !!USE WITH CAUTION; PLAYERS CAN AND WILL ABUSE THIS!!
+                    """,
+            (helper, key) -> ProfileConflictResolutionStrategy.valueOf(helper.getString(key).toUpperCase()).name() // Sanity check
     );
 
     public static final ConfigurationKey<Boolean> KICK_ON_WRONG_PASSWORD = new ConfigurationKey<>(
