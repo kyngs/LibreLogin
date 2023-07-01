@@ -22,7 +22,7 @@ public class SimpleLogFilter extends LogFilter implements Filter {
 
     @Override
     public boolean isLoggable(LogRecord record) {
-        if (!filter.isLoggable(record)) return false;
+        if (filter != null && !filter.isLoggable(record)) return false;
 
         return checkMessage(record.getMessage());
     }
