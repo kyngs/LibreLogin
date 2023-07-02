@@ -203,6 +203,8 @@ public class ConfigurationKeys {
                     authme-sqlite - Can convert from SQLite AuthMe BCrypt and SHA256
                     aegis-mysql - Can convert from MySQL Aegis BCrypt
                     dba-mysql - Can convert from MySQL DynamicBungeeAuth, which was configured to use SHA-512
+                    fastlogin-sqlite - Can convert from SQLite FastLogin, !!YOU MUST RUN CONVERSION FROM AUTHME FIRST!!
+                    fastlogin-mysql - Can convert from MySQL FastLogin, !!YOU MUST RUN CONVERSION FROM AUTHME FIRST!!
                     librelogin-mysql - Can convert from MySQL LibreLogin, useful for migrating to a different database
                     librelogin-sqlite - Can convert from SQLite LibreLogin, useful for migrating to a different database
                     """,

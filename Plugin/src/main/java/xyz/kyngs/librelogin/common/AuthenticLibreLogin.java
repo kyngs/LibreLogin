@@ -25,10 +25,7 @@ import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.database.*;
-import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
-import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
-import xyz.kyngs.librelogin.api.database.connector.PostgreSQLDatabaseConnector;
-import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
+import xyz.kyngs.librelogin.api.database.connector.*;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
@@ -503,6 +500,16 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 connector -> new NLoginSQLMigrateReadProvider("nlogin", logger, connector),
                 "nlogin-mysql",
                 MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new FastLoginSQLMigrateReadProvider("premium", logger, connector, (SQLDatabaseConnector) databaseConnector),
+                "fastlogin-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new FastLoginSQLMigrateReadProvider("premium", logger, connector, (SQLDatabaseConnector) databaseConnector),
+                "fastlogin-sqlite",
+                SQLiteDatabaseConnector.class
         ));
     }
 

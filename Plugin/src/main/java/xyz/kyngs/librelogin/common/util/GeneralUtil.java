@@ -55,7 +55,7 @@ public class GeneralUtil {
     }
 
     public static UUID fromUnDashedUUID(String id) {
-        return new UUID(
+        return id == null ? null : new UUID(
                 new BigInteger(id.substring(0, 16), 16).longValue(),
                 new BigInteger(id.substring(16, 32), 16).longValue()
         );
