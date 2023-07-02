@@ -68,6 +68,7 @@ import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -226,6 +227,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         }
 
         loadLibraries();
+
+        try {
+            Files.copy(getResourceAsStream("LICENSE.txt"), new File(folder, "LICENSE.txt").toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ignored) {
+            // Silently ignore
+        }
 
         if (platformHandle.getPlatformIdentifier().equals("paper")) {
             LIMBO.setDefault(List.of("limbo"));
