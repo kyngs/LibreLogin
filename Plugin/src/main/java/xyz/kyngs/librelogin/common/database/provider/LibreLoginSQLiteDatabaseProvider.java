@@ -36,4 +36,9 @@ public class LibreLoginSQLiteDatabaseProvider extends LibreLoginSQLDatabaseProvi
     protected String getIgnoreSyntax() {
         return "OR IGNORE";
     }
+
+    @Override
+    protected String addUnique(String column) {
+        return "CREATE UNIQUE INDEX %s_index ON librepremium_data(%s);".formatted(column, column);
+    }
 }

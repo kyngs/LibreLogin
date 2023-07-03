@@ -232,7 +232,7 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
             connection.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS librepremium_data(" +
                             "uuid VARCHAR(255) NOT NULL PRIMARY KEY," +
-                            "premium_uuid VARCHAR(255)," +
+                            "premium_uuid VARCHAR(255) UNIQUE," +
                             "hashed_password VARCHAR(255)," +
                             "salt VARCHAR(255)," +
                             "algo VARCHAR(255)," +
@@ -244,6 +244,11 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
             ).executeUpdate();
 
             var columns = getColumnNames(connection);
+
+            try {
+                connection.prepareStatement(addUnique("premium_uuid")).executeUpdate();
+            } catch (SQLException ignored) {
+            }
 
             if (!columns.contains("secret"))
                 connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN secret VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
@@ -269,4 +274,6 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
     protected String getIgnoreSuffix() {
         return "";
     }
+
+    protected abstract String addUnique(String column);
 }

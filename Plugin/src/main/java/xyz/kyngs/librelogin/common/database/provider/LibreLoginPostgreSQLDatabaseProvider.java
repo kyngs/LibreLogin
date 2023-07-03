@@ -36,4 +36,9 @@ public class LibreLoginPostgreSQLDatabaseProvider extends LibreLoginSQLDatabaseP
     protected String getIgnoreSuffix() {
         return " ON CONFLICT DO NOTHING";
     }
+
+    @Override
+    protected String addUnique(String column) {
+        return "CREATE UNIQUE INDEX %s_index ON librepremium_data(%s)".formatted(column, column);
+    }
 }
