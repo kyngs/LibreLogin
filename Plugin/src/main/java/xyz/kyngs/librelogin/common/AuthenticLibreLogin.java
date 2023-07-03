@@ -501,16 +501,19 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "nlogin-mysql",
                 MySQLDatabaseConnector.class
         ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new FastLoginSQLMigrateReadProvider("premium", logger, connector, (SQLDatabaseConnector) databaseConnector),
-                "fastlogin-mysql",
-                MySQLDatabaseConnector.class
-        ));
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new FastLoginSQLMigrateReadProvider("premium", logger, connector, (SQLDatabaseConnector) databaseConnector),
-                "fastlogin-sqlite",
-                SQLiteDatabaseConnector.class
-        ));
+        if (databaseConnector instanceof SQLDatabaseConnector casted) {
+            registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                    connector -> new FastLoginSQLMigrateReadProvider("premium", logger, connector, casted),
+                    "fastlogin-mysql",
+                    MySQLDatabaseConnector.class
+            ));
+            registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                    connector -> new FastLoginSQLMigrateReadProvider("premium", logger, connector, casted),
+                    "fastlogin-sqlite",
+                    SQLiteDatabaseConnector.class
+            ));
+        }
+
     }
 
     private void loadLibraries() {
