@@ -6,6 +6,8 @@
 
 package xyz.kyngs.librelogin.api.premium;
 
+import java.util.UUID;
+
 /**
  * This interface handles {@link PremiumUser} fetching.
  *
@@ -21,5 +23,14 @@ public interface PremiumProvider {
      * @throws PremiumException If the user could not be fetched.
      */
     PremiumUser getUserForName(String name) throws PremiumException;
+
+    /**
+     * This method fetches a user by their UUID.
+     *
+     * @param uuid The UUID of the user.
+     * @return The user, or null if the user does not exist.
+     * @throws PremiumException If the user could not be fetched.
+     */
+    PremiumUser getUserForUUID(UUID uuid) throws PremiumException;
 
 }

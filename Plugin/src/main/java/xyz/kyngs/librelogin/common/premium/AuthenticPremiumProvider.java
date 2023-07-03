@@ -163,4 +163,31 @@ public class AuthenticPremiumProvider implements PremiumProvider {
             throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
         }
     }
+
+    @Override
+    public PremiumUser getUserForUUID(UUID uuid) throws PremiumException {
+        try {
+            plugin.reportMainThread();
+            var connection = (HttpURLConnection) new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString()).openConnection();
+
+            return switch (connection.getResponseCode()) {
+                case 429 ->
+                        throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                case 204, 404 -> null;
+                case 200 -> {
+                    var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+
+                    var name = data.get("name").getAsString();
+
+                    yield new PremiumUser(uuid, name);
+                }
+                case 500 ->
+                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+            };
+        } catch (IOException e) {
+            throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
+        }
+    }
 }
