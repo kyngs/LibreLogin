@@ -101,7 +101,7 @@ public class FastLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
 
                     if (name == null) {
                         logger.error("Registered names with the premium UUID do not match the mojang name %s, omitting".formatted(user.name()));
-                        break;
+                        continue;
                     } else {
                         logger.info("Found owner of the premium UUID %s, name %s".formatted(premiumUUID, name));
                     }
