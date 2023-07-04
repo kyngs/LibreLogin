@@ -55,6 +55,10 @@ public class FastLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
                 var names = entry.getValue();
                 var premiumUUID = entry.getKey();
 
+                if (premiumUUID == null) {
+                    continue;
+                }
+
                 String name = null;
 
                 if (names.size() == 1) {
