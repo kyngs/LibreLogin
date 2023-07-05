@@ -54,6 +54,7 @@ public class AuthenticEMailHandler implements EmailHandler {
             }
 
             mail.setHtmlMsg(content);
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
             mail.send();
         } catch (EmailException e) {
             throw new RuntimeException(e);
