@@ -28,7 +28,9 @@ public class ConfigurationKeys {
                     "2faconfirm",
                     "l",
                     "log",
-                    "reg"
+                    "reg",
+                    "resetpassword",
+                    "confirmpasswordreset"
             ),
             "Commands that are allowed while the user is not authorized.",
             ConfigurateHelper::getStringList
