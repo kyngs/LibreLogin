@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.common.command.commands.staff;
 
 import co.aikar.commands.annotation.*;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
@@ -22,6 +23,8 @@ import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -98,6 +101,44 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             server.add("servers", GSON.toJsonTree(proxyData.servers()));
             server.add("limbos", GSON.toJsonTree(proxyData.limbos()));
             server.add("lobbies", GSON.toJsonTree(proxyData.lobbies()));
+
+            var threads = new JsonObject();
+
+            var mxBean = ManagementFactory.getThreadMXBean();
+
+            for (ThreadInfo info : mxBean.dumpAllThreads(true, true)) {
+                var thread = new JsonObject();
+
+                thread.addProperty("id", info.getThreadId());
+                thread.addProperty("name", info.getThreadName());
+                thread.addProperty("state", info.getThreadState().name());
+                thread.addProperty("priority", info.getPriority());
+                thread.addProperty("isDaemon", info.isDaemon());
+                thread.addProperty("isInNative", info.isInNative());
+                thread.addProperty("isSuspended", info.isSuspended());
+
+                var lock = new JsonObject();
+
+                if (info.getLockName() != null) {
+                    lock.addProperty("name", info.getLockName());
+                    lock.addProperty("ownerId", info.getLockOwnerId());
+                    lock.addProperty("ownerName", info.getLockOwnerName());
+                }
+
+                thread.add("lock", lock);
+
+                var stackTrace = new JsonArray();
+
+                for (StackTraceElement element : info.getStackTrace()) {
+                    stackTrace.add(element.getClassName() + "#" + element.getMethodName() + "#" + element.getLineNumber());
+                }
+
+                thread.add("stackTrace", stackTrace);
+
+                threads.add(info.getThreadName(), thread);
+            }
+
+            server.add("threads", threads);
 
             dump.add("server", server);
 
