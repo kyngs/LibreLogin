@@ -20,8 +20,8 @@ public interface LobbyServerChooseEvent<P, S> extends ServerChooseEvent<P, S>, C
     /**
      * Checks if the event was called to select a fallback server
      *
-     * @return Whether is this event called to select fallback server
+     * @return Whether is this event called to select fallback server or null if unknown
      * */
-    boolean isFallback();
+    Boolean isFallback();
 
 }

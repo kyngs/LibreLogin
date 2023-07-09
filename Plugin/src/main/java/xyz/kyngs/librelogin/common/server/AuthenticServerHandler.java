@@ -12,6 +12,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
@@ -91,6 +92,10 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
     @Override
     public S chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback) {
+        return chooseLobbyServerInternal(user, player, remember, fallback);
+    }
+
+    public S chooseLobbyServerInternal(@Nullable User user, P player, boolean remember, Boolean fallback) {
         if (user != null && remember && plugin.getConfiguration().get(REMEMBER_LAST_SERVER)) {
             var last = user.getLastServer();
 
@@ -109,7 +114,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
         plugin.getEventProvider().fire(plugin.getEventTypes().lobbyServerChoose, event);
 
-        if (event.isCancelled()) return null;
+        if (event.isCancelled()) throw new EventCancelledException();
 
         if (event.getServer() != null) return event.getServer();
 
@@ -133,7 +138,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
     @Override
     public S chooseLobbyServer(@Nullable User user, P player, boolean remember) {
-        return chooseLobbyServer(user, player, remember, false);
+        return chooseLobbyServerInternal(user, player, remember, null);
     }
 
     @Override

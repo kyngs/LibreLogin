@@ -13,6 +13,7 @@ import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
@@ -124,7 +125,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
 
                     event.setCancelled(true);
                     event.setCancelServer(server);
-                } catch (NoSuchElementException e) {
+                } catch (NoSuchElementException | EventCancelledException e) {
                     event.setKickReasonComponent(plugin.getSerializer().serialize(message));
                     event.setCancelled(false);
                 }

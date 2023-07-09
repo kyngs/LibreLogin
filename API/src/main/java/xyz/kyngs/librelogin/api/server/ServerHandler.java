@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.database.User;
 
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * An interface which manages lobby and limbo servers.
@@ -37,7 +36,9 @@ public interface ServerHandler<P, S> {
      * @param player   The player we're choosing the server for
      * @param remember Whether to respect the remember last server option
      * @param fallback Whether to select fallback server or not
-     * @return An optimal lobby server, or null if there are no lobby servers
+     * @throws java.util.NoSuchElementException If there is no lobby available
+     * @throws xyz.kyngs.librelogin.api.event.exception.EventCancelledException If lobby choose event is cancelled
+     * @return An optimal lobby server
      */
     S chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback);
 

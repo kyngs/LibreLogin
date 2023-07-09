@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
@@ -155,7 +156,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
                 player.connect(server);
         } catch (NoSuchElementException e) {
             player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-lobby")));
-        }
+        } catch (EventCancelledException ignored) {}
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.velocitypowered.api.util.GameProfile;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import net.kyori.adventure.text.Component;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
@@ -175,7 +176,7 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
                     if (server == null) throw new NoSuchElementException();
 
                     event.setResult(KickedFromServerEvent.RedirectPlayer.create(server, message));
-                } catch (NoSuchElementException e) {
+                } catch (NoSuchElementException | EventCancelledException e) {
                     event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
                 }
             }
