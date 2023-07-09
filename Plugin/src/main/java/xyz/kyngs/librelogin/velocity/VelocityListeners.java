@@ -26,6 +26,7 @@ import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Player, RegisteredServer> {
@@ -168,12 +169,13 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
             if (!plugin.getConfiguration().get(ConfigurationKeys.FALLBACK) || plugin.getServerHandler().getLobbyServers().containsValue(event.getServer())) {
                 event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
             } else {
-                var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
+                try {
+                    var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false, true)
+                        .orElseThrow();
 
-                if (server == null) {
-                    event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
-                } else {
                     event.setResult(KickedFromServerEvent.RedirectPlayer.create(server, message));
+                } catch (NoSuchElementException e) {
+                    event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
                 }
             }
         }

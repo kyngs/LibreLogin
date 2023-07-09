@@ -164,12 +164,11 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             var location = listeners.getSpawnLocationCache().getIfPresent(player);
 
             if (location == null) {
-                var world = getServerHandler().chooseLobbyServer(user, player, true);
-                if (world == null) {
-                    throw new NoSuchElementException();
-                } else {
-                    location = world.getSpawnLocation();
-                }
+                var worldOptional = getServerHandler().chooseLobbyServer(user, player, true, false);
+
+                if (worldOptional.isEmpty()) return;
+
+                location = worldOptional.get().getSpawnLocation();
             } else {
                 listeners.getSpawnLocationCache().invalidate(player);
             }

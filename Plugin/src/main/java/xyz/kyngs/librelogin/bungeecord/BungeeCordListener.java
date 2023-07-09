@@ -18,6 +18,7 @@ import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
+import java.util.NoSuchElementException;
 
 import static net.md_5.bungee.event.EventPriority.HIGHEST;
 import static net.md_5.bungee.event.EventPriority.LOW;
@@ -116,16 +117,15 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
                 event.setKickReasonComponent(plugin.getSerializer().serialize(message));
                 event.setCancelled(false);
             } else {
-                var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
+                try {
+                    var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false, true)
+                        .orElseThrow();
 
-                if (server == null) {
-                    event.setKickReasonComponent(plugin.getSerializer().serialize(message));
-                    event.setCancelled(false);
-                } else {
                     event.setCancelled(true);
                     event.setCancelServer(server);
-
-                    audience.sendMessage(message);
+                } catch (NoSuchElementException e) {
+                    event.setKickReasonComponent(plugin.getSerializer().serialize(message));
+                    event.setCancelled(false);
                 }
             }
         } else {

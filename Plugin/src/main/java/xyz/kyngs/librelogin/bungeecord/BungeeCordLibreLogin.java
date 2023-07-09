@@ -35,6 +35,7 @@ import xyz.kyngs.librelogin.common.util.CancellableTask;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -147,14 +148,13 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     public void authorize(ProxiedPlayer player, User user, Audience audience) {
-        var serverInfo = getServerHandler().chooseLobbyServer(user, player, true);
+        try {
+            var serverOptional = getServerHandler().chooseLobbyServer(user, player, true, false);
 
-        if (serverInfo == null) {
+            serverOptional.ifPresent(player::connect);
+        } catch (NoSuchElementException e) {
             player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-lobby")));
-            return;
         }
-
-        player.connect(serverInfo);
     }
 
     @Override

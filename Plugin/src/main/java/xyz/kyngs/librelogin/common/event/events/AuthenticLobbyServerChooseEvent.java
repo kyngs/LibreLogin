@@ -13,7 +13,29 @@ import xyz.kyngs.librelogin.api.event.events.LobbyServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.AuthenticServerChooseEvent;
 
 public class AuthenticLobbyServerChooseEvent<P, S> extends AuthenticServerChooseEvent<P, S> implements LobbyServerChooseEvent<P, S> {
-    public AuthenticLobbyServerChooseEvent(@Nullable User user, P player, LibreLoginPlugin<P, S> plugin) {
+
+    private final boolean fallback;
+    private boolean cancelled = false;
+
+    public AuthenticLobbyServerChooseEvent(@Nullable User user, P player, LibreLoginPlugin<P, S> plugin, boolean fallback) {
         super(user, player, plugin);
+
+        this.fallback = fallback;
+    }
+
+    @Override
+    public boolean isFallback() {
+        return fallback;
+    }
+
+
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
     }
 }

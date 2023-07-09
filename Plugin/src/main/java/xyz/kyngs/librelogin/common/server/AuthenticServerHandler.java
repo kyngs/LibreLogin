@@ -19,10 +19,7 @@ import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.LIMBO;
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.REMEMBER_LAST_SERVER;
@@ -93,7 +90,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
     }
 
     @Override
-    public S chooseLobbyServer(@Nullable User user, P player, boolean remember) {
+    public Optional<S> chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback) {
         if (user != null && remember && plugin.getConfiguration().get(REMEMBER_LAST_SERVER)) {
             var last = user.getLastServer();
 
@@ -102,17 +99,19 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                 if (server != null) {
                     var ping = getLatestPing(server);
                     if (ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server)) {
-                        return server;
+                        return Optional.of(server);
                     }
                 }
             }
         }
 
-        var event = new AuthenticLobbyServerChooseEvent<>(user, player, plugin);
+        var event = new AuthenticLobbyServerChooseEvent<>(user, player, plugin, fallback);
 
         plugin.getEventProvider().fire(plugin.getEventTypes().lobbyServerChoose, event);
 
-        if (event.getServer() != null) return event.getServer();
+        if (event.isCancelled()) return Optional.empty();
+
+        if (event.getServer() != null) return Optional.of(event.getServer());
 
         var virtual = plugin.getPlatformHandle().getPlayersVirtualHost(player);
 
@@ -122,14 +121,22 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
         if (servers.isEmpty()) servers = lobbyServers.get("root");
 
-        return servers.stream()
+        var optimalServer = servers.stream()
                 .filter(server -> {
                     var ping = getLatestPing(server);
 
                     return ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server);
                 })
-                .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
-                .orElse(null);
+                .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)));
+
+        if (optimalServer.isEmpty()) throw new NoSuchElementException();
+
+        return optimalServer;
+    }
+
+    @Override
+    public S chooseLobbyServer(@Nullable User user, P player, boolean remember) {
+        return chooseLobbyServer(user, player, remember, false).orElse(null);
     }
 
     @Override
