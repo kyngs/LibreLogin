@@ -90,7 +90,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
     }
 
     @Override
-    public Optional<S> chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback) {
+    public S chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback) {
         if (user != null && remember && plugin.getConfiguration().get(REMEMBER_LAST_SERVER)) {
             var last = user.getLastServer();
 
@@ -99,7 +99,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                 if (server != null) {
                     var ping = getLatestPing(server);
                     if (ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server)) {
-                        return Optional.of(server);
+                        return server;
                     }
                 }
             }
@@ -109,9 +109,9 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
         plugin.getEventProvider().fire(plugin.getEventTypes().lobbyServerChoose, event);
 
-        if (event.isCancelled()) return Optional.empty();
+        if (event.isCancelled()) return null;
 
-        if (event.getServer() != null) return Optional.of(event.getServer());
+        if (event.getServer() != null) return event.getServer();
 
         var virtual = plugin.getPlatformHandle().getPlayersVirtualHost(player);
 
@@ -121,22 +121,19 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
         if (servers.isEmpty()) servers = lobbyServers.get("root");
 
-        var optimalServer = servers.stream()
+        return servers.stream()
                 .filter(server -> {
                     var ping = getLatestPing(server);
 
                     return ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server);
                 })
-                .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)));
-
-        if (optimalServer.isEmpty()) throw new NoSuchElementException();
-
-        return optimalServer;
+                .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
+                .orElseThrow();
     }
 
     @Override
     public S chooseLobbyServer(@Nullable User user, P player, boolean remember) {
-        return chooseLobbyServer(user, player, remember, false).orElse(null);
+        return chooseLobbyServer(user, player, remember, false);
     }
 
     @Override

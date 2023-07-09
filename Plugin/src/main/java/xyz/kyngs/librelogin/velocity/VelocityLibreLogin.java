@@ -111,11 +111,11 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     @Override
     public void authorize(Player player, User user, Audience audience) {
         try {
-            var lobbyOptional = getServerHandler().chooseLobbyServer(user, player, true, false);
-            if (lobbyOptional.isEmpty()) return;
+            var lobby = getServerHandler().chooseLobbyServer(user, player, true, false);
+            if (lobby == null) return;
             player
                     .createConnectionRequest(
-                            lobbyOptional.get()
+                            lobby
                     )
                     .connect()
                     .whenComplete((result, throwable) -> {

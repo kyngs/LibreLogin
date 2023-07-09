@@ -37,9 +37,9 @@ public interface ServerHandler<P, S> {
      * @param player   The player we're choosing the server for
      * @param remember Whether to respect the remember last server option
      * @param fallback Whether to select fallback server or not
-     * @return An optimal lobby server, or if empty, there are no lobby servers
+     * @return An optimal lobby server, or null if there are no lobby servers
      */
-    Optional<S> chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback);
+    S chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback);
 
     /**
      * Chooses an optimal lobby server to connect the player to. Usually the one with the lowest player count.
@@ -49,7 +49,6 @@ public interface ServerHandler<P, S> {
      * @param remember Whether to respect the remember last server option
      * @return An optimal lobby server, or null if there are no lobby servers
      */
-    @Deprecated
     S chooseLobbyServer(@Nullable User user, P player, boolean remember);
 
     /**

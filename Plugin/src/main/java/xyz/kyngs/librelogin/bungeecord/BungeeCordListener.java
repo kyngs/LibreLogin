@@ -118,8 +118,9 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
                 event.setCancelled(false);
             } else {
                 try {
-                    var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false, true)
-                        .orElseThrow();
+                    var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false, true);
+
+                    if (server == null) throw new NoSuchElementException();
 
                     event.setCancelled(true);
                     event.setCancelServer(server);

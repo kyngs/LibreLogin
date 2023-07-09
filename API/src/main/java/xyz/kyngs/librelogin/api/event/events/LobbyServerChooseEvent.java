@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.api.event.events;
 
+import xyz.kyngs.librelogin.api.event.CancellableEvent;
 import xyz.kyngs.librelogin.api.event.ServerChooseEvent;
 
 /**
@@ -14,7 +15,7 @@ import xyz.kyngs.librelogin.api.event.ServerChooseEvent;
  * @author kyngs
  * @see ServerChooseEvent#setServer(S)
  */
-public interface LobbyServerChooseEvent<P, S> extends ServerChooseEvent<P, S> {
+public interface LobbyServerChooseEvent<P, S> extends ServerChooseEvent<P, S>, CancellableEvent {
 
     /**
      * Checks if the event was called to select a fallback server
@@ -22,19 +23,5 @@ public interface LobbyServerChooseEvent<P, S> extends ServerChooseEvent<P, S> {
      * @return Whether is this event called to select fallback server
      * */
     boolean isFallback();
-
-    /**
-     * Abort teleportion of the player
-     *
-     * @param cancelled If set to true, this event will be aborted
-     */
-    void setCancelled(boolean cancelled);
-
-    /**
-     * Checks if the event is aborted
-     *
-     * @return Whether is the event aborted
-     * */
-    boolean isCancelled();
 
 }
