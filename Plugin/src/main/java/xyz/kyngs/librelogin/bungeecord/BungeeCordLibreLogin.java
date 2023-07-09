@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
@@ -35,6 +36,7 @@ import xyz.kyngs.librelogin.common.util.CancellableTask;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -147,14 +149,13 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     public void authorize(ProxiedPlayer player, User user, Audience audience) {
-        var serverInfo = getServerHandler().chooseLobbyServer(user, player, true);
+        try {
+            var server = getServerHandler().chooseLobbyServer(user, player, true, false);
 
-        if (serverInfo == null) {
-            player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-lobby")));
-            return;
-        }
-
-        player.connect(serverInfo);
+            if (server != null) {
+                player.connect(server);
+            } else player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-lobby")));
+        } catch (EventCancelledException ignored) {}
     }
 
     @Override

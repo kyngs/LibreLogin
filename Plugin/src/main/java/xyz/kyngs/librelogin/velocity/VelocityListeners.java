@@ -21,11 +21,13 @@ import com.velocitypowered.api.util.GameProfile;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import net.kyori.adventure.text.Component;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Player, RegisteredServer> {
@@ -168,12 +170,14 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
             if (!plugin.getConfiguration().get(ConfigurationKeys.FALLBACK) || plugin.getServerHandler().getLobbyServers().containsValue(event.getServer())) {
                 event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
             } else {
-                var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
+                try {
+                    var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false, true);
 
-                if (server == null) {
-                    event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
-                } else {
+                    if (server == null) throw new NoSuchElementException();
+
                     event.setResult(KickedFromServerEvent.RedirectPlayer.create(server, message));
+                } catch (NoSuchElementException | EventCancelledException e) {
+                    event.setResult(KickedFromServerEvent.DisconnectPlayer.create(message));
                 }
             }
         }

@@ -13,11 +13,13 @@ import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.lang.reflect.Field;
+import java.util.NoSuchElementException;
 
 import static net.md_5.bungee.event.EventPriority.HIGHEST;
 import static net.md_5.bungee.event.EventPriority.LOW;
@@ -116,16 +118,16 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
                 event.setKickReasonComponent(plugin.getSerializer().serialize(message));
                 event.setCancelled(false);
             } else {
-                var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false);
+                try {
+                    var server = plugin.getServerHandler().chooseLobbyServer(plugin.getDatabaseProvider().getByUUID(player.getUniqueId()), player, false, true);
 
-                if (server == null) {
-                    event.setKickReasonComponent(plugin.getSerializer().serialize(message));
-                    event.setCancelled(false);
-                } else {
+                    if (server == null) throw new NoSuchElementException();
+
                     event.setCancelled(true);
                     event.setCancelServer(server);
-
-                    audience.sendMessage(message);
+                } catch (NoSuchElementException | EventCancelledException e) {
+                    event.setKickReasonComponent(plugin.getSerializer().serialize(message));
+                    event.setCancelled(false);
                 }
             }
         } else {
