@@ -133,7 +133,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                     return ping != null && ping.maxPlayers() > plugin.getPlatformHandle().getConnectedPlayers(server);
                 })
                 .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
-                .orElseThrow();
+                .orElse(null);
     }
 
     @Override

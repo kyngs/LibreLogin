@@ -167,7 +167,10 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             if (location == null) {
                 var world = getServerHandler().chooseLobbyServer(user, player, true, false);
 
-                if (world == null) return;
+                if (world == null) {
+                    getPlatformHandle().kick(player, getMessages().getMessage("kick-no-lobby"));
+                    return;
+                }
 
                 location = world.getSpawnLocation();
             } else {
@@ -177,8 +180,6 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             var finalLocation = location;
             PaperUtil.runSyncAndWait(() -> player.teleportAsync(finalLocation), this);
 
-        } catch (NoSuchElementException e) {
-            getPlatformHandle().kick(player, getMessages().getMessage("kick-no-lobby"));
         } catch (EventCancelledException ignored) {}
     }
 

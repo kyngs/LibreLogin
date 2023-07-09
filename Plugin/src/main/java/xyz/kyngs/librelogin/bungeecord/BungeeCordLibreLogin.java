@@ -152,10 +152,9 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
         try {
             var server = getServerHandler().chooseLobbyServer(user, player, true, false);
 
-            if (server != null)
+            if (server != null) {
                 player.connect(server);
-        } catch (NoSuchElementException e) {
-            player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-lobby")));
+            } else player.disconnect(serializer.serialize(getMessages().getMessage("kick-no-lobby")));
         } catch (EventCancelledException ignored) {}
     }
 

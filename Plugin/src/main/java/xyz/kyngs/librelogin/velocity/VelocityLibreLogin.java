@@ -113,7 +113,10 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     public void authorize(Player player, User user, Audience audience) {
         try {
             var lobby = getServerHandler().chooseLobbyServer(user, player, true, false);
-            if (lobby == null) return;
+            if (lobby == null) {
+                player.disconnect(getMessages().getMessage("kick-no-lobby"));
+                return;
+            }
             player
                     .createConnectionRequest(
                             lobby
@@ -126,8 +129,6 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
                         if (throwable != null || !result.isSuccessful())
                             player.disconnect(Component.text("Unable to connect"));
                     });
-        } catch (NoSuchElementException e) {
-            player.disconnect(getMessages().getMessage("kick-no-lobby"));
         } catch (EventCancelledException ignored) {}
     }
 
