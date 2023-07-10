@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.api.event.events;
 
+import xyz.kyngs.librelogin.api.event.CancellableEvent;
 import xyz.kyngs.librelogin.api.event.ServerChooseEvent;
 
 /**
@@ -14,5 +15,13 @@ import xyz.kyngs.librelogin.api.event.ServerChooseEvent;
  * @author kyngs
  * @see ServerChooseEvent#setServer(S)
  */
-public interface LobbyServerChooseEvent<P, S> extends ServerChooseEvent<P, S> {
+public interface LobbyServerChooseEvent<P, S> extends ServerChooseEvent<P, S>, CancellableEvent {
+
+    /**
+     * Checks if the event was called to select a fallback server
+     *
+     * @return Whether is this event called to select fallback server or null if unknown
+     * */
+    Boolean isFallback();
+
 }

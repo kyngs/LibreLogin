@@ -24,6 +24,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
@@ -164,12 +165,14 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             var location = listeners.getSpawnLocationCache().getIfPresent(player);
 
             if (location == null) {
-                var world = getServerHandler().chooseLobbyServer(user, player, true);
+                var world = getServerHandler().chooseLobbyServer(user, player, true, false);
+
                 if (world == null) {
-                    throw new NoSuchElementException();
-                } else {
-                    location = world.getSpawnLocation();
+                    getPlatformHandle().kick(player, getMessages().getMessage("kick-no-lobby"));
+                    return;
                 }
+
+                location = world.getSpawnLocation();
             } else {
                 listeners.getSpawnLocationCache().invalidate(player);
             }
@@ -177,9 +180,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             var finalLocation = location;
             PaperUtil.runSyncAndWait(() -> player.teleportAsync(finalLocation), this);
 
-        } catch (NoSuchElementException e) {
-            getPlatformHandle().kick(player, getMessages().getMessage("kick-no-lobby"));
-        }
+        } catch (EventCancelledException ignored) {}
     }
 
     @Override

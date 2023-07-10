@@ -12,6 +12,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
@@ -19,10 +20,7 @@ import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.LIMBO;
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.REMEMBER_LAST_SERVER;
@@ -93,7 +91,11 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
     }
 
     @Override
-    public S chooseLobbyServer(@Nullable User user, P player, boolean remember) {
+    public S chooseLobbyServer(@Nullable User user, P player, boolean remember, boolean fallback) {
+        return chooseLobbyServerInternal(user, player, remember, fallback);
+    }
+
+    public S chooseLobbyServerInternal(@Nullable User user, P player, boolean remember, Boolean fallback) {
         if (user != null && remember && plugin.getConfiguration().get(REMEMBER_LAST_SERVER)) {
             var last = user.getLastServer();
 
@@ -108,9 +110,11 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
             }
         }
 
-        var event = new AuthenticLobbyServerChooseEvent<>(user, player, plugin);
+        var event = new AuthenticLobbyServerChooseEvent<>(user, player, plugin, fallback);
 
         plugin.getEventProvider().fire(plugin.getEventTypes().lobbyServerChoose, event);
+
+        if (event.isCancelled()) throw new EventCancelledException();
 
         if (event.getServer() != null) return event.getServer();
 
@@ -130,6 +134,11 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                 })
                 .min(Comparator.comparingInt(o -> plugin.getPlatformHandle().getConnectedPlayers(o)))
                 .orElse(null);
+    }
+
+    @Override
+    public S chooseLobbyServer(@Nullable User user, P player, boolean remember) {
+        return chooseLobbyServerInternal(user, player, remember, null);
     }
 
     @Override

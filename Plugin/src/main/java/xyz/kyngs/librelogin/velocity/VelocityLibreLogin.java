@@ -34,6 +34,7 @@ import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
@@ -111,8 +112,11 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     @Override
     public void authorize(Player player, User user, Audience audience) {
         try {
-            var lobby = getServerHandler().chooseLobbyServer(user, player, true);
-            if (lobby == null) throw new NoSuchElementException();
+            var lobby = getServerHandler().chooseLobbyServer(user, player, true, false);
+            if (lobby == null) {
+                player.disconnect(getMessages().getMessage("kick-no-lobby"));
+                return;
+            }
             player
                     .createConnectionRequest(
                             lobby
@@ -125,9 +129,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
                         if (throwable != null || !result.isSuccessful())
                             player.disconnect(Component.text("Unable to connect"));
                     });
-        } catch (NoSuchElementException e) {
-            player.disconnect(getMessages().getMessage("kick-no-lobby"));
-        }
+        } catch (EventCancelledException ignored) {}
     }
 
     @Override
