@@ -608,6 +608,7 @@ public class MessageKeys {
                     Last Seen: %last_seen%
                     Joined: %joined%
                     2FA: %2fa%
+                    EMail: %email%
                     IP: %ip%
                     Last Authenticated: %last_authenticated%""",
             "This message is displayed when the player's information is requested.",

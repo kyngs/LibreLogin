@@ -172,6 +172,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
                     "%last_seen%", DATE_TIME_FORMATTER.format(user.getLastSeen().toLocalDateTime()),
                     "%joined%", DATE_TIME_FORMATTER.format(user.getJoinDate().toLocalDateTime()),
                     "%2fa%", user.getSecret() != null ? "Enabled" : "Disabled",
+                    "%email%", user.getEmail() == null ? "N/A" : user.getEmail(),
                     "%ip%", user.getIp() == null ? "N/A" : user.getIp(),
                     "%last_authenticated%", user.getLastAuthentication() == null ? "N/A" : DATE_TIME_FORMATTER.format(user.getLastAuthentication().toLocalDateTime())
             ));
