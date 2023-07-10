@@ -393,6 +393,24 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         });
     }
 
+    @Subcommand("user setemail")
+    @CommandPermission("librepremium.user.setemail")
+    @Syntax("{@@syntax.user-set-email}")
+    @CommandCompletion("%autocomplete.user-set-email")
+    public CompletionStage<Void> onUserSetEMail(Audience audience, String name, String email) {
+        return runAsync(() -> {
+            var user = getUserOtherWiseInform(name);
+
+            audience.sendMessage(getMessage("info-editing"));
+
+            user.setEmail(email);
+
+            getDatabaseProvider().updateUser(user);
+
+            audience.sendMessage(getMessage("info-edited"));
+        });
+    }
+
     @Subcommand("user pass-change")
     @CommandPermission("librepremium.user.pass-change")
     @Syntax("{@@syntax.user-pass-change}")

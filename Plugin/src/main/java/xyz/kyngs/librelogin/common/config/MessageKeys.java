@@ -928,6 +928,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_USER_SET_EMAIL = new ConfigurationKey<>(
+            "syntax.user-set-email",
+            "<name> <email>",
+            "This message is displayed when the player attempts to set EMail for other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> SYNTAX_USER_ALTS = new ConfigurationKey<>(
             "syntax.user-alts",
             "<name>",
@@ -1091,6 +1098,13 @@ public class MessageKeys {
             "autocomplete.user-email-off",
             "@players",
             "This hint is displayed when the player starts typing the /librelogin user emailoff command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_SET_EMAIL = new ConfigurationKey<>(
+            "autocomplete.user-set-email",
+            "@players email",
+            "This hint is displayed when the player starts typing the /librelogin user setemail command.",
             ConfigurateHelper::getString
     );
 
