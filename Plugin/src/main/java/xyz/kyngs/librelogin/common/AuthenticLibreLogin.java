@@ -544,10 +544,10 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         );
 
         dependencies.add(Library.builder()
-                .groupId("mysql")
-                .artifactId("mysql-connector-java")
-                .version("8.0.30")
-                .relocate("com{}mysql", "xyz{}kyngs{}librelogin{}lib{}mysql")
+                .groupId("org{}mariadb{}jdbc")
+                .artifactId("mariadb-java-client")
+                .version("3.1.4")
+                .relocate("org{}mariadb", "xyz{}kyngs{}librelogin{}lib{}mariadb")
                 .build()
         );
 

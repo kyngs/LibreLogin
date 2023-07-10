@@ -31,7 +31,7 @@ public abstract class LogFilter {
     }
 
     protected boolean checkMessage(String message) {
-        if (!message.contains("issued server command: /") && !message.contains("executed command /") && !message.contains("executed command: /"))
+        if (!message.contains("issued server command: /") && !message.contains("executed command /") && !message.contains("executed command: /") && !message.contains("Duplicate key name"))
             return true;
 
         for (String command : PROTECTED_COMMANDS) {

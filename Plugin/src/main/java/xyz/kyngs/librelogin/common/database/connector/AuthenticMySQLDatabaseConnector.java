@@ -29,14 +29,13 @@ public class AuthenticMySQLDatabaseConnector extends AuthenticDatabaseConnector<
         this.hikariConfig = new HikariConfig();
 
         hikariConfig.setPoolName("LibreLogin MySQL Pool");
-        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        hikariConfig.setDriverClassName("xyz.kyngs.librelogin.lib.mariadb.jdbc.Driver");
         hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-
         hikariConfig.setUsername(get(Configuration.USER));
         hikariConfig.setPassword(get(Configuration.PASSWORD));
-        hikariConfig.setJdbcUrl("jdbc:mysql://" + get(Configuration.HOST) + ":" + get(Configuration.PORT) + "/" + get(Configuration.NAME) + "?autoReconnect=true&zeroDateTimeBehavior=convertToNull");
+        hikariConfig.setJdbcUrl("jdbc:mariadb://" + get(Configuration.HOST) + ":" + get(Configuration.PORT) + "/" + get(Configuration.NAME) + "?autoReconnect=true&zeroDateTimeBehavior=convertToNull");
         hikariConfig.setMaxLifetime(get(Configuration.MAX_LIFE_TIME));
     }
 

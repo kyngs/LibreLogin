@@ -41,7 +41,7 @@ shadowJar {
     relocate 'com.github.benmanes.caffeine', 'xyz.kyngs.librelogin.lib.caffeine'
     relocate 'com.typesafe.config', 'xyz.kyngs.librelogin.lib.hocon'
     relocate 'com.zaxxer.hikari', 'xyz.kyngs.librelogin.lib.hikari'
-    relocate 'com.mysql', 'xyz.kyngs.librelogin.lib.mysql'
+    relocate 'org.mariadb', 'xyz.kyngs.librelogin.lib.mariadb'
     relocate 'org.bstats', 'xyz.kyngs.librelogin.lib.metrics'
     relocate 'org.intellij', 'xyz.kyngs.librelogin.lib.intellij'
     relocate 'org.jetbrains', 'xyz.kyngs.librelogin.lib.jetbrains'
@@ -71,7 +71,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-proxy:3.0.1'
 
     //MySQL
-    compileOnly 'com.mysql:mysql-connector-j:8.0.33'
+    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
 
     //SQLite

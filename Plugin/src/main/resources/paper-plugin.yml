@@ -2,7 +2,7 @@ name: "LibreLogin"
 author: "kyngs"
 version: '${version}'
 main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
-api-version: 1.19
+api-version: "1.19"
 
 dependencies:
   - name: ProtocolLib
