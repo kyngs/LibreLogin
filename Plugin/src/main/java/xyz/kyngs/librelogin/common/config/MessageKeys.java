@@ -608,6 +608,7 @@ public class MessageKeys {
                     Last Seen: %last_seen%
                     Joined: %joined%
                     2FA: %2fa%
+                    EMail: %email%
                     IP: %ip%
                     Last Authenticated: %last_authenticated%""",
             "This message is displayed when the player's information is requested.",
@@ -921,6 +922,20 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_USER_EMAIL_OFF = new ConfigurationKey<>(
+            "syntax.user-email-off",
+            "<name>",
+            "This message is displayed when the player attempts to disable EMail for other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> SYNTAX_USER_SET_EMAIL = new ConfigurationKey<>(
+            "syntax.user-set-email",
+            "<name> <email>",
+            "This message is displayed when the player attempts to set EMail for other user with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> SYNTAX_USER_ALTS = new ConfigurationKey<>(
             "syntax.user-alts",
             "<name>",
@@ -1077,6 +1092,20 @@ public class MessageKeys {
             "autocomplete.user-2fa-off",
             "@players",
             "This hint is displayed when the player starts typing the /librelogin user 2fa-off command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_EMAIL_OFF = new ConfigurationKey<>(
+            "autocomplete.user-email-off",
+            "@players",
+            "This hint is displayed when the player starts typing the /librelogin user emailoff command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_USER_SET_EMAIL = new ConfigurationKey<>(
+            "autocomplete.user-set-email",
+            "@players email",
+            "This hint is displayed when the player starts typing the /librelogin user setemail command.",
             ConfigurateHelper::getString
     );
 

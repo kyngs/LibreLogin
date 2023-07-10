@@ -213,6 +213,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
                     "%last_seen%", DATE_TIME_FORMATTER.format(user.getLastSeen().toLocalDateTime()),
                     "%joined%", DATE_TIME_FORMATTER.format(user.getJoinDate().toLocalDateTime()),
                     "%2fa%", user.getSecret() != null ? "Enabled" : "Disabled",
+                    "%email%", user.getEmail() == null ? "N/A" : user.getEmail(),
                     "%ip%", user.getIp() == null ? "N/A" : user.getIp(),
                     "%last_authenticated%", user.getLastAuthentication() == null ? "N/A" : DATE_TIME_FORMATTER.format(user.getLastAuthentication().toLocalDateTime())
             ));
@@ -409,6 +410,42 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             audience.sendMessage(getMessage("info-editing"));
 
             user.setSecret(null);
+
+            getDatabaseProvider().updateUser(user);
+
+            audience.sendMessage(getMessage("info-edited"));
+        });
+    }
+
+    @Subcommand("user emailoff")
+    @CommandPermission("librepremium.user.emailoff")
+    @Syntax("{@@syntax.user-email-off}")
+    @CommandCompletion("%autocomplete.user-email-off")
+    public CompletionStage<Void> onUserEMailOff(Audience audience, String name) {
+        return runAsync(() -> {
+            var user = getUserOtherWiseInform(name);
+
+            audience.sendMessage(getMessage("info-editing"));
+
+            user.setEmail(null);
+
+            getDatabaseProvider().updateUser(user);
+
+            audience.sendMessage(getMessage("info-edited"));
+        });
+    }
+
+    @Subcommand("user setemail")
+    @CommandPermission("librepremium.user.setemail")
+    @Syntax("{@@syntax.user-set-email}")
+    @CommandCompletion("%autocomplete.user-set-email")
+    public CompletionStage<Void> onUserSetEMail(Audience audience, String name, String email) {
+        return runAsync(() -> {
+            var user = getUserOtherWiseInform(name);
+
+            audience.sendMessage(getMessage("info-editing"));
+
+            user.setEmail(email);
 
             getDatabaseProvider().updateUser(user);
 
