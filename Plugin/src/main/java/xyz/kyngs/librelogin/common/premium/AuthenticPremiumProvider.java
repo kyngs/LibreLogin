@@ -85,6 +85,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         try {
             plugin.reportMainThread();
             var connection = (HttpURLConnection) new URL("https://api.ashcon.app/mojang/v2/user/" + name).openConnection();
+            connection.setConnectTimeout(5000);
 
             switch (connection.getResponseCode()) {
                 case 200 -> {
@@ -111,6 +112,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         try {
             plugin.reportMainThread();
             var connection = (HttpURLConnection) new URL("https://playerdb.co/api/player/minecraft/" + name).openConnection();
+            connection.setConnectTimeout(5000);
 
             switch (connection.getResponseCode()) {
                 case 200 -> {
@@ -138,6 +140,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         try {
             plugin.reportMainThread();
             var connection = (HttpURLConnection) new URL("https://api.mojang.com/users/profiles/minecraft/" + name).openConnection();
+            connection.setConnectTimeout(5000);
 
             return switch (connection.getResponseCode()) {
                 case 429 ->

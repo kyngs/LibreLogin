@@ -317,6 +317,9 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
                         kickPlayer("Invalid session", sender);
                     }
                 } catch (IOException e) {
+                    if (e instanceof SocketTimeoutException) {
+                        plugin.getLogger().warn("Session verification timed out (5 seconds) for " + username);
+                    }
                     kickPlayer("Cannot verify session", sender);
                 }
             } finally {
@@ -371,7 +374,10 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         }
 
         var conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setConnectTimeout(5000);
+        conn.connect();
         int responseCode = conn.getResponseCode();
+        conn.disconnect();
         return responseCode != 204;
     }
 
