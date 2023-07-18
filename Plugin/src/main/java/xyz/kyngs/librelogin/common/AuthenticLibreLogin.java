@@ -71,6 +71,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
@@ -109,9 +110,9 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private AuthenticEMailHandler eMailHandler;
 
     protected AuthenticLibreLogin() {
-        cryptoProviders = new HashMap<>();
-        readProviders = new HashMap<>();
-        databaseConnectors = new HashMap<>();
+        cryptoProviders = new ConcurrentHashMap<>();
+        readProviders = new ConcurrentHashMap<>();
+        databaseConnectors = new ConcurrentHashMap<>();
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
         cancelOnExit = HashMultimap.create();
