@@ -77,7 +77,14 @@ public class Command<P> extends BaseCommand {
 
     protected void setPassword(Audience sender, User user, String password, String messageKey) {
         if (!plugin.validPassword(password))
-            throw new InvalidCommandArgument(getMessage("error-forbidden-password"));
+        {
+            if(!getMessage("custom-validation-message").content().equals("")) {
+                throw new InvalidCommandArgument(getMessage("custom-validation-message"));
+            }
+            else {
+                throw new InvalidCommandArgument(getMessage("error-forbidden-password"));
+            }
+        }
 
         sender.sendMessage(getMessage(messageKey));
 

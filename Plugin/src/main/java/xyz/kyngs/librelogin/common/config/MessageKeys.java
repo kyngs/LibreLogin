@@ -1171,4 +1171,11 @@ public class MessageKeys {
             "This hint is displayed when the player starts typing the /confirmpasswordreset command.",
             ConfigurateHelper::getString
     );
+
+    public static final ConfigurationKey<String> CUSTOM_VALIDATION_MESSAGE = new ConfigurationKey<>(
+            "custom-validation-message",
+            "",
+            "This message is displayed when the player tries to register with a password that is not valid for your regex validation. You need to set if you have one!",
+            ConfigurateHelper::getString
+    );
 }

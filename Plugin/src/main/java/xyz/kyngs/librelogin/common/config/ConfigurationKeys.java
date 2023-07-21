@@ -345,4 +345,11 @@ public class ConfigurationKeys {
                     This section is used for configuring the email password recovery feature.
                     """
     );
+
+    public static final ConfigurationKey<String> REGEX_PATTERN = new ConfigurationKey<>(
+            "regex-pattern",
+            "",
+            "Regex pattern for password validation. Set empty to disable",
+            ConfigurateHelper::getString
+    );
 }
