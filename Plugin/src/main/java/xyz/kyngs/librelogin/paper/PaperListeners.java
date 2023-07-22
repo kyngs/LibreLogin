@@ -375,6 +375,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
         var conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
         conn.connect();
         int responseCode = conn.getResponseCode();
         conn.disconnect();
