@@ -515,6 +515,11 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "fastlogin-sqlite",
                 SQLiteDatabaseConnector.class
         ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new UniqueCodeAuthSQLMigrateReadProvider("uniquecode_proxy_users", logger, connector, this),
+                "uniquecodeauth-mysql",
+                MySQLDatabaseConnector.class
+        ));
 
     }
 

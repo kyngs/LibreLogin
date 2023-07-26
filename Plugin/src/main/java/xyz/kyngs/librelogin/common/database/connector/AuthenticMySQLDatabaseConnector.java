@@ -100,7 +100,7 @@ public class AuthenticMySQLDatabaseConnector extends AuthenticDatabaseConnector<
 
         public static final ConfigurationKey<Integer> PORT = new ConfigurationKey<>(
                 "port",
-                5432,
+                3306,
                 "The port of the database.",
                 ConfigurateHelper::getInt
         );
