@@ -366,7 +366,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
     public boolean hasJoined(String username, String serverHash, InetAddress hostIp) throws IOException {
         String url;
-        if (hostIp instanceof Inet6Address) {
+        if (hostIp instanceof Inet6Address || plugin.getConfiguration().get(ConfigurationKeys.ALLOW_PROXY_CONNECTIONS)) {
             url = String.format("https://sessionserver.mojang.com/session/minecraft/hasJoined?username=%s&serverId=%s", username, serverHash);
         } else {
             var encodedIP = URLEncoder.encode(hostIp.getHostAddress(), StandardCharsets.UTF_8);

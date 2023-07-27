@@ -345,4 +345,13 @@ public class ConfigurationKeys {
                     This section is used for configuring the email password recovery feature.
                     """
     );
+    public static final ConfigurationKey<Boolean> ALLOW_PROXY_CONNECTIONS = new ConfigurationKey<>(
+            "allow-proxy-connections",
+            true,
+            """
+                    !!!THIS ONLY AFFECTS PAPER!!!
+                    Verifies whether the IP the players had used when authenticating to Mojang matches the IP they are connecting from. Disabling this may break LibreLogin if the server is running under a reverse proxy/VPN.
+                    """,
+            ConfigurateHelper::getBoolean
+    );
 }
