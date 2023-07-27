@@ -1,1 +1,1 @@
-/home/kyngs/Documents/Code/GitHub/LibrePremium/licenses/FASTLOGIN_LICENSE
+../../../../licenses/FASTLOGIN_LICENSE
