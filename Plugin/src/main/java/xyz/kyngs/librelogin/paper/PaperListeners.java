@@ -154,6 +154,12 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         if (world.value() == null) {
             event.getPlayer().kick(plugin.getMessages().getMessage("kick-no-" + (world.key() ? "lobby" : "limbo")));
         } else {
+            if (event.getPlayer().getHealth() == 0) {
+                //Fixes bug where player is dead when logging in
+                event.getPlayer().setHealth(20);
+                var bed = event.getPlayer().getBedSpawnLocation();
+                event.setSpawnLocation(bed == null ? world.value().getSpawnLocation() : bed);
+            }
             //This is terrible, but should work
             if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(event.getSpawnLocation().getWorld().getName())) {
                 if (plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(world.value().getName())) {
