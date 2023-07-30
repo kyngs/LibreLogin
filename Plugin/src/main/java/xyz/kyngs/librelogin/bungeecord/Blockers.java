@@ -76,7 +76,7 @@ public class Blockers implements Listener {
         if (!authorizationProvider.isAuthorized(event.getPlayer()) || authorizationProvider.isAwaiting2FA(event.getPlayer())) {
             var reason = event.getKickReasonComponent();
             if (reason == null) {
-                event.getPlayer().disconnect("Limbo shutdown");
+                event.getPlayer().disconnect("Limbo not running");
             } else {
                 event.getPlayer().disconnect(reason);
             }
