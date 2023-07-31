@@ -470,6 +470,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "librelogin-postgresql",
                 PostgreSQLDatabaseConnector.class
         ));
+
+
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
                 "aegis-mysql",
@@ -519,6 +521,16 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 connector -> new UniqueCodeAuthSQLMigrateReadProvider("uniquecode_proxy_users", logger, connector, this),
                 "uniquecodeauth-mysql",
                 MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LoginSecuritySQLMigrateReadProvider("ls_players", logger, connector),
+                "loginsecurity-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LoginSecuritySQLMigrateReadProvider("ls_players", logger, connector),
+                "loginsecurity-sqlite",
+                SQLiteDatabaseConnector.class
         ));
 
     }
