@@ -35,7 +35,11 @@ public class AuthenticMySQLDatabaseConnector extends AuthenticDatabaseConnector<
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         hikariConfig.setUsername(get(Configuration.USER));
         hikariConfig.setPassword(get(Configuration.PASSWORD));
-        hikariConfig.setJdbcUrl("jdbc:mariadb://" + get(Configuration.HOST) + ":" + get(Configuration.PORT) + "/" + get(Configuration.NAME) + "?autoReconnect=true&zeroDateTimeBehavior=convertToNull");
+        hikariConfig.setJdbcUrl(get(Configuration.JDBC_URL)
+                .replace("%host%", get(Configuration.HOST))
+                .replace("%port%", String.valueOf(get(Configuration.PORT)))
+                .replace("%database%", get(Configuration.NAME))
+        );
         hikariConfig.setMaxLifetime(get(Configuration.MAX_LIFE_TIME));
     }
 
@@ -117,6 +121,13 @@ public class AuthenticMySQLDatabaseConnector extends AuthenticDatabaseConnector<
                 600000,
                 "The maximum lifetime of a database connection in milliseconds. Don't touch this if you don't know what you're doing.",
                 ConfigurateHelper::getInt
+        );
+
+        public static final ConfigurationKey<String> JDBC_URL = new ConfigurationKey<>(
+                "jdbc-url",
+                "jdbc:mariadb://%host%:%port%/%database%?autoReconnect=true&zeroDateTimeBehavior=convertToNull",
+                "The JDBC URL of the database. Don't touch this if you don't know what you're doing. (Using jdbc:mariadb also works for pure mysql)",
+                ConfigurateHelper::getString
         );
     }
 }
