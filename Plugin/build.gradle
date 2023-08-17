@@ -120,6 +120,9 @@ dependencies {
     implementation 'net.byteflux:libby-bungee:1.2.0'
     implementation 'net.byteflux:libby-paper:1.2.0'
 
+    //NanoLimboPlugin
+    compileOnly 'com.github.bivashy.NanoLimboPlugin:api:1.0.6'
+
 }
 
 processResources {
