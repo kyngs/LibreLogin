@@ -27,6 +27,7 @@ tasks.withType<JavaCompile> {
 
 java {
     withSourcesJar()
+    withJavadocJar()
 }
 
 publishing {
