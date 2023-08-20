@@ -17,6 +17,7 @@ import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.event.EventTypes;
 import xyz.kyngs.librelogin.api.image.ImageProjector;
+import xyz.kyngs.librelogin.api.integration.LimboIntegration;
 import xyz.kyngs.librelogin.api.mail.EmailHandler;
 import xyz.kyngs.librelogin.api.premium.PremiumProvider;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
@@ -239,6 +240,16 @@ public interface LibreLoginPlugin<P, S> {
      */
     @Nullable
     EmailHandler getEmailHandler();
+
+    /**
+     * Gets the limbo provider integration.
+     * <br>
+     * <b>This can be used for creating limbo's<b/>
+     *
+     * @return The limbo provider, or null if no integration was found
+     */
+    @Nullable
+    LimboIntegration<S> getLimboIntegration();
 
     /**
      * Gets the event types.
