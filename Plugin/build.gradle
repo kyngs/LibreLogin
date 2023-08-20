@@ -115,9 +115,9 @@ dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
 
     //Libby
-    implementation 'com.github.kyngs.libby:libby-bukkit:relocator-fix-099775e96b-1'
-    implementation 'com.github.kyngs.libby:libby-velocity:relocator-fix-099775e96b-1'
-    implementation 'com.github.kyngs.libby:libby-bungee:relocator-fix-099775e96b-1'
+    implementation 'com.github.kyngs.libby:libby-bukkit:relocator-fix-SNAPSHOT'
+    implementation 'com.github.kyngs.libby:libby-velocity:relocator-fix-SNAPSHOT'
+    implementation 'com.github.kyngs.libby:libby-bungee:relocator-fix-SNAPSHOT'
     implementation 'net.byteflux:libby-paper:1.2.0'
 
 }
