@@ -118,7 +118,7 @@ dependencies {
     implementation 'com.github.kyngs.libby:libby-bukkit:relocator-fix-099775e96b-1'
     implementation 'com.github.kyngs.libby:libby-velocity:relocator-fix-099775e96b-1'
     implementation 'com.github.kyngs.libby:libby-bungee:relocator-fix-099775e96b-1'
-    implementation 'com.github.kyngs.libby:libby-paper:relocator-fix-099775e96b-1'
+    implementation 'net.byteflux:libby-paper:1.2.0'
 
 }
 
