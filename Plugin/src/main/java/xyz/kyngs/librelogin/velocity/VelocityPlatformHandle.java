@@ -15,6 +15,7 @@ import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.server.ServerPing;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -58,7 +59,12 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
 
     @Override
     public RegisteredServer getServer(String name, boolean limbo) {
-        return plugin.getServer().getServer(name).orElse(null);
+        Optional<RegisteredServer> serverOptional = plugin.getServer().getServer(name);
+        if (serverOptional.isPresent())
+            return serverOptional.get();
+        if (limbo && plugin.getLimboIntegration() != null)
+            return plugin.getLimboIntegration().createLimbo(name);
+        return null;
     }
 
     @Override
