@@ -82,10 +82,6 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
         if (bootstrap.getProxy().getPluginManager().getPlugin("RedisBungee") != null) {
             redisBungee = RedisBungeeAPI.getRedisBungeeApi();
         }
-        if (pluginPresent("NanoLimboBungee")) {
-            limboIntegration = new BungeeNanoLimboIntegration(bootstrap.getProxy().getPluginManager().getPlugin("NanoLimboBungee").getClass().getClassLoader(),
-                    getConfiguration().get(ConfigurationKeys.LIMBO_PORT_RANGE));
-        }
 
         super.enable();
 
@@ -261,6 +257,10 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
     @Nullable
     @Override
     public LimboIntegration<ServerInfo> getLimboIntegration() {
+        if (pluginPresent("NanoLimboBungee")) {
+            limboIntegration = new BungeeNanoLimboIntegration(bootstrap.getProxy().getPluginManager().getPlugin("NanoLimboBungee").getClass().getClassLoader(),
+                    getConfiguration().get(ConfigurationKeys.LIMBO_PORT_RANGE));
+        }
         return limboIntegration;
     }
 }
