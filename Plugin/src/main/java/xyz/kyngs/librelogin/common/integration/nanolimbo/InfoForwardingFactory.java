@@ -6,39 +6,38 @@
 package xyz.kyngs.librelogin.common.integration.nanolimbo;
 
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import ua.nanit.limbo.server.data.InfoForwarding;
+import ua.nanit.limbo.server.data.InfoForwarding.Type;
 
 // Class for hiding InfoForwarding dirty way initialization
 public class InfoForwardingFactory {
 
     public InfoForwarding none() {
-        Map<String, Object> map = Map.of("type", "NONE");
+        Map<String, Object> map = Map.of("type", Type.NONE);
         return createForwarding(map);
     }
 
     public InfoForwarding legacy() {
-        Map<String, Object> map = Map.of("type", "LEGACY");
+        Map<String, Object> map = Map.of("type", Type.LEGACY);
         return createForwarding(map);
     }
 
     public InfoForwarding modern(byte[] secretKey) {
-        String rawKey = new String(secretKey, StandardCharsets.UTF_8);
         Map<String, Object> map = Map.of(
-                "type", "MODERN",
-                "secret", rawKey
+                "type", Type.MODERN,
+                "secretKey", secretKey
         );
         return createForwarding(map);
     }
 
     public InfoForwarding bungeeGuard(Collection<String> tokens) {
         Map<String, Object> map = Map.of(
-                "type", "MODERN",
+                "type", Type.BUNGEE_GUARD,
                 "tokens", new ArrayList<>(tokens)
         );
         return createForwarding(map);
@@ -49,7 +48,7 @@ public class InfoForwardingFactory {
         for (Entry<String, Object> entry : map.entrySet()) {
             Class<?> clazz = forwarding.getClass();
             try {
-                Field field = clazz.getField(entry.getKey());
+                Field field = clazz.getDeclaredField(entry.getKey());
                 field.setAccessible(true);
                 field.set(forwarding, entry.getValue());
             } catch (NoSuchFieldException | IllegalAccessException ignored) {
