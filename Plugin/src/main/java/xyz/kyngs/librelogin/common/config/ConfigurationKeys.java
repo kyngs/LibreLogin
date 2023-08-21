@@ -359,11 +359,9 @@ public class ConfigurationKeys {
             ConfigurateHelper::getBoolean
     );
     public static final ConfigurationKey<String> LIMBO_PORT_RANGE = new ConfigurationKey<>(
-      "limbo-port-range",
-      "30000-40000",
-            """
-                    !!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Defines port(s) that limbo server can be bounded to.
-                    """ ,
+            "limbo-port-range",
+            "30000-40000",
+            "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Defines port(s) that limbo server can be bounded to.",
             ConfigurateHelper::getString
     );
 }
