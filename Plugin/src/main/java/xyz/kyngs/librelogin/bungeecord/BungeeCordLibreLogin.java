@@ -257,7 +257,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
     @Nullable
     @Override
     public LimboIntegration<ServerInfo> getLimboIntegration() {
-        if (pluginPresent("NanoLimboBungee")) {
+        if (pluginPresent("NanoLimboBungee") && limboIntegration == null) {
             limboIntegration = new BungeeNanoLimboIntegration(bootstrap.getProxy().getPluginManager().getPlugin("NanoLimboBungee").getClass().getClassLoader(),
                     getConfiguration().get(ConfigurationKeys.LIMBO_PORT_RANGE));
         }
