@@ -25,11 +25,11 @@ import xyz.kyngs.librelogin.api.totp.TOTPProvider;
 import xyz.kyngs.librelogin.api.util.SemanticVersion;
 import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * The main plugin interface.
@@ -244,7 +244,7 @@ public interface LibreLoginPlugin<P, S> {
     /**
      * Gets the limbo provider integration.
      * <br>
-     * <b>This can be used for creating limbo's<b/>
+     * <b>This can be used for creating limbo's</b>
      *
      * @return The limbo provider, or null if no integration was found
      */

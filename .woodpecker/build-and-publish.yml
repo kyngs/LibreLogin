@@ -2,7 +2,7 @@ steps:
   shadowJar:
     image: "eclipse-temurin:17-alpine"
     commands:
-      - "./gradlew licenseCheck shadowJar"
+      - "./gradlew licenseCheck shadowJar javadocJar"
 
   setup-and-run-velocity:
     image: "eclipse-temurin:17-alpine"
