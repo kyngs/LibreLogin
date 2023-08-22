@@ -11,10 +11,6 @@ import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
 import co.aikar.commands.PaperCommandManager;
 import com.comphenix.protocol.ProtocolLibrary;
-import net.byteflux.libby.BukkitLibraryManager;
-import net.byteflux.libby.Library;
-import net.byteflux.libby.LibraryManager;
-import net.byteflux.libby.PaperLibraryManager;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.CustomChart;
@@ -32,8 +28,6 @@ import xyz.kyngs.librelogin.common.util.CancellableTask;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
@@ -229,29 +223,5 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     @Override
     public Audience getAudienceFromIssuer(CommandIssuer issuer) {
         return ((BukkitCommandIssuer) issuer).getIssuer();
-    }
-
-    @Override
-    protected List<Library> customDependencies() {
-        return List.of(
-
-        );
-    }
-
-    @Override
-    protected List<String> customRepositories() {
-        return List.of(
-
-        );
-    }
-
-    @Override
-    protected LibraryManager provideLibraryManager() {
-        try {
-            Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
-            return new PaperLibraryManager(bootstrap);
-        } catch (ClassNotFoundException e) {
-            return new BukkitLibraryManager(bootstrap);
-        }
     }
 }

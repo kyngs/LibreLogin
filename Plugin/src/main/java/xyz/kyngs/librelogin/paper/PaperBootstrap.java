@@ -6,6 +6,9 @@
 
 package xyz.kyngs.librelogin.paper;
 
+import net.byteflux.libby.BukkitLibraryManager;
+import net.byteflux.libby.LibraryManager;
+import net.byteflux.libby.PaperLibraryManager;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
@@ -13,6 +16,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
+import xyz.kyngs.librelogin.common.SLF4JLogger;
+import xyz.kyngs.librelogin.common.util.DependencyUtil;
+
+import java.util.List;
 
 public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Player, World> {
 
@@ -40,6 +47,22 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
         }
 
         getLogger().info("Detected Adventure-compatible server distribution - " + getServer().getName() + " " + getServer().getVersion());
+
+        LibraryManager libraryManager;
+
+        try {
+            Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
+            libraryManager = new PaperLibraryManager(this);
+        } catch (ClassNotFoundException e) {
+            libraryManager = new BukkitLibraryManager(this);
+        }
+
+        DependencyUtil.downloadDependencies(
+                new SLF4JLogger(getSLF4JLogger(), () -> false),
+                libraryManager,
+                List.of(),
+                List.of()
+        );
 
         libreLogin = new PaperLibreLogin(this);
     }

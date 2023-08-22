@@ -11,9 +11,6 @@ import co.aikar.commands.BungeeCommandManager;
 import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
-import net.byteflux.libby.BungeeLibraryManager;
-import net.byteflux.libby.Library;
-import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bungeecord.BungeeAudiences;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
@@ -38,10 +35,8 @@ import xyz.kyngs.librelogin.common.util.CancellableTask;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
 
@@ -114,29 +109,7 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
 
     @Override
     protected Logger provideLogger() {
-        return new Logger() {
-            @Override
-            public void info(String message) {
-                bootstrap.getLogger().info(message);
-            }
-
-            @Override
-            public void warn(String message) {
-                bootstrap.getLogger().warning(message);
-            }
-
-            @Override
-            public void error(String message) {
-                bootstrap.getLogger().severe(message);
-            }
-
-            @Override
-            public void debug(String message) {
-                if (getConfiguration().get(DEBUG)) {
-                    bootstrap.getLogger().log(Level.INFO, "[DEBUG] " + message);
-                }
-            }
-        };
+        return new BungeeCordLogger(bootstrap, () -> getConfiguration().get(DEBUG));
     }
 
     @Override
@@ -231,27 +204,8 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
     }
 
     @Override
-    protected List<Library> customDependencies() {
-        return List.of(
-
-        );
-    }
-
-    @Override
-    protected List<String> customRepositories() {
-        return List.of(
-
-        );
-    }
-
-    @Override
     protected java.util.logging.Logger getSimpleLogger() {
         return bootstrap.getProxy().getLogger();
-    }
-
-    @Override
-    protected LibraryManager provideLibraryManager() {
-        return new BungeeLibraryManager(bootstrap);
     }
 
     @Nullable
