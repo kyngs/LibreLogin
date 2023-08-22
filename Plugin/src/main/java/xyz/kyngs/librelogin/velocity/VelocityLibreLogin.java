@@ -35,18 +35,20 @@ import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
+import xyz.kyngs.librelogin.api.integration.LimboIntegration;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
+import xyz.kyngs.librelogin.velocity.integration.VelocityNanoLimboIntegration;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -80,6 +82,8 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     private PluginDescription description;
     @Nullable
     private VelocityRedisBungeeIntegration redisBungee;
+    @Nullable
+    private LimboIntegration<RegisteredServer> limboIntegration;
 
     public ProxyServer getServer() {
         return server;
@@ -279,4 +283,16 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     public LibreLoginPlugin<Player, RegisteredServer> getLibreLogin() {
         return this;
     }
+
+    @Nullable
+    @Override
+    public LimboIntegration<RegisteredServer> getLimboIntegration() {
+        if (pluginPresent("nanolimbovelocity") && limboIntegration == null) {
+            limboIntegration = new VelocityNanoLimboIntegration(server,
+                    getConfiguration().get(ConfigurationKeys.LIMBO_PORT_RANGE));
+        }
+        return limboIntegration;
+    }
+
+
 }

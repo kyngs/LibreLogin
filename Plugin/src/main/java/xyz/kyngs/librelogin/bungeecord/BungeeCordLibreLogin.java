@@ -28,7 +28,10 @@ import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
+import xyz.kyngs.librelogin.api.integration.LimboIntegration;
+import xyz.kyngs.librelogin.bungeecord.integration.BungeeNanoLimboIntegration;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
@@ -36,7 +39,6 @@ import xyz.kyngs.librelogin.common.util.CancellableTask;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -49,6 +51,8 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
     private BungeeAudiences adventure;
     @Nullable
     private RedisBungeeAPI redisBungee;
+    @Nullable
+    private LimboIntegration<ServerInfo> limboIntegration;
     private BungeeComponentSerializer serializer;
 
     public BungeeCordLibreLogin(BungeeCordBootstrap bootstrap) {
@@ -250,4 +254,13 @@ public class BungeeCordLibreLogin extends AuthenticLibreLogin<ProxiedPlayer, Ser
         return new BungeeLibraryManager(bootstrap);
     }
 
+    @Nullable
+    @Override
+    public LimboIntegration<ServerInfo> getLimboIntegration() {
+        if (pluginPresent("NanoLimboBungee") && limboIntegration == null) {
+            limboIntegration = new BungeeNanoLimboIntegration(bootstrap.getProxy().getPluginManager().getPlugin("NanoLimboBungee").getClass().getClassLoader(),
+                    getConfiguration().get(ConfigurationKeys.LIMBO_PORT_RANGE));
+        }
+        return limboIntegration;
+    }
 }
