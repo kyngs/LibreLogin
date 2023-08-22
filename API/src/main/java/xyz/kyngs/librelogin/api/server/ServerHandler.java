@@ -16,8 +16,8 @@ import java.util.Collection;
 /**
  * An interface which manages lobby and limbo servers.
  *
- * @param <S>
- * @param <P>
+ * @param <S> The type of the server
+ * @param <P> The type of the player
  */
 public interface ServerHandler<P, S> {
 

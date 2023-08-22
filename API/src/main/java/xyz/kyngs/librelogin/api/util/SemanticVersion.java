@@ -17,6 +17,12 @@ package xyz.kyngs.librelogin.api.util;
  */
 public record SemanticVersion(int major, int minor, int patch, boolean dev) {
 
+    /**
+     * Parses a semantic version from a string with format major.minor.patch(-SNAPSHOT)
+     *
+     * @param version The string to parse.
+     * @return The parsed semantic version.
+     */
     public static SemanticVersion parse(String version) {
         String[] split = version.replace("-SNAPSHOT", "").split("\\.");
         return new SemanticVersion(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]), version.endsWith("-SNAPSHOT"));

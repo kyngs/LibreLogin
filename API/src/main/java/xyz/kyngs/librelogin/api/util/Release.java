@@ -6,5 +6,12 @@
 
 package xyz.kyngs.librelogin.api.util;
 
+/**
+ * A record representing a release.
+ * A release consists of a semantic version and a name.
+ *
+ * @param version The semantic version of the release.
+ * @param name    The name of the release.
+ */
 public record Release(SemanticVersion version, String name) {
 }
