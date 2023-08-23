@@ -533,6 +533,11 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "loginsecurity-sqlite",
                 SQLiteDatabaseConnector.class
         ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LimboAuthSQLMigrateReadProvider("AUTH", logger, connector),
+                "limboauth-mysql",
+                MySQLDatabaseConnector.class
+        ));
 
     }
 
