@@ -211,6 +211,7 @@ public class ConfigurationKeys {
                     loginsecurity-sqlite - Can convert from SQLite LoginSecurity BCrypt
                     fastlogin-sqlite - Can convert from SQLite FastLogin, !!YOU MUST RUN CONVERSION FROM AUTHME FIRST!!
                     fastlogin-mysql - Can convert from MySQL FastLogin, !!YOU MUST RUN CONVERSION FROM AUTHME FIRST!!
+                    limboauth-mysql - Can convert from MySQL LimboAuth BCrypt and SHA256
                     librelogin-mysql - Can convert from MySQL LibreLogin, useful for migrating to a different database
                     librelogin-sqlite - Can convert from SQLite LibreLogin, useful for migrating to a different database
                     """,
