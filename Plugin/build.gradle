@@ -85,7 +85,7 @@ dependencies {
     implementation 'com.github.kyngs.commands:acf-paper:object-fix-SNAPSHOT'
 
     //Utils
-    compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.7'
+    compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.8'
     compileOnly 'org.spongepowered:configurate-hocon:4.1.2'
     compileOnly 'at.favre.lib:bcrypt:0.10.2'
     compileOnly 'dev.samstevens.totp:totp:1.7.1'
