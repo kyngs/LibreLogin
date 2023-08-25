@@ -118,7 +118,7 @@ dependencies {
     implementation 'com.github.kyngs.libby:libby-bukkit:relocator-fix-SNAPSHOT'
     implementation 'com.github.kyngs.libby:libby-velocity:relocator-fix-SNAPSHOT'
     implementation 'com.github.kyngs.libby:libby-bungee:relocator-fix-SNAPSHOT'
-    implementation 'net.byteflux:libby-paper:1.2.0'
+    implementation 'net.byteflux:libby-paper:1.3.0'
 
     //NanoLimboPlugin
     compileOnly 'com.github.bivashy.NanoLimboPlugin:api:1.0.6'
