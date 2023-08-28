@@ -70,7 +70,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-proxy:3.0.1'
 
     //MySQL
-    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
+    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.2.0'
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
 
     //SQLite
