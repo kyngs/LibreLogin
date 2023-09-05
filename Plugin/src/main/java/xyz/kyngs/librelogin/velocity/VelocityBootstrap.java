@@ -15,11 +15,8 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.byteflux.libby.VelocityLibraryManager;
 import org.slf4j.Logger;
-import xyz.kyngs.librelogin.common.SLF4JLogger;
-import xyz.kyngs.librelogin.common.util.DependencyUtil;
 
 import java.nio.file.Path;
-import java.util.List;
 import javax.inject.Inject;
 
 @Plugin(
@@ -46,12 +43,12 @@ public class VelocityBootstrap {
 
     @Subscribe
     public void onInitialization(ProxyInitializeEvent event) {
-        DependencyUtil.downloadDependencies(
-                new SLF4JLogger(logger, () -> false),
-                new VelocityLibraryManager<>(logger, Path.of("plugins", "librelogin"), server.getPluginManager(), this),
-                List.of(),
-                List.of()
-        );
+        var libraryManager = new VelocityLibraryManager<>(logger, Path.of("plugins", "librelogin"), server.getPluginManager(), this);
+
+        logger.info("Loading libraries...");
+
+        libraryManager.configureFromJSON();
+
         libreLogin = new VelocityLibreLogin(this);
 
         injector.injectMembers(libreLogin);

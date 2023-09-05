@@ -11,9 +11,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
-import xyz.kyngs.librelogin.common.util.DependencyUtil;
-
-import java.util.List;
 
 public class BungeeCordBootstrap extends Plugin implements LibreLoginProvider<ProxiedPlayer, ServerInfo> {
 
@@ -21,12 +18,11 @@ public class BungeeCordBootstrap extends Plugin implements LibreLoginProvider<Pr
 
     @Override
     public void onLoad() {
-        DependencyUtil.downloadDependencies(
-                new BungeeCordLogger(this, () -> false),
-                new BungeeLibraryManager(this),
-                List.of(),
-                List.of()
-        );
+        var libraryManager = new BungeeLibraryManager(this);
+
+        getLogger().info("Loading libraries...");
+
+        libraryManager.configureFromJSON();
 
         libreLogin = new BungeeCordLibreLogin(this);
     }

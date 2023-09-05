@@ -16,10 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
-import xyz.kyngs.librelogin.common.SLF4JLogger;
-import xyz.kyngs.librelogin.common.util.DependencyUtil;
-
-import java.util.List;
 
 public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Player, World> {
 
@@ -57,12 +53,9 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
             libraryManager = new BukkitLibraryManager(this);
         }
 
-        DependencyUtil.downloadDependencies(
-                new SLF4JLogger(getSLF4JLogger(), () -> false),
-                libraryManager,
-                List.of(),
-                List.of()
-        );
+        getSLF4JLogger().info("Loading libraries...");
+
+        libraryManager.configureFromJSON();
 
         libreLogin = new PaperLibreLogin(this);
     }

@@ -1,4 +1,12 @@
+pluginManagement {
+    repositories {
+        maven {
+            url = uri("https://repo.kyngs.xyz/gradle-plugins")
+        }
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = 'LibreLogin'
 include 'Plugin'
 include 'API'
-

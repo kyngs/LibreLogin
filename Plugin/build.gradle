@@ -3,6 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'net.kyori.blossom' version '1.3.1'
     id 'java-library'
+    id 'xyz.kyngs.libby.plugin' version '1.0.0'
 }
 
 compileJava {
@@ -19,7 +20,7 @@ repositories {
     maven { url = "https://repo.dmulloy2.net/repository/public/" }
     maven { url = "https://repo.alessiodp.com/releases/" }
     maven { url = "https://jitpack.io/" }
-    //maven { url = "https://repo.kyngs.xyz/repository/maven-public/" }
+    maven { url = "https://repo.kyngs.xyz/public/" }
 }
 
 blossom {
@@ -47,6 +48,7 @@ shadowJar {
     relocate 'io.leangen.geantyref', 'xyz.kyngs.librelogin.lib.reflect'
     relocate 'org.spongepowered.configurate', 'xyz.kyngs.librelogin.lib.configurate'
     relocate 'net.byteflux.libby', 'xyz.kyngs.librelogin.lib.libby'
+    relocate 'org.postgresql', 'xyz.kyngs.librelogin.lib.postgresql'
 }
 
 java {
@@ -59,6 +61,12 @@ jar {
     from '../LICENSE.txt'
 }
 
+libby {
+    excludeDependency 'org.slf4j:.*:.*'
+    excludeDependency 'org.checkerframework:.*:.*'
+    excludeDependency 'com.google.errorprone:.*:.*'
+    excludeDependency 'com.google.protobuf:.*:.*'
+}
 
 dependencies {
     //API
@@ -70,30 +78,30 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-proxy:3.0.1'
 
     //MySQL
-    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.2.0'
-    compileOnly 'com.zaxxer:HikariCP:5.0.1'
+    libby 'org.mariadb.jdbc:mariadb-java-client:3.2.0'
+    libby 'com.zaxxer:HikariCP:5.0.1'
 
     //SQLite
-    compileOnly 'org.xerial:sqlite-jdbc:3.43.0.0'
+    libby 'org.xerial:sqlite-jdbc:3.43.0.0'
 
     //PostgreSQL
-    compileOnly 'org.postgresql:postgresql:42.6.0'
+    libby 'org.postgresql:postgresql:42.6.0'
 
     //ACF
-    implementation 'com.github.kyngs.commands:acf-velocity:object-fix-SNAPSHOT'
-    implementation 'com.github.kyngs.commands:acf-bungee:object-fix-SNAPSHOT'
-    implementation 'com.github.kyngs.commands:acf-paper:object-fix-SNAPSHOT'
+    libby 'com.github.kyngs.commands:acf-velocity:4a206a27da'
+    libby 'com.github.kyngs.commands:acf-bungee:4a206a27da'
+    libby 'com.github.kyngs.commands:acf-paper:4a206a27da'
 
     //Utils
-    compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.8'
-    compileOnly 'org.spongepowered:configurate-hocon:4.1.2'
-    compileOnly 'at.favre.lib:bcrypt:0.10.2'
-    compileOnly 'dev.samstevens.totp:totp:1.7.1'
+    libby 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    libby 'org.spongepowered:configurate-hocon:4.1.2'
+    libby 'at.favre.lib:bcrypt:0.10.2'
+    libby 'dev.samstevens.totp:totp:1.7.1'
     compileOnly 'dev.simplix:protocolize-api:2.3.0'
-    compileOnly 'org.bouncycastle:bcprov-jdk18on:1.76'
-    compileOnly 'org.apache.commons:commons-email:1.5'
-    implementation 'net.kyori:adventure-text-minimessage:4.14.0'
-    implementation 'com.github.kyngs:LegacyMessage:0.2.0'
+    libby 'org.bouncycastle:bcprov-jdk18on:1.76'
+    libby 'org.apache.commons:commons-email:1.5'
+    libby 'net.kyori:adventure-text-minimessage:4.14.0'
+    libby 'com.github.kyngs:LegacyMessage:0.2.0'
 
     //Geyser
     compileOnly 'org.geysermc.floodgate:api:2.2.0-SNAPSHOT'
@@ -101,11 +109,12 @@ dependencies {
     //Bungeecord
     compileOnly 'net.md-5:bungeecord-api:1.20-R0.2-SNAPSHOT'
     compileOnly 'com.github.limework.redisbungee:RedisBungee-API:0.7.2'
+    libby 'net.kyori:adventure-platform-bungeecord:4.1.2'
 
     //BStats
-    implementation 'org.bstats:bstats-velocity:3.0.2'
-    implementation 'org.bstats:bstats-bungeecord:3.0.2'
-    implementation 'org.bstats:bstats-bukkit:3.0.2'
+    libby 'org.bstats:bstats-velocity:3.0.2'
+    libby 'org.bstats:bstats-bungeecord:3.0.2'
+    libby 'org.bstats:bstats-bukkit:3.0.2'
 
     //Paper
     compileOnly 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
@@ -115,14 +124,13 @@ dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-core:2.20.0'
 
     //Libby
-    implementation 'com.github.kyngs.libby:libby-bukkit:relocator-fix-SNAPSHOT'
-    implementation 'com.github.kyngs.libby:libby-velocity:relocator-fix-SNAPSHOT'
-    implementation 'com.github.kyngs.libby:libby-bungee:relocator-fix-SNAPSHOT'
-    implementation 'net.byteflux:libby-paper:1.3.0'
+    implementation 'xyz.kyngs.libby:libby-bukkit:1.4.0'
+    implementation 'xyz.kyngs.libby:libby-velocity:1.4.0'
+    implementation 'xyz.kyngs.libby:libby-bungee:1.4.0'
+    implementation 'xyz.kyngs.libby:libby-paper:1.4.0'
 
     //NanoLimboPlugin
     compileOnly 'com.github.bivashy.NanoLimboPlugin:api:1.0.6'
-
 }
 
 processResources {
