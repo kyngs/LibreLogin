@@ -109,7 +109,7 @@ dependencies {
     //Bungeecord
     compileOnly 'net.md-5:bungeecord-api:1.20-R0.2-SNAPSHOT'
     compileOnly 'com.github.limework.redisbungee:RedisBungee-API:0.7.2'
-    libby 'net.kyori:adventure-platform-bungeecord:4.1.2'
+    libby 'net.kyori:adventure-platform-bungeecord:4.3.0'
 
     //BStats
     libby 'org.bstats:bstats-velocity:3.0.2'
