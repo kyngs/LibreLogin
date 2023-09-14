@@ -22,13 +22,11 @@ import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.api.integration.LimboIntegration;
-import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
@@ -45,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
 
-public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredServer> implements LibreLoginProvider<Player, RegisteredServer> {
+public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredServer> {
 
     private final VelocityBootstrap bootstrap;
     @Inject
@@ -233,11 +231,6 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     @Override
     public File getDataFolder() {
         return dataDir.toFile();
-    }
-
-    @Override
-    public LibreLoginPlugin<Player, RegisteredServer> getLibreLogin() {
-        return this;
     }
 
     @Nullable
