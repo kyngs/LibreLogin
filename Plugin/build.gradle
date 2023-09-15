@@ -11,7 +11,7 @@ compileJava {
 }
 
 repositories {
-    //mavenLocal()
+    // mavenLocal()
     maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     maven { url = "https://repo.opencollab.dev/maven-snapshots/" }
     maven { url = "https://repo.papermc.io/repository/maven-public/" }

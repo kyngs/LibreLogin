@@ -34,13 +34,13 @@ public class NLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
 
             while (rs.next()) {
                 try {
-                    var uniqueIdString = rs.getString("uniqueId");
-                    var premiumIdString = rs.getString("premiumId");
-                    var lastNickname = rs.getString("realname");
-                    var lastSeen = rs.getTimestamp("lastlogin");
-                    var firstSeen = rs.getTimestamp("regdate");
+                    var uniqueIdString = rs.getString("unique_id");
+                    var premiumIdString = rs.getString("mojang_id");
+                    var lastNickname = rs.getString("last_name");
+                    var lastSeen = rs.getTimestamp("last_login");
+                    var firstSeen = rs.getTimestamp("creation_date");
                     var rawPassword = rs.getString("password");
-                    var ip = rs.getString("address");
+                    var ip = rs.getString("last_address");
 
                     if (lastNickname == null) continue; //Yes this may happen
 
