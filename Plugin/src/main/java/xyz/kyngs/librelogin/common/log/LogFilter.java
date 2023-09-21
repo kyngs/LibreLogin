@@ -28,6 +28,10 @@ public abstract class LogFilter {
         PROTECTED_COMMANDS.add("changepass");
         PROTECTED_COMMANDS.add("passch");
         PROTECTED_COMMANDS.add("passwd");
+        PROTECTED_COMMANDS.add("confirmpasswordreset");
+        PROTECTED_COMMANDS.add("setemail");
+        PROTECTED_COMMANDS.add("librelogin user register");
+        PROTECTED_COMMANDS.add("librelogin user pass-change");
     }
 
     protected boolean checkMessage(String message) {
