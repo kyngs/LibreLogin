@@ -25,7 +25,7 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
     @Default
     @Syntax("{@@syntax.login}")
     @CommandCompletion("%autocomplete.login")
-    public CompletionStage<Void> onLogin(Audience sender, P player, @Single String password, @Optional Integer code) {
+    public CompletionStage<Void> onLogin(Audience sender, P player, @Single String password, @Optional String code) {
         return runAsync(() -> {
             checkUnauthorized(player);
             var user = getUser(player);
@@ -53,7 +53,15 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
                 if (totp != null) {
                     if (code == null) throw new InvalidCommandArgument(getMessage("totp-not-provided"));
 
-                    if (!totp.verify(code, secret)) {
+                    int parsedCode;
+
+                    try {
+                        parsedCode = Integer.parseInt(code.trim().replace(" ", ""));
+                    } catch (NumberFormatException e) {
+                        throw new InvalidCommandArgument(getMessage("totp-wrong"));
+                    }
+
+                    if (!totp.verify(parsedCode, secret)) {
                         if (plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD)) {
                             plugin.getPlatformHandle().kick(player, getMessage("kick-error-totp-wrong"));
                         }

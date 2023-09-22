@@ -26,7 +26,7 @@ public class TwoFactorConfirmCommand<P> extends Command<P> {
     @Default
     @Syntax("{@@syntax.2fa-confirm}")
     @CommandCompletion("%autocomplete.2fa-confirm")
-    public CompletionStage<Void> onTwoFactorConfirm(Audience sender, P player, Integer code) {
+    public CompletionStage<Void> onTwoFactorConfirm(Audience sender, P player, String code) {
         return runAsync(() -> {
             checkAuthorized(player);
             var user = getUser(player);
@@ -36,7 +36,15 @@ public class TwoFactorConfirmCommand<P> extends Command<P> {
                 throw new InvalidCommandArgument(getMessage("totp-not-awaiting"));
             }
 
-            if (!auth.confirmTwoFactorAuth(player, code, user)) {
+            int parsedCode;
+
+            try {
+                parsedCode = Integer.parseInt(code.trim().replace(" ", ""));
+            } catch (NumberFormatException e) {
+                throw new InvalidCommandArgument(getMessage("totp-wrong"));
+            }
+
+            if (!auth.confirmTwoFactorAuth(player, parsedCode, user)) {
                 throw new InvalidCommandArgument(getMessage("totp-wrong"));
             }
 
