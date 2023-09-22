@@ -20,10 +20,12 @@ import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
 
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.LIMBO;
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.REMEMBER_LAST_SERVER;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
 
 public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
 
@@ -47,7 +49,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                     var ping = plugin.getPlatformHandle().ping(server);
                     plugin.getLogger().debug("Pinged server " + server + ": " + ping);
 
-                    return Optional.ofNullable(ping);
+                    return Optional.ofNullable(plugin.getConfiguration().get(IGNORE_MAX_PLAYERS_FROM_BACKEND_PING) ? new ServerPing(Integer.MAX_VALUE) : ping);
                 });
 
         plugin.repeat(() -> pingCache.refreshAll(pingCache.asMap().keySet()), 10000, 10000);

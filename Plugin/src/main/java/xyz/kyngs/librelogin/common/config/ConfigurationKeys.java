@@ -63,6 +63,16 @@ public class ConfigurationKeys {
         LOBBY_DEFAULT.put("root", "lobby1");
     }
 
+    public static final ConfigurationKey<Boolean> IGNORE_MAX_PLAYERS_FROM_BACKEND_PING = new ConfigurationKey<>(
+            "ignore-max-players-from-backend-ping",
+            false,
+            """
+                    By default, when choosing available lobby/limbos LibreLogin will rule out all the servers which are full.
+                    Sometimes this may not work as expected. In such case, you can enable this option, which will ignore the max players field obtained by pinging the backend server.
+                    """,
+            ConfigurateHelper::getBoolean
+    );
+
     public static final ConfigurationKey<String> DEFAULT_CRYPTO_PROVIDER = new ConfigurationKey<>(
             "default-crypto-provider",
             "BCrypt-2A",
