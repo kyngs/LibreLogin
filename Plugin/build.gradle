@@ -130,7 +130,7 @@ dependencies {
     implementation 'xyz.kyngs.libby:libby-paper:1.4.0'
 
     //NanoLimboPlugin
-    compileOnly 'com.github.bivashy.NanoLimboPlugin:api:1.0.6'
+    compileOnly 'com.github.bivashy.NanoLimboPlugin:api:1.0.7'
 }
 
 processResources {
