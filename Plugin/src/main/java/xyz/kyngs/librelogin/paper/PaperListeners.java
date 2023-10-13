@@ -29,6 +29,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mojang.datafixers.util.Either;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -48,7 +49,6 @@ import xyz.kyngs.librelogin.paper.protocollib.ClientPublicKey;
 import xyz.kyngs.librelogin.paper.protocollib.EncryptionUtil;
 import xyz.kyngs.librelogin.paper.protocollib.ProtocolListener;
 
-import javax.crypto.*;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.*;
@@ -59,6 +59,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import javax.crypto.*;
 
 import static com.comphenix.protocol.PacketType.Login.Client.START;
 import static com.comphenix.protocol.PacketType.Login.Server.DISCONNECT;
@@ -133,17 +134,15 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        var existing = event.getPlayerProfile();
-
         if (plugin.fromFloodgate(event.getName())) return;
 
-        var profile = plugin.getDatabaseProvider().getByName(event.getName());
+        var user = plugin.getDatabaseProvider().getByName(event.getName());
 
-        //Going to solve it when they remove it
-        //noinspection removal
-        existing.setId(profile.getUuid());
+        var newProfile = Bukkit.createProfileExact(user.getUuid(), event.getName());
 
-        readOnlyUserCache.put(profile.getUuid(), profile);
+        event.setPlayerProfile(newProfile);
+
+        readOnlyUserCache.put(user.getUuid(), user);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -256,12 +255,12 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
                             newPacket.getByteArrays().write(verifyField, token);
 
-                            encryptionDataCache.put(sender.getAddress().toString(), new EncryptionData(username, token, clientKey.orElse(null)));
+                            encryptionDataCache.put(sender.getAddress().toString(), new EncryptionData(username, token, clientKey.orElse(null), preLoginResult.user().getUuid()));
 
                             ProtocolLibrary.getProtocolManager().sendServerPacket(sender, newPacket);
                         } catch (Exception e) {
-                            plugin.getLogger().error("Failed to send encryption begin packet for player " + username + "! Falling back to offline mode.");
-                            e.printStackTrace();
+                            plugin.getLogger().error("Failed to send encryption begin packet for player " + username + "! Kicking player.");
+                            kickPlayer("Internal error", sender);
                             return;
                         }
 
@@ -318,7 +317,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
                 try {
                     if (hasJoined(username, serverId, address.getAddress())) {
-                        receiveFakeStartPacket(username, data.publicKey(), sender);
+                        receiveFakeStartPacket(username, data.publicKey(), sender, data.uuid());
                     } else {
                         kickPlayer("Invalid session", sender);
                     }
@@ -344,9 +343,13 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
      *
      * @author games647 and FastLogin contributors
      */
-    private void receiveFakeStartPacket(String username, ClientPublicKey clientKey, Player player) {
+    private void receiveFakeStartPacket(String username, ClientPublicKey clientKey, Player player, UUID uuid) {
         PacketContainer startPacket;
-        if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 0))) {
+        if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 20, 2))) {
+            startPacket = new PacketContainer(START);
+            startPacket.getStrings().write(0, username);
+            startPacket.getUUIDs().write(0, uuid);
+        } else if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 0))) {
             startPacket = new PacketContainer(START);
             startPacket.getStrings().write(0, username);
 

@@ -88,9 +88,9 @@ dependencies {
     libby 'org.postgresql:postgresql:42.6.0'
 
     //ACF
-    libby 'com.github.kyngs.commands:acf-velocity:4a206a27da'
-    libby 'com.github.kyngs.commands:acf-bungee:4a206a27da'
-    libby 'com.github.kyngs.commands:acf-paper:4a206a27da'
+    libby 'com.github.kyngs.commands:acf-velocity:7d5bf7cac0'
+    libby 'com.github.kyngs.commands:acf-bungee:7d5bf7cac0'
+    libby 'com.github.kyngs.commands:acf-paper:7d5bf7cac0'
 
     //Utils
     libby 'com.github.ben-manes.caffeine:caffeine:3.1.8'
