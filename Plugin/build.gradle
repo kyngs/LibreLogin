@@ -82,7 +82,7 @@ dependencies {
     libby 'com.zaxxer:HikariCP:5.0.1'
 
     //SQLite
-    libby 'org.xerial:sqlite-jdbc:3.43.0.0'
+    libby 'org.xerial:sqlite-jdbc:3.43.2.0'
 
     //PostgreSQL
     libby 'org.postgresql:postgresql:42.6.0'
