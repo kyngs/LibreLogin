@@ -12,7 +12,6 @@ import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.database.connector.SQLDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.util.CryptoUtil;
-import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -47,6 +46,10 @@ public class LimboAuthSQLMigrateReadProvider extends SQLMigrateReadProvider {
 
                     if (lastNickname == null) continue; //Yes this may happen
 
+                    if (uniqueIdString == null || uniqueIdString.isBlank()) {
+                        uniqueIdString = UUID.nameUUIDFromBytes(("OfflinePlayer:" + lastNickname).getBytes()).toString();
+                    }
+
                     if (premiumIdString.isEmpty()) {
                         premiumIdString = null;
                     }
@@ -63,6 +66,13 @@ public class LimboAuthSQLMigrateReadProvider extends SQLMigrateReadProvider {
                             password = new HashedPassword(hash, salt, algo);
                         } else if (rawPassword.startsWith("$2a$")) {
                             password = CryptoUtil.convertFromBCryptRaw(rawPassword);
+                        } else if (rawPassword.startsWith("$SHA$")) {
+                            var split = rawPassword.split("\\$");
+
+                            var algo = "SHA-512";
+                            var salt = split[2];
+                            var hash = split[3];
+                            password = new HashedPassword(hash, salt, algo);
                         } else {
                             logger.error("User " + lastNickname + " has an invalid password hash");
                         }
