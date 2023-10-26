@@ -24,6 +24,8 @@ import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 @Plugin(
@@ -60,6 +62,11 @@ public class VelocityBootstrap implements LibreLoginProvider<Player, RegisteredS
             @Override
             public Optional<?> getInstance() {
                 return Optional.of(this);
+            }
+
+            @Override
+            public ExecutorService getExecutorService() {
+                return Executors.newSingleThreadExecutor();
             }
         });
 
