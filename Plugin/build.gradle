@@ -121,7 +121,7 @@ dependencies {
     compileOnly 'com.comphenix.protocol:ProtocolLib:5.1.0'
     compileOnly 'io.netty:netty-transport:4.1.100.Final'
     compileOnly 'com.mojang:datafixerupper:5.0.28' //I hate this so much
-    compileOnly 'org.apache.logging.log4j:log4j-core:2.21.0'
+    compileOnly 'org.apache.logging.log4j:log4j-core:2.21.1'
 
     //Libby
     implementation 'xyz.kyngs.libby:libby-bukkit:1.4.0'
