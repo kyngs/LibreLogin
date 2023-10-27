@@ -73,8 +73,8 @@ dependencies {
     implementation project(':API')
 
     //Velocity
-    annotationProcessor 'com.velocitypowered:velocity-api:3.2.0-SNAPSHOT'
-    compileOnly 'com.velocitypowered:velocity-api:3.2.0-SNAPSHOT'
+    annotationProcessor 'com.velocitypowered:velocity-api:4.0.0-SNAPSHOT'
+    compileOnly 'com.velocitypowered:velocity-api:4.0.0-SNAPSHOT'
     compileOnly 'com.velocitypowered:velocity-proxy:3.2.0-SNAPSHOT-277'
 
     //MySQL
