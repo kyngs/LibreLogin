@@ -79,7 +79,7 @@ dependencies {
 
     //MySQL
     libby 'org.mariadb.jdbc:mariadb-java-client:3.2.0'
-    libby 'com.zaxxer:HikariCP:5.0.1'
+    libby 'com.zaxxer:HikariCP:5.1.0'
 
     //SQLite
     libby 'org.xerial:sqlite-jdbc:3.43.0.0'
