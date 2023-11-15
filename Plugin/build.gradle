@@ -98,7 +98,7 @@ dependencies {
     libby 'at.favre.lib:bcrypt:0.10.2'
     libby 'dev.samstevens.totp:totp:1.7.1'
     compileOnly 'dev.simplix:protocolize-api:2.3.1'
-    libby 'org.bouncycastle:bcprov-jdk18on:1.76'
+    libby 'org.bouncycastle:bcprov-jdk18on:1.77'
     libby 'org.apache.commons:commons-email:1.5'
     libby 'net.kyori:adventure-text-minimessage:4.14.0'
     libby 'com.github.kyngs:LegacyMessage:0.2.0'
