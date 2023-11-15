@@ -56,7 +56,7 @@ public class LimboAuthSQLMigrateReadProvider extends SQLMigrateReadProvider {
 
                     HashedPassword password = null;
 
-                    if (rawPassword != null) {
+                    if (rawPassword != null && !rawPassword.isBlank()) {
                         if (rawPassword.startsWith("SHA256$")) {
                             var split = rawPassword.split("\\$");
 

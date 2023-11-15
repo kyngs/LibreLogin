@@ -155,7 +155,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         } else {
             if (event.getPlayer().getHealth() == 0) {
                 //Fixes bug where player is dead when logging in
-                event.getPlayer().setHealth(20);
+                event.getPlayer().setHealth(event.getPlayer().getMaxHealth());
                 var bed = event.getPlayer().getBedSpawnLocation();
                 event.setSpawnLocation(bed == null ? world.value().getSpawnLocation() : bed);
             }

@@ -43,6 +43,7 @@ public class NLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
                     var ip = rs.getString("last_address");
 
                     if (lastNickname == null) continue; //Yes this may happen
+                    if (uniqueIdString == null) continue; //Yes this may happen
 
                     HashedPassword password = null;
 
