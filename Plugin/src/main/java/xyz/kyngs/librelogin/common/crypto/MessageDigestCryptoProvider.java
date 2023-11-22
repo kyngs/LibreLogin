@@ -56,7 +56,7 @@ public class MessageDigestCryptoProvider implements CryptoProvider {
     public boolean matches(String input, HashedPassword password) {
         var salt = password.salt();
         var hash = password.hash();
-        var hashedInput = plainHash(plainHash(input) + salt);
+        var hashedInput = plainHash(plainHash(input) + (salt == null ? "" : salt));
         return hashedInput.equals(hash);
     }
 

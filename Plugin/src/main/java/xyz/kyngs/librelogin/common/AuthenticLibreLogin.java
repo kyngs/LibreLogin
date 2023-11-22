@@ -538,6 +538,16 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "limboauth-mysql",
                 MySQLDatabaseConnector.class
         ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthySQLMigrateReadProvider("players", logger, connector),
+                "authy-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthySQLMigrateReadProvider("players", logger, connector),
+                "authy-sqlite",
+                SQLiteDatabaseConnector.class
+        ));
 
     }
 
