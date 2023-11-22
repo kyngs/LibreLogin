@@ -306,7 +306,7 @@ public class ConfigurationKeys {
 
     public static final ConfigurationKey<Boolean> FALLBACK = new ConfigurationKey<>(
             "fallback",
-            true,
+            false,
             "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Should we fallback players to lobby servers if the server they are on shutdowns? If set to false, they will be kicked.",
             ConfigurateHelper::getBoolean
     );
