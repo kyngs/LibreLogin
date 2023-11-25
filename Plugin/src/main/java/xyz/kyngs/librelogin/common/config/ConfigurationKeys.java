@@ -210,7 +210,7 @@ public class ConfigurationKeys {
             "authme-sqlite",
             """
                     The type of the migration. Available Types:
-                    jpremium-mysql - Can convert from MySQL JPremium SHA256 and BCrypt
+                    jpremium-mysql - Can convert from MySQL JPremium SHA256, SHA512 and BCrypt
                     authme-mysql - Can convert from MySQL AuthMe BCrypt and SHA256
                     authme-sqlite - Can convert from SQLite AuthMe BCrypt and SHA256
                     aegis-mysql - Can convert from MySQL Aegis BCrypt

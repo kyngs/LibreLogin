@@ -51,6 +51,11 @@ public class JPremiumSQLMigrateReadProvider extends SQLMigrateReadProvider {
                                 split[1],
                                 "SHA-256"
                         );
+                        case "SHA512" -> new HashedPassword(
+                                split[2],
+                                split[1],
+                                "SHA-512"
+                        );
                         case "BCRYPT" -> CryptoUtil.convertFromBCryptRaw(rawPassword.replace("BCRYPT", "$2a"));
                         default -> {
                             logger.error("User %s has invalid algorithm %s, omitting".formatted(lastNickname, split[0]));
