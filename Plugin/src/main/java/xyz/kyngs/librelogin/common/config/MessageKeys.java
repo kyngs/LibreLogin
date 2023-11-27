@@ -145,6 +145,14 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+
+    public static final ConfigurationKey<String> KICK_TOO_MANY_LOGIN_TRIES = new ConfigurationKey<>(
+            "kick-too-many-login-tries",
+            "Suspicious activity! Too many login tries!",
+            "This message is displayed when the player is kicked because of trying to login many times!",
+            ConfigurateHelper::getString
+    );
+
     /*
     Errors related to commands
      */
@@ -1171,4 +1179,5 @@ public class MessageKeys {
             "This hint is displayed when the player starts typing the /confirmpasswordreset command.",
             ConfigurateHelper::getString
     );
+
 }

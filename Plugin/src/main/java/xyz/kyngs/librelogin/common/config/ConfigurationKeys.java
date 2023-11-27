@@ -105,6 +105,13 @@ public class ConfigurationKeys {
             ConfigurateHelper::getBoolean
     );
 
+    public static final ConfigurationKey<Integer> MAX_LOGIN_TRIES = new ConfigurationKey<>(
+            "max-login-tries",
+            3,
+            "Kick the player, if the password was incorrect more or equal times.",
+            ConfigurateHelper::getInt
+    );
+
     public static final ConfigurationKey<Boolean> USE_TITLES = new ConfigurationKey<>(
             "use-titles",
             true,
