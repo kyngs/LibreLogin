@@ -21,6 +21,10 @@ public class EventTypes<P, S> {
      */
     public EventType<P, S, AuthenticatedEvent<P, S>> authenticated = new EventType<>(AuthenticatedEvent.class);
     /**
+     * Represents an wrong password event type.
+     */
+    public EventType<P, S, WrongPasswordEvent<P, S>> wrongPassword = new EventType<>(WrongPasswordEvent.class);
+    /**
      * Represents a limbo server choose event type.
      */
     public EventType<P, S, LimboServerChooseEvent<P, S>> limboServerChoose = new EventType<>(LimboServerChooseEvent.class);

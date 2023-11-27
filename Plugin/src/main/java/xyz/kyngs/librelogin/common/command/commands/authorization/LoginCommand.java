@@ -9,9 +9,11 @@ package xyz.kyngs.librelogin.common.command.commands.authorization;
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librelogin.api.event.events.WrongPasswordEvent.AuthenticationSource;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.event.events.AuthenticWrongPasswordEvent;
 
 import java.util.concurrent.CompletionStage;
 
@@ -39,6 +41,9 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
             if (crypto == null) throw new InvalidCommandArgument(getMessage("error-password-corrupted"));
 
             if (!crypto.matches(password, hashed)) {
+                plugin.getEventProvider()
+                        .unsafeFire(plugin.getEventTypes().wrongPassword,
+                                new AuthenticWrongPasswordEvent<>(user, player, plugin, AuthenticationSource.LOGIN));
                 if (plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD)) {
                     plugin.getPlatformHandle().kick(player, getMessage("kick-error-password-wrong"));
                 }

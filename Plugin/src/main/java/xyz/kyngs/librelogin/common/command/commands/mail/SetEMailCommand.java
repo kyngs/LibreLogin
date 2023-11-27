@@ -8,10 +8,12 @@ package xyz.kyngs.librelogin.common.command.commands.mail;
 
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
+import xyz.kyngs.librelogin.api.event.events.WrongPasswordEvent.AuthenticationSource;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.authorization.AuthenticAuthorizationProvider;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.event.events.AuthenticWrongPasswordEvent;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import xyz.kyngs.librelogin.common.util.RateLimiter;
 
@@ -39,6 +41,9 @@ public class SetEMailCommand<P> extends EMailCommand<P> {
             var crypto = getCrypto(hashed);
 
             if (!crypto.matches(password, hashed)) {
+                plugin.getEventProvider()
+                        .unsafeFire(plugin.getEventTypes().wrongPassword,
+                                new AuthenticWrongPasswordEvent<>(user, player, plugin, AuthenticationSource.SET_EMAIL));
                 throw new InvalidCommandArgument(getMessage("error-password-wrong"));
             }
 
