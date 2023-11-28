@@ -358,9 +358,9 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             if (hashedPassword == null) {
                 throw new InvalidCommandArgument(getMessage("error-password-too-long"));
             }
-
+            var premiumUser = plugin.getUserOrThrowICA(name);
             user = new AuthenticUser(
-                    plugin.generateNewUUID(name, plugin.getUserOrThrowICA(name).uuid()),
+                    plugin.generateNewUUID(name, premiumUser == null ? null : premiumUser.uuid()),
                     null,
                     hashedPassword,
                     name,
