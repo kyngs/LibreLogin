@@ -21,7 +21,7 @@ public class EventTypes<P, S> {
      */
     public EventType<P, S, AuthenticatedEvent<P, S>> authenticated = new EventType<>(AuthenticatedEvent.class);
     /**
-     * Represents an wrong password event type.
+     * Represents a wrong password event type.
      */
     public EventType<P, S, WrongPasswordEvent<P, S>> wrongPassword = new EventType<>(WrongPasswordEvent.class);
     /**
