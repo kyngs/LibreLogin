@@ -12,7 +12,6 @@ import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
 import xyz.kyngs.librelogin.api.event.events.WrongPasswordEvent.AuthenticationSource;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
-import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.event.events.AuthenticWrongPasswordEvent;
 
 import java.util.concurrent.CompletionStage;
@@ -64,9 +63,9 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
                     }
 
                     if (!totp.verify(parsedCode, secret)) {
-                        if (plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD) == 1) {
-                            plugin.getPlatformHandle().kick(player, getMessage("kick-error-totp-wrong"));
-                        }
+                        plugin.getEventProvider()
+                                .unsafeFire(plugin.getEventTypes().wrongPassword,
+                                        new AuthenticWrongPasswordEvent<>(user, player, plugin, AuthenticationSource.TOTP));
                         throw new InvalidCommandArgument(getMessage("totp-wrong"));
                     }
                 }

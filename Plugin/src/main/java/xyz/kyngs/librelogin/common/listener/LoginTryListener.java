@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-
 package xyz.kyngs.librelogin.common.listener;
 
 import java.util.Map;
@@ -27,7 +26,7 @@ public class LoginTryListener<P, S> {
     }
 
     private void onWrongPassword(WrongPasswordEvent<P, S> wrongPasswordEvent) {
-        if (wrongPasswordEvent.getSource() != AuthenticationSource.LOGIN)
+        if (wrongPasswordEvent.getSource() != AuthenticationSource.LOGIN && wrongPasswordEvent.getSource() != AuthenticationSource.TOTP)
             return;
         // if key do not exists, put 1 as value
         // otherwise sum 1 to the value linked to key

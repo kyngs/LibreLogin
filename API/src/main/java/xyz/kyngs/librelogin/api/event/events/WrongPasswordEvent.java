@@ -32,6 +32,10 @@ public interface WrongPasswordEvent<P, S> extends PlayerBasedEvent<P, S> {
          */
         LOGIN,
         /**
+         * The player has used the /login command with a wrong TOTP code
+         */
+        TOTP,
+        /**
          * The player has used the /changepassword command with a wrong password
          */
         CHANGE_PASSWORD,
