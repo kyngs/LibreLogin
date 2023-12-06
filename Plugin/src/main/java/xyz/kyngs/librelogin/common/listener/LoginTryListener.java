@@ -31,8 +31,8 @@ public class LoginTryListener<P, S> {
             return;
         // if key do not exists, put 1 as value
         // otherwise sum 1 to the value linked to key
-        loginTries.merge(wrongPasswordEvent.getPlayer(), 1, Integer::sum);
-        if (loginTries.getOrDefault(wrongPasswordEvent.getPlayer(), 0) >= plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD)) {
+        int currentLoginTry = loginTries.merge(wrongPasswordEvent.getPlayer(), 1, Integer::sum);
+        if (currentLoginTry >= plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD)) {
             plugin.getPlatformHandle().kick(wrongPasswordEvent.getPlayer(), plugin.getMessages().getMessage("kick-error-password-wrong"));
         }
     }
