@@ -44,9 +44,6 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
                 plugin.getEventProvider()
                         .unsafeFire(plugin.getEventTypes().wrongPassword,
                                 new AuthenticWrongPasswordEvent<>(user, player, plugin, AuthenticationSource.LOGIN));
-                if (plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD)) {
-                    plugin.getPlatformHandle().kick(player, getMessage("kick-error-password-wrong"));
-                }
                 throw new InvalidCommandArgument(getMessage("error-password-wrong"));
             }
 
@@ -67,7 +64,7 @@ public class LoginCommand<P> extends AuthorizationCommand<P> {
                     }
 
                     if (!totp.verify(parsedCode, secret)) {
-                        if (plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD)) {
+                        if (plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD) == 1) {
                             plugin.getPlatformHandle().kick(player, getMessage("kick-error-totp-wrong"));
                         }
                         throw new InvalidCommandArgument(getMessage("totp-wrong"));
