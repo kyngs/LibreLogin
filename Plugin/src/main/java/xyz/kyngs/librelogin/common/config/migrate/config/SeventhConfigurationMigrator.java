@@ -16,10 +16,11 @@ public class SeventhConfigurationMigrator implements ConfigurationMigrator {
     public void migrate(ConfigurateHelper helper, Logger logger) {
         var kickOnWrongPassword = helper.getBoolean("kick-on-wrong-password");
 
+        helper.set("kick-on-wrong-password", null);
         if (kickOnWrongPassword)
-            helper.set("kick-on-wrong-password", 1);
+            helper.set("max-login-attempts", 1);
         else
-            helper.set("kick-on-wrong-password", 0);
+            helper.set("max-login-attempts", -1);
     }
 
 }

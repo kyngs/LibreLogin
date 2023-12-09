@@ -98,10 +98,10 @@ public class ConfigurationKeys {
             (helper, key) -> ProfileConflictResolutionStrategy.valueOf(helper.getString(key).toUpperCase()).name() // Sanity check
     );
 
-    public static final ConfigurationKey<Integer> KICK_ON_WRONG_PASSWORD = new ConfigurationKey<>(
-            "kick-on-wrong-password",
-            0,
-            "Kick the player, if the password is wrong.",
+    public static final ConfigurationKey<Integer> MAX_LOGIN_ATTEMPTS = new ConfigurationKey<>(
+            "max-login-attempts",
+            -1,
+            "Kick the player, if the password was incorrect more or equal times. -1 means disabled",
             ConfigurateHelper::getInt
     );
 

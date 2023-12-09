@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-
 package xyz.kyngs.librelogin.common.listener;
 
 import java.util.Map;
@@ -32,7 +31,7 @@ public class LoginTryListener<P, S> {
         // if key do not exists, put 1 as value
         // otherwise sum 1 to the value linked to key
         int currentLoginTry = loginTries.merge(wrongPasswordEvent.getPlayer(), 1, Integer::sum);
-        if (currentLoginTry >= plugin.getConfiguration().get(ConfigurationKeys.KICK_ON_WRONG_PASSWORD)) {
+        if (currentLoginTry >= plugin.getConfiguration().get(ConfigurationKeys.MAX_LOGIN_ATTEMPTS)) {
             plugin.getPlatformHandle().kick(wrongPasswordEvent.getPlayer(), plugin.getMessages().getMessage("kick-error-password-wrong"));
         }
     }
