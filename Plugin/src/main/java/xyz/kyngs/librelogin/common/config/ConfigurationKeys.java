@@ -105,6 +105,13 @@ public class ConfigurationKeys {
             ConfigurateHelper::getInt
     );
 
+    public static final ConfigurationKey<Integer> MILLISECONDS_TO_EXPIRE_LOGIN_ATTEMPTS = new ConfigurationKey<>(
+            "milliseconds-to-refresh-login-attempts",
+            300000,
+            "Time to reset login attempts. The amount of time the player should have waited for their login attempts to expire.",
+            ConfigurateHelper::getInt
+    );
+
     public static final ConfigurationKey<Boolean> USE_TITLES = new ConfigurationKey<>(
             "use-titles",
             true,
