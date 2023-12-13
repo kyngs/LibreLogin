@@ -54,6 +54,7 @@ import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabasePro
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
+import xyz.kyngs.librelogin.common.listener.LoginTryListener;
 import xyz.kyngs.librelogin.common.log.Log4JFilter;
 import xyz.kyngs.librelogin.common.log.SimpleLogFilter;
 import xyz.kyngs.librelogin.common.mail.AuthenticEMailHandler;
@@ -107,6 +108,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private ReadWriteDatabaseProvider databaseProvider;
     private DatabaseConnector<?, ?> databaseConnector;
     private AuthenticEMailHandler eMailHandler;
+    private LoginTryListener<P, S> loginTryListener;
 
     protected AuthenticLibreLogin() {
         cryptoProviders = new ConcurrentHashMap<>();
@@ -276,6 +278,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         connectToDB();
 
         serverHandler = new AuthenticServerHandler<>(this);
+
+        this.loginTryListener = new LoginTryListener<>(this);
 
         // Moved to a different class to avoid class loading issues
         GeneralUtil.checkAndMigrate(configuration, logger, this);
@@ -742,6 +746,10 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     @Override
     public AuthenticEventProvider<P, S> getEventProvider() {
         return eventProvider;
+    }
+
+    public LoginTryListener<P, S> getLoginTryListener() {
+        return loginTryListener;
     }
 
     public void onExit(P player) {

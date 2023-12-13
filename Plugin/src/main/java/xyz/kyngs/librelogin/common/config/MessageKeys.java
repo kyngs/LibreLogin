@@ -1171,4 +1171,5 @@ public class MessageKeys {
             "This hint is displayed when the player starts typing the /confirmpasswordreset command.",
             ConfigurateHelper::getString
     );
+
 }

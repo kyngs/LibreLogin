@@ -98,11 +98,18 @@ public class ConfigurationKeys {
             (helper, key) -> ProfileConflictResolutionStrategy.valueOf(helper.getString(key).toUpperCase()).name() // Sanity check
     );
 
-    public static final ConfigurationKey<Boolean> KICK_ON_WRONG_PASSWORD = new ConfigurationKey<>(
-            "kick-on-wrong-password",
-            false,
-            "Kick the player, if the password is wrong.",
-            ConfigurateHelper::getBoolean
+    public static final ConfigurationKey<Integer> MAX_LOGIN_ATTEMPTS = new ConfigurationKey<>(
+            "max-login-attempts",
+            -1,
+            "Kick the player, if the password was incorrect more or equal times. -1 means disabled",
+            ConfigurateHelper::getInt
+    );
+
+    public static final ConfigurationKey<Integer> MILLISECONDS_TO_EXPIRE_LOGIN_ATTEMPTS = new ConfigurationKey<>(
+            "milliseconds-to-refresh-login-attempts",
+            300000,
+            "Time to reset login attempts. The amount of time the player should have waited for their login attempts to expire.",
+            ConfigurateHelper::getInt
     );
 
     public static final ConfigurationKey<Boolean> USE_TITLES = new ConfigurationKey<>(
