@@ -78,7 +78,7 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-proxy:3.2.0-SNAPSHOT-277'
 
     //MySQL
-    libby 'org.mariadb.jdbc:mariadb-java-client:3.3.1'
+    libby 'org.mariadb.jdbc:mariadb-java-client:3.3.2'
     libby 'com.zaxxer:HikariCP:5.1.0'
 
     //SQLite
