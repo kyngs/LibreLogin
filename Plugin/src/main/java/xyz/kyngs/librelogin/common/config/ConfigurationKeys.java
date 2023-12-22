@@ -363,6 +363,13 @@ public class ConfigurationKeys {
             "The sender of the email.",
             ConfigurateHelper::getString
     );
+    public static final ConfigurationKey<String> MAIL_EMAIL = new ConfigurationKey<>(
+            "mail.email",
+            "email@something.com",
+            "The email to use as a sender in the From field.",
+            ConfigurateHelper::getString
+    );
+
     private static final ConfigurationKey<?> MAIL = ConfigurationKey.getComment(
             "mail",
             """

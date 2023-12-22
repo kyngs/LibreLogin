@@ -35,7 +35,7 @@ public class AuthenticEMailHandler implements EmailHandler {
             mail.setSubject(subject);
             mail.setAuthentication(config.get(ConfigurationKeys.MAIL_USERNAME), config.get(ConfigurationKeys.MAIL_PASSWORD));
             mail.addTo(email);
-            mail.setFrom(config.get(ConfigurationKeys.MAIL_USERNAME), config.get(ConfigurationKeys.MAIL_SENDER));
+            mail.setFrom(config.get(ConfigurationKeys.MAIL_EMAIL), config.get(ConfigurationKeys.MAIL_SENDER));
 
             switch (port) {
                 case 465 -> {
