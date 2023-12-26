@@ -99,7 +99,7 @@ dependencies {
     libby 'dev.samstevens.totp:totp:1.7.1'
     compileOnly 'dev.simplix:protocolize-api:2.3.2'
     libby 'org.bouncycastle:bcprov-jdk18on:1.77'
-    libby 'org.apache.commons:commons-email:1.5'
+    libby 'org.apache.commons:commons-email:1.6.0'
     libby 'net.kyori:adventure-text-minimessage:4.15.0'
     libby 'com.github.kyngs:LegacyMessage:0.2.0'
 
