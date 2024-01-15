@@ -12,7 +12,6 @@ compileJava {
 
 repositories {
     // mavenLocal()
-    maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     maven { url = "https://repo.opencollab.dev/maven-snapshots/" }
     maven { url = "https://repo.papermc.io/repository/maven-public/" }
     maven { url = "https://hub.spigotmc.org/nexus/" }
@@ -21,6 +20,7 @@ repositories {
     maven { url = "https://repo.alessiodp.com/releases/" }
     maven { url = "https://jitpack.io/" }
     maven { url = "https://repo.kyngs.xyz/public/" }
+    maven { url = "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 blossom {
@@ -73,8 +73,8 @@ dependencies {
     implementation project(':API')
 
     //Velocity
-    annotationProcessor 'com.velocitypowered:velocity-api:3.2.0-SNAPSHOT'
-    compileOnly 'com.velocitypowered:velocity-api:3.2.0-SNAPSHOT'
+    annotationProcessor 'com.velocitypowered:velocity-api:3.3.0-SNAPSHOT'
+    compileOnly 'com.velocitypowered:velocity-api:3.3.0-SNAPSHOT'
     compileOnly 'com.velocitypowered:velocity-proxy:3.2.0-SNAPSHOT-277'
 
     //MySQL
@@ -117,7 +117,7 @@ dependencies {
     libby 'org.bstats:bstats-bukkit:3.0.2'
 
     //Paper
-    compileOnly 'io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
     compileOnly 'com.comphenix.protocol:ProtocolLib:5.1.0'
     compileOnly 'io.netty:netty-transport:4.1.104.Final'
     compileOnly 'com.mojang:datafixerupper:5.0.28' //I hate this so much

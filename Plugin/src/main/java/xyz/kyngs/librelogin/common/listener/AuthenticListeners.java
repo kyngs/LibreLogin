@@ -19,7 +19,6 @@ import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
-import xyz.kyngs.librelogin.common.event.events.AuthenticPremiumLoginSwitchEvent;
 
 import java.net.InetAddress;
 import java.sql.Timestamp;
@@ -106,10 +105,8 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
 
             //noinspection ConstantConditions //kyngs: There's no way IntelliJ is right
             if (user.getPremiumUUID() != null) {
-                // Disable auto login
-                user.setPremiumUUID(null);
-                plugin.getDatabaseProvider().updateUser(user);
-                plugin.getEventProvider().fire(plugin.getEventTypes().premiumLoginSwitch, new AuthenticPremiumLoginSwitchEvent<>(user, null, plugin));
+                // We will have to encrypt, otherwise someone could forcefully disable other user's premium autologin
+                return new PreLoginResult(PreLoginState.FORCE_ONLINE, null, user);
             }
         } else {
             // A user with this name exists in the Mojang database, we need to figure out whether to encrypt
