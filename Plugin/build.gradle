@@ -101,7 +101,7 @@ dependencies {
     libby 'org.bouncycastle:bcprov-jdk18on:1.77'
     libby 'org.apache.commons:commons-email:1.6.0'
     // DO NOT UPGRADE TO 4.15.0 OR ABOVE BEFORE TESTING WATERFALL AND BUNGEECORD COMPATIBILITY!!!
-    libby 'net.kyori:adventure-text-minimessage:4.14.0'
+    libby 'net.kyori:adventure-text-minimessage:4.15.0'
     libby 'com.github.kyngs:LegacyMessage:0.2.0'
 
     //Geyser
