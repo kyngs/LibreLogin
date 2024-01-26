@@ -223,7 +223,9 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
     public static <P> void enablePremium(P player, User user, AuthenticLibreLogin<P, ?> plugin) {
         var id = plugin.getUserOrThrowICA(user.getLastNickname());
 
-        if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+        // Users are stupid, and sometimes they connect with a differently cased name than the one they registered with at Mojang
+        if (id == null || !id.name().equals(user.getLastNickname()))
+            throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
 
         user.setPremiumUUID(id.uuid());
 
