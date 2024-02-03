@@ -24,7 +24,7 @@ alt="Contributors listed"></img>
 ## Basic set of features
 
 - AutoLogin for premium players
-- TOTP 2FA (Authy, Google Authenticator..) [details](https://github.com/kyngs/LibreLogin/wiki/2FA)
+- TOTP 2FA (Authy, Google Authenticator...) [details](https://github.com/kyngs/LibreLogin/wiki/2FA)
 - session system
 - name validation (including case sensitivity check)
 - automatic data migration for premium players
