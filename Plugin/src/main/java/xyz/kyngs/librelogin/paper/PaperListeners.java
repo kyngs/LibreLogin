@@ -459,12 +459,15 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
      */
     private void kickPlayer(String reason, Player player) {
         PacketContainer kickPacket = new PacketContainer(DISCONNECT);
-        kickPacket.getChatComponents().write(0, WrappedChatComponent.fromText(reason));
-        //send kick packet at login state
-        //the normal event.getPlayer.kickPlayer(String) method does only work at play state
-        ProtocolLibrary.getProtocolManager().sendServerPacket(player, kickPacket);
-        //tell the server that we want to close the connection
-        player.kickPlayer("Disconnect");
+        try {
+            kickPacket.getChatComponents().write(0, WrappedChatComponent.fromText(reason));
+            //send kick packet at login state
+            //the normal event.getPlayer.kickPlayer(String) method does only work at play state
+            ProtocolLibrary.getProtocolManager().sendServerPacket(player, kickPacket);
+        } finally {
+            //tell the server that we want to close the connection
+            player.kickPlayer(reason);
+        }
     }
 
     /**
