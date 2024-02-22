@@ -25,15 +25,15 @@ alt="Contributors listed"></img>
 
 - AutoLogin for premium players
 - TOTP 2FA (Authy, Google Authenticator...) [details](https://github.com/kyngs/LibreLogin/wiki/2FA)
-- session system
-- name validation (including case sensitivity check)
-- automatic data migration for premium players
-- migration of a player's data by using one command
+- Session system
+- Name validation (including case sensitivity check)
+- Automatic data migration for premium players
+- Migration of a player's data by using one command
 - Geyser (Bedrock) support using [Floodgate](https://github.com/kyngs/LibreLogin/wiki/Floodgate)
 
 ## Considerations
 
-- when using on proxy, you need to secure your limbo
+- When using on proxy, you need to secure your limbo
 
 ## Platforms
 
