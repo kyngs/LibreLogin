@@ -80,7 +80,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     private final KeyPair keyPair = EncryptionUtil.generateKeyPair();
     private final Random random = new SecureRandom();
     private final Cache<String, EncryptionData> encryptionDataCache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .expireAfterWrite(2, TimeUnit.MINUTES)
             .build();
     private final FloodgateHelper floodgateHelper;
     private final Cache<Player, String> ipCache;

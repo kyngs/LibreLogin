@@ -9,10 +9,8 @@ package xyz.kyngs.librelogin.api;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librelogin.api.configuration.Messages;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
-import xyz.kyngs.librelogin.api.database.ReadDatabaseProvider;
-import xyz.kyngs.librelogin.api.database.ReadDatabaseProviderRegistration;
-import xyz.kyngs.librelogin.api.database.ReadWriteDatabaseProvider;
-import xyz.kyngs.librelogin.api.database.WriteDatabaseProvider;
+import xyz.kyngs.librelogin.api.crypto.HashedPassword;
+import xyz.kyngs.librelogin.api.database.*;
 import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.event.EventProvider;
 import xyz.kyngs.librelogin.api.event.EventTypes;
@@ -27,6 +25,7 @@ import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 
 import java.io.File;
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -262,4 +261,34 @@ public interface LibreLoginPlugin<P, S> {
     default EventTypes<P, S> getEventTypes() {
         return getEventProvider().getTypes();
     }
+
+    /**
+     * Returns an implementation of {@link User} containing the given parameters.
+     *
+     * @param uuid               The UUID of the user, not null
+     * @param premiumUUID        The UUID of the user's premium account, nullable
+     * @param hashedPassword     The hashed password of the user, nullable
+     * @param lastNickname       The last nickname of the user, not null
+     * @param joinDate           The join date of the user, not null
+     * @param lastSeen           The last seen date of the user, not null
+     * @param secret             The TOTP secret of the user, nullable
+     * @param ip                 The last IP of the user, nullable
+     * @param lastAuthentication The last authentication date of the user, nullable
+     * @param lastServer         The last server of the user, nullable
+     * @param email              The email of the user, nullable
+     * @return an implementation of {@link User} containing the given parameters.
+     */
+    User createUser(
+            UUID uuid,
+            UUID premiumUUID,
+            HashedPassword hashedPassword,
+            String lastNickname,
+            Timestamp joinDate,
+            Timestamp lastSeen,
+            String secret,
+            String ip,
+            Timestamp lastAuthentication,
+            String lastServer,
+            String email
+    );
 }

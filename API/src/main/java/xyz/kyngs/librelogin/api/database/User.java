@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.api.database;
 
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 
 import java.sql.Timestamp;
@@ -23,6 +24,7 @@ public interface User {
      *
      * @return the secret string
      */
+    @Nullable
     String getSecret();
 
     /**
@@ -30,13 +32,14 @@ public interface User {
      *
      * @param secret the secret string to be set
      */
-    void setSecret(String secret);
+    void setSecret(@Nullable String secret);
 
     /**
      * Retrieves the IP address of the current user.
      *
      * @return the IP address of the current user as a string
      */
+    @Nullable
     String getIp();
 
     /**
@@ -44,13 +47,14 @@ public interface User {
      *
      * @param ip the IP address to set for the current user
      */
-    void setIp(String ip);
+    void setIp(@Nullable String ip);
 
     /**
      * Retrieves the IP address of the last server the current user connected to.
      *
      * @return the IP address of the last server
      */
+    @Nullable
     String getLastServer();
 
     /**
@@ -58,13 +62,14 @@ public interface User {
      *
      * @param lastServer the IP address of the last server
      */
-    void setLastServer(String lastServer);
+    void setLastServer(@Nullable String lastServer);
 
     /**
      * Returns the timestamp of the last authentication of the current user.
      *
      * @return the timestamp of the last authentication
      */
+    @Nullable
     Timestamp getLastAuthentication();
 
     /**
@@ -72,7 +77,7 @@ public interface User {
      *
      * @param lastAuthentication the timestamp of the last authentication
      */
-    void setLastAuthentication(Timestamp lastAuthentication);
+    void setLastAuthentication(@Nullable Timestamp lastAuthentication);
 
     /**
      * Returns the timestamp of the join date of the current user.
@@ -107,6 +112,7 @@ public interface User {
      *
      * @return the hashed password as a HashedPassword object
      */
+    @Nullable
     HashedPassword getHashedPassword();
 
     /**
@@ -114,7 +120,7 @@ public interface User {
      *
      * @param hashedPassword the hashed password to be set as a HashedPassword object
      */
-    void setHashedPassword(HashedPassword hashedPassword);
+    void setHashedPassword(@Nullable HashedPassword hashedPassword);
 
     /**
      * Returns the UUID (Universally Unique Identifier) of the current user.
@@ -128,6 +134,7 @@ public interface User {
      *
      * @return the premium UUID of the current user as a UUID object
      */
+    @Nullable
     UUID getPremiumUUID();
 
     /**
@@ -135,7 +142,7 @@ public interface User {
      *
      * @param premiumUUID the premium UUID to set for the current user as a UUID object
      */
-    void setPremiumUUID(UUID premiumUUID);
+    void setPremiumUUID(@Nullable UUID premiumUUID);
 
     /**
      * Returns the last nickname of the current user.
@@ -170,6 +177,7 @@ public interface User {
      *
      * @return the email address as a string
      */
+    @Nullable
     String getEmail();
 
     /**
@@ -177,6 +185,6 @@ public interface User {
      *
      * @param email the email address to be set
      */
-    void setEmail(String email);
+    void setEmail(@Nullable String email);
 
 }
