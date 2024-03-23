@@ -483,17 +483,20 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "librelogin-postgresql",
                 PostgreSQLDatabaseConnector.class
         ));
-
-
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "aegis-mysql",
                 MySQLDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "authme-mysql",
                 MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_POSTGRESQL_OLD_DATABASE_TABLE), logger, connector),
+                "authme-postgresql",
+                PostgreSQLDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new AuthMeSQLMigrateReadProvider("authme", logger, connector),
@@ -501,12 +504,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 SQLiteDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "dba-mysql",
                 MySQLDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "jpremium-mysql",
                 MySQLDatabaseConnector.class
         ));

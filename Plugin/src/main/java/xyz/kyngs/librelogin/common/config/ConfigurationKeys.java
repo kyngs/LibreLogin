@@ -220,6 +220,7 @@ public class ConfigurationKeys {
                     jpremium-mysql - Can convert from MySQL JPremium SHA256, SHA512 and BCrypt
                     authme-mysql - Can convert from MySQL AuthMe BCrypt and SHA256
                     authme-sqlite - Can convert from SQLite AuthMe BCrypt and SHA256
+                    authme-postgresql - Can convert from PostgreSQL AuthMe BCrypt and SHA256
                     aegis-mysql - Can convert from MySQL Aegis BCrypt
                     dba-mysql - Can convert from MySQL DynamicBungeeAuth, which was configured to use SHA-512
                     nlogin-sqlite - Can convert from SQLite NLogin SHA512
@@ -237,8 +238,15 @@ public class ConfigurationKeys {
             ConfigurateHelper::getString
     );
 
-    public static final ConfigurationKey<String> MIGRATION_OLD_DATABASE_TABLE = new ConfigurationKey<>(
+    public static final ConfigurationKey<String> MIGRATION_MYSQL_OLD_DATABASE_TABLE = new ConfigurationKey<>(
             "migration.old-database.mysql.table",
+            "user-data",
+            "The table of the old database.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> MIGRATION_POSTGRESQL_OLD_DATABASE_TABLE = new ConfigurationKey<>(
+            "migration.old-database.postgresql.table",
             "user-data",
             "The table of the old database.",
             ConfigurateHelper::getString

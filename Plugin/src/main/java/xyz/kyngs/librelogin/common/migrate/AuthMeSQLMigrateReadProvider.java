@@ -27,7 +27,7 @@ public class AuthMeSQLMigrateReadProvider extends SQLMigrateReadProvider {
     @Override
     public Collection<User> getAllUsers() {
         return connector.runQuery(connection -> {
-            var ps = connection.prepareStatement("SELECT * FROM `%s`".formatted(tableName));
+            var ps = connection.prepareStatement("SELECT * FROM %s".formatted(tableName));
 
             var rs = ps.executeQuery();
 
