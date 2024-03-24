@@ -3,7 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'net.kyori.blossom' version '1.3.1'
     id 'java-library'
-    id 'xyz.kyngs.libby.plugin' version '1.0.0'
+    id 'xyz.kyngs.libby.plugin' version '1.1.1'
 }
 
 compileJava {
@@ -21,6 +21,7 @@ repositories {
     maven { url = "https://jitpack.io/" }
     maven { url = "https://repo.kyngs.xyz/public/" }
     maven { url = "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url = "https://repo.codemc.io/repository/maven-releases/" }
 }
 
 blossom {
@@ -49,6 +50,8 @@ shadowJar {
     relocate 'org.spongepowered.configurate', 'xyz.kyngs.librelogin.lib.configurate'
     relocate 'net.byteflux.libby', 'xyz.kyngs.librelogin.lib.libby'
     relocate 'org.postgresql', 'xyz.kyngs.librelogin.lib.postgresql'
+    relocate 'com.github.retrooper.packetevents', 'xyz.kyngs.librelogin.lib.packetevents.api'
+    relocate 'io.github.retrooper.packetevents', 'xyz.kyngs.librelogin.lib.packetevents.platform'
 }
 
 java {
@@ -119,16 +122,17 @@ dependencies {
 
     //Paper
     compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:5.1.0'
+    //compileOnly 'com.comphenix.protocol:ProtocolLib:5.1.0'
+    libby "com.github.retrooper.packetevents:spigot:2.2.1"
     compileOnly 'io.netty:netty-transport:4.1.108.Final'
     compileOnly 'com.mojang:datafixerupper:5.0.28' //I hate this so much
     compileOnly 'org.apache.logging.log4j:log4j-core:2.23.1'
 
     //Libby
-    implementation 'xyz.kyngs.libby:libby-bukkit:1.4.0'
-    implementation 'xyz.kyngs.libby:libby-velocity:1.4.0'
-    implementation 'xyz.kyngs.libby:libby-bungee:1.4.0'
-    implementation 'xyz.kyngs.libby:libby-paper:1.4.0'
+    implementation 'xyz.kyngs.libby:libby-bukkit:1.5.0'
+    implementation 'xyz.kyngs.libby:libby-velocity:1.5.0'
+    implementation 'xyz.kyngs.libby:libby-bungee:1.5.0'
+    implementation 'xyz.kyngs.libby:libby-paper:1.5.0'
 
     //NanoLimboPlugin
     compileOnly 'com.github.bivashy.NanoLimboPlugin:api:1.0.8'

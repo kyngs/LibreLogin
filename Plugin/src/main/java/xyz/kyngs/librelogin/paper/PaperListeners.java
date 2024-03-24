@@ -6,29 +6,19 @@
 
 package xyz.kyngs.librelogin.paper;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.injector.BukkitUnwrapper;
-import com.comphenix.protocol.injector.packet.PacketRegistry;
-import com.comphenix.protocol.injector.temporary.TemporaryPlayerFactory;
-import com.comphenix.protocol.reflect.EquivalentConverter;
-import com.comphenix.protocol.reflect.FuzzyReflection;
-import com.comphenix.protocol.reflect.accessors.Accessors;
-import com.comphenix.protocol.reflect.accessors.ConstructorAccessor;
-import com.comphenix.protocol.reflect.accessors.FieldAccessor;
-import com.comphenix.protocol.utility.MinecraftReflection;
-import com.comphenix.protocol.utility.MinecraftVersion;
-import com.comphenix.protocol.wrappers.BukkitConverters;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedProfilePublicKey;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.mojang.datafixers.util.Either;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.util.reflection.Reflection;
+import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientEncryptionResponse;
+import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientLoginStart;
+import com.github.retrooper.packetevents.wrapper.login.server.WrapperLoginServerDisconnect;
+import com.github.retrooper.packetevents.wrapper.login.server.WrapperLoginServerEncryptionRequest;
+import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -45,9 +35,9 @@ import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
-import xyz.kyngs.librelogin.paper.protocollib.ClientPublicKey;
-import xyz.kyngs.librelogin.paper.protocollib.EncryptionUtil;
-import xyz.kyngs.librelogin.paper.protocollib.ProtocolListener;
+import xyz.kyngs.librelogin.paper.protocol.ClientPublicKey;
+import xyz.kyngs.librelogin.paper.protocol.EncryptionUtil;
+import xyz.kyngs.librelogin.paper.protocol.ProtocolUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -58,11 +48,9 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import javax.crypto.*;
 
-import static com.comphenix.protocol.PacketType.Login.Client.START;
-import static com.comphenix.protocol.PacketType.Login.Server.DISCONNECT;
+import static xyz.kyngs.librelogin.paper.protocol.ProtocolUtil.getServerVersion;
 
 public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, World> implements Listener {
 
@@ -72,9 +60,11 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     private static Method cipherMethod;
 
     static {
-        ENCRYPTION_CLASS = MinecraftReflection.getMinecraftClass(
-                "util." + ENCRYPTION_CLASS_NAME, ENCRYPTION_CLASS_NAME
-        );
+        try {
+            ENCRYPTION_CLASS = Class.forName("net.minecraft.util." + ENCRYPTION_CLASS_NAME);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private final KeyPair keyPair = EncryptionUtil.generateKeyPair();
@@ -92,18 +82,16 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
         floodgateHelper = this.plugin.floodgateEnabled() ? new FloodgateHelper() : null;
 
-        new ProtocolListener(this, this.plugin);
-
         ipCache = Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .expireAfterWrite(2, TimeUnit.MINUTES)
                 .build();
 
         readOnlyUserCache = Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .expireAfterWrite(2, TimeUnit.MINUTES)
                 .build();
 
         spawnLocationCache = Caffeine.newBuilder()
-                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .expireAfterWrite(2, TimeUnit.MINUTES)
                 .build();
     }
 
@@ -173,6 +161,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         }
     }
 
+    /* Commented out when migrating to PacketEvents
     //Unused, might be useful in the future
     public void setUUID(Player player, String username) {
         var profile = plugin.getDatabaseProvider().getByName(username);
@@ -187,105 +176,86 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
             e.printStackTrace();
             kickPlayer("Internal error", player);
         }
-    }
+    }*/
 
-    public void onPacketReceive(PacketEvent event) {
-        var sender = event.getPlayer();
+    public void onPacketReceive(PacketReceiveEvent event) {
+        var user = event.getUser();
         var type = event.getPacketType();
-        var packet = event.getPacket();
 
-        plugin.getLogger().debug("Packet received " + type + " from " + sender.getName());
+        plugin.getLogger().debug("Packet received " + type + " from " + user.getName() + " (" + user.getAddress().toString() + ")");
 
-        if (type == PacketType.Login.Client.START) {
-            var sessionKey = sender.getAddress().toString();
+        if (type == PacketType.Login.Client.LOGIN_START) {
+            var packet = new WrapperLoginClientLoginStart(event);
+            var sessionKey = user.getAddress().toString();
 
             encryptionDataCache.invalidate(sessionKey);
 
             if (plugin.floodgateEnabled()) {
-                var success = floodgateHelper.processFloodgateTasks(event);
+                var success = floodgateHelper.processFloodgateTasks(event, packet);
                 // don't continue execution if the player was kicked by Floodgate
                 if (!success) {
                     return;
                 }
             }
-            var username = getUsername(packet);
+            var username = packet.getUsername();
 
             Optional<ClientPublicKey> clientKey;
 
-            if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 3))) {
+            if (getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_19_3)) {
                 clientKey = Optional.empty();
             } else {
-                var profileKey = packet.getOptionals(BukkitConverters.getWrappedPublicKeyDataConverter())
-                        .optionRead(0);
+                var signature = packet.getSignatureData();
 
-                clientKey = profileKey.flatMap(Function.identity()).flatMap(data -> {
-                    var expires = data.getExpireTime();
-                    var key = data.getKey();
-                    var signature = data.getSignature();
-                    return Optional.of(new ClientPublicKey(expires, key, signature));
+                clientKey = signature.map(data -> {
+                    var expires = data.getTimestamp();
+                    var key = data.getPublicKey();
+                    var signatureData = data.getSignature();
+
+                    return new ClientPublicKey(expires, key, signatureData);
                 });
             }
 
-            try {
-                if (plugin.fromFloodgate(username)) return; //Floodgate player, won't handle it
-                var preLoginResult = onPreLogin(username, event.getPlayer().getAddress().getAddress());
-                switch (preLoginResult.state()) {
-                    case DENIED -> {
-                        assert preLoginResult.message() != null;
-                        kickPlayer(LegacyComponentSerializer.legacySection().serialize(preLoginResult.message()), sender);
-                    }
-                    case FORCE_ONLINE -> {
-                        byte[] token;
-                        try {
-                            token = EncryptionUtil.generateVerifyToken(random);
-
-                            var newPacket = new PacketContainer(PacketType.Login.Server.ENCRYPTION_BEGIN);
-
-                            newPacket.getStrings().write(0, "");
-
-                            var keyModifier = newPacket.getSpecificModifier(PublicKey.class);
-
-                            var verifyField = 0;
-                            if (keyModifier.getFields().isEmpty()) {
-                                verifyField++;
-                                newPacket.getByteArrays().write(0, keyPair.getPublic().getEncoded());
-                            } else {
-                                keyModifier.write(0, keyPair.getPublic());
-                            }
-
-                            newPacket.getByteArrays().write(verifyField, token);
-
-                            encryptionDataCache.put(sender.getAddress().toString(), new EncryptionData(username, token, clientKey.orElse(null), preLoginResult.user().getUuid()));
-
-                            ProtocolLibrary.getProtocolManager().sendServerPacket(sender, newPacket);
-                        } catch (Exception e) {
-                            plugin.getLogger().error("Failed to send encryption begin packet for player " + username + "! Kicking player.");
-                            kickPlayer("Internal error", sender);
-                            return;
-                        }
-
-                        synchronized (event.getAsyncMarker().getProcessingLock()) {
-                            event.setCancelled(true);
-                        }
-                    }
+            if (plugin.fromFloodgate(username)) return; //Floodgate player, won't handle it
+            var preLoginResult = onPreLogin(username, user.getAddress().getAddress());
+            switch (preLoginResult.state()) {
+                case DENIED -> {
+                    assert preLoginResult.message() != null;
+                    kickPlayer(preLoginResult.message(), user);
                 }
-            } finally {
-                ProtocolLibrary.getProtocolManager().getAsynchronousManager().signalPacketTransmission(event);
+                case FORCE_ONLINE -> {
+                    byte[] token;
+                    try {
+                        token = EncryptionUtil.generateVerifyToken(random);
+
+                        var newPacket = new WrapperLoginServerEncryptionRequest("", keyPair.getPublic(), token);
+
+                        encryptionDataCache.put(sessionKey, new EncryptionData(username, token, clientKey.orElse(null), preLoginResult.user().getUuid()));
+
+                        PacketEvents.getAPI().getProtocolManager().sendPacket(event.getChannel(), newPacket);
+                    } catch (Exception e) {
+                        plugin.getLogger().error("Failed to send encryption begin packet for player " + username + "! Kicking player.");
+                        e.printStackTrace();
+                        kickPlayer("Internal error", user);
+                    }
+
+                    event.setCancelled(true);
+                }
             }
         } else {
-            var sharedSecret = packet.getByteArrays().read(0);
+            var packet = new WrapperLoginClientEncryptionResponse(event);
+            var sharedSecret = packet.getEncryptedSharedSecret();
 
-            var data = encryptionDataCache.getIfPresent(sender.getAddress().toString());
+            var data = encryptionDataCache.getIfPresent(user.getAddress().toString());
 
             if (data == null) {
-                kickPlayer("Illegal encryption state", sender);
+                kickPlayer("Illegal encryption state", user);
                 return;
             }
 
             var expectedToken = data.token().clone();
 
             if (!verifyNonce(packet, data.publicKey(), expectedToken)) {
-                kickPlayer("Invalid nonce", sender);
+                kickPlayer("Invalid nonce", user);
             }
 
             //Verify session
@@ -298,42 +268,38 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
                 try {
                     loginKey = EncryptionUtil.decryptSharedKey(privateKey, sharedSecret);
                 } catch (GeneralSecurityException securityEx) {
-                    kickPlayer("Cannot decrypt shared secret", sender);
+                    kickPlayer("Cannot decrypt shared secret", user);
                     return;
                 }
 
                 try {
-                    if (!enableEncryption(loginKey, sender)) {
+                    if (!enableEncryption(loginKey, user, event.getChannel())) {
                         return;
                     }
                 } catch (Exception e) {
-                    kickPlayer("Cannot decrypt shared secret", sender);
+                    kickPlayer("Cannot decrypt shared secret", user);
                     return;
                 }
 
                 var serverId = EncryptionUtil.getServerIdHashString("", loginKey, keyPair.getPublic());
                 var username = data.username();
-                var address = sender.getAddress();
+                var address = user.getAddress();
 
                 try {
                     if (hasJoined(username, serverId, address.getAddress())) {
-                        receiveFakeStartPacket(username, data.publicKey(), sender, data.uuid());
+                        receiveFakeStartPacket(username, data.publicKey(), event.getChannel(), data.uuid());
                     } else {
-                        kickPlayer("Invalid session", sender);
+                        kickPlayer("Invalid session", user);
                     }
                 } catch (IOException e) {
                     if (e instanceof SocketTimeoutException) {
                         plugin.getLogger().warn("Session verification timed out (5 seconds) for " + username);
                     }
-                    kickPlayer("Cannot verify session", sender);
+                    kickPlayer("Cannot verify session", user);
                 }
             } finally {
                 //this is a fake packet; it shouldn't be sent to the server
-                synchronized (event.getAsyncMarker().getProcessingLock()) {
-                    event.setCancelled(true);
-                }
-
-                ProtocolLibrary.getProtocolManager().getAsynchronousManager().signalPacketTransmission(event);
+                event.setCancelled(true);
             }
         }
     }
@@ -343,34 +309,16 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
      *
      * @author games647 and FastLogin contributors
      */
-    private void receiveFakeStartPacket(String username, ClientPublicKey clientKey, Player player, UUID uuid) {
-        PacketContainer startPacket;
-        if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 20, 2))) {
-            startPacket = new PacketContainer(START);
-            startPacket.getStrings().write(0, username);
-            startPacket.getUUIDs().write(0, uuid);
-        } else if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 0))) {
-            startPacket = new PacketContainer(START);
-            startPacket.getStrings().write(0, username);
-
-            EquivalentConverter<WrappedProfilePublicKey.WrappedProfileKeyData> converter = BukkitConverters.getWrappedPublicKeyDataConverter();
-            var wrappedKey = Optional.ofNullable(clientKey).map(key ->
-                    new WrappedProfilePublicKey.WrappedProfileKeyData(clientKey.expire(), clientKey.key(), clientKey.signature())
-            );
-
-            startPacket.getOptionals(converter).write(0, wrappedKey);
+    private void receiveFakeStartPacket(String username, ClientPublicKey clientKey, Object channel, UUID uuid) {
+        WrapperLoginClientLoginStart startPacket;
+        if (getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_20)) {
+            startPacket = new WrapperLoginClientLoginStart(getServerVersion().toClientVersion(), username, clientKey == null ? null : clientKey.toSignatureData(), uuid);
+        } else if (getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_19)) {
+            startPacket = new WrapperLoginClientLoginStart(getServerVersion().toClientVersion(), username, clientKey == null ? null : clientKey.toSignatureData());
         } else {
-            //uuid is ignored by the packet definition
-            WrappedGameProfile fakeProfile = new WrappedGameProfile(UUID.randomUUID(), username);
-
-            Class<?> profileHandleType = fakeProfile.getHandleType();
-            Class<?> packetHandleType = PacketRegistry.getPacketClassFromType(START);
-            ConstructorAccessor startCons = Accessors.getConstructorAccessorOrNull(packetHandleType, profileHandleType);
-            startPacket = new PacketContainer(START, startCons.invoke(BukkitUnwrapper.getInstance().unwrapItem(fakeProfile)));
+            startPacket = new WrapperLoginClientLoginStart(getServerVersion().toClientVersion(), username);
         }
-
-        //we don't want to handle our own packets so ignore filters
-        ProtocolLibrary.getProtocolManager().receiveClientPacket(player, startPacket, false);
+        PacketEvents.getAPI().getProtocolManager().receivePacketSilently(channel, startPacket);
     }
 
     public boolean hasJoined(String username, String serverHash, InetAddress hostIp) throws IOException {
@@ -394,28 +342,25 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
     /**
      * @author games647 and FastLogin contributors
      */
-    private boolean enableEncryption(SecretKey loginKey, Player player) throws IllegalArgumentException {
+    private boolean enableEncryption(SecretKey loginKey, com.github.retrooper.packetevents.protocol.player.User user, Object channel) throws IllegalArgumentException {
         // Initialize method reflections
         if (encryptMethod == null) {
-            Class<?> networkManagerClass = MinecraftReflection.getNetworkManagerClass();
+            Class<?> networkManagerClass = SpigotReflectionUtil.getNetworkManagers().get(0).getClass();
 
-            try {
-                // Try to get the old (pre MC 1.16.4) encryption method
-                encryptMethod = FuzzyReflection.fromClass(networkManagerClass)
-                        .getMethodByParameters("a", SecretKey.class);
-            } catch (IllegalArgumentException exception) {
+            // Try to get the old (pre MC 1.16.4) encryption method
+            encryptMethod = Reflection.getMethod(networkManagerClass, "setupEncryption", SecretKey.class);
+
+            if (encryptMethod == null) {
                 // Get the new encryption method
-                encryptMethod = FuzzyReflection.fromClass(networkManagerClass)
-                        .getMethodByParameters("a", Cipher.class, Cipher.class);
+                encryptMethod = Reflection.getMethod(networkManagerClass, "setEncryptionKey", Cipher.class, Cipher.class);
 
                 // Get the needed Cipher helper method (used to generate ciphers from login key)
-                cipherMethod = FuzzyReflection.fromClass(ENCRYPTION_CLASS)
-                        .getMethodByParameters("a", int.class, Key.class);
+                cipherMethod = Reflection.getMethod(ENCRYPTION_CLASS, "a", int.class, Key.class);
             }
         }
 
         try {
-            Object networkManager = this.getNetworkManager(player);
+            Object networkManager = ProtocolUtil.findNetworkManager(channel);
 
             // If cipherMethod is null - use old encryption (pre MC 1.16.4), otherwise use the new cipher one
             if (cipherMethod == null) {
@@ -430,90 +375,52 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
                 encryptMethod.invoke(networkManager, decryptionCipher, encryptionCipher);
             }
         } catch (Exception ex) {
-            kickPlayer("Couldn't enable encryption", player);
+            kickPlayer("Couldn't enable encryption", user);
+            ex.printStackTrace();
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Try to get network manager from protocollib
-     *
-     * @author games647 and FastLogin contributors
-     */
-    private Object getNetworkManager(Player player) throws ClassNotFoundException {
-        Object injectorContainer = TemporaryPlayerFactory.getInjectorFromPlayer(player);
-
-        // ChannelInjector
-        Class<?> injectorClass = Class.forName("com.comphenix.protocol.injector.netty.Injector");
-        Object rawInjector = FuzzyReflection.getFieldValue(injectorContainer, injectorClass, true);
-
-        Class<?> rawInjectorClass = rawInjector.getClass();
-        FieldAccessor accessor = Accessors.getFieldAccessorOrNull(rawInjectorClass, "networkManager", Object.class);
-        return accessor.get(rawInjector);
+    private void kickPlayer(String reason, com.github.retrooper.packetevents.protocol.player.User player) {
+        kickPlayer(Component.text(reason), player);
     }
 
-    /**
-     * @author games647 and FastLogin contributors
-     */
-    private void kickPlayer(String reason, Player player) {
-        PacketContainer kickPacket = new PacketContainer(DISCONNECT);
+    private void kickPlayer(Component reason, com.github.retrooper.packetevents.protocol.player.User player) {
+        // Cannot use Player#kick(Component) because it doesn't work in the login state
+        var kickPacket = new WrapperLoginServerDisconnect(reason);
         try {
-            kickPacket.getChatComponents().write(0, WrappedChatComponent.fromText(reason));
             //send kick packet at login state
-            //the normal event.getPlayer.kickPlayer(String) method does only work at play state
-            ProtocolLibrary.getProtocolManager().sendServerPacket(player, kickPacket);
+            PacketEvents.getAPI().getProtocolManager().sendPacket(player.getChannel(), kickPacket);
         } finally {
             //tell the server that we want to close the connection
-            player.kickPlayer(reason);
+            player.closeConnection();
         }
     }
 
     /**
      * @author games647 and FastLogin contributors
      */
-    private String getUsername(PacketContainer packet) {
-        WrappedGameProfile profile = packet.getGameProfiles().readSafely(0);
-        if (profile == null) {
-            return packet.getStrings().read(0);
-        }
-
-        //player.getName() won't work at this state
-        return profile.getName();
-    }
-
-    /**
-     * @author games647 and FastLogin contributors
-     */
-    private boolean verifyNonce(PacketContainer packet,
+    private boolean verifyNonce(WrapperLoginClientEncryptionResponse packet,
                                 ClientPublicKey clientPublicKey, byte[] expectedToken) {
         try {
-            if (MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 0))
-                    && !MinecraftVersion.getCurrentVersion().isAtLeast(new MinecraftVersion(1, 19, 3))) {
-                Either<byte[], ?> either = packet.getSpecificModifier(Either.class).read(0);
+            if (getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_19)
+                && !getServerVersion().isNewerThanOrEquals(ServerVersion.V_1_19_3)) {
                 if (clientPublicKey == null) {
-                    Optional<byte[]> left = either.left();
-                    if (left.isEmpty()) {
-                        return false;
-                    }
-
-                    return EncryptionUtil.verifyNonce(expectedToken, keyPair.getPrivate(), left.get());
+                    return EncryptionUtil.verifyNonce(expectedToken, keyPair.getPrivate(), packet.getEncryptedVerifyToken().get());
                 } else {
-                    Optional<?> optSignatureData = either.right();
-                    if (optSignatureData.isEmpty()) {
+                    PublicKey publicKey = clientPublicKey.key();
+                    var optSignature = packet.getSaltSignature();
+                    if (optSignature.isEmpty()) {
                         return false;
                     }
+                    var signature = optSignature.get();
 
-                    Object signatureData = optSignatureData.get();
-                    long salt = FuzzyReflection.getFieldValue(signatureData, Long.TYPE, true);
-                    byte[] signature = FuzzyReflection.getFieldValue(signatureData, byte[].class, true);
-
-                    PublicKey publicKey = clientPublicKey.key();
-                    return EncryptionUtil.verifySignedNonce(expectedToken, publicKey, salt, signature);
+                    return EncryptionUtil.verifySignedNonce(expectedToken, publicKey, signature.getSalt(), signature.getSignature());
                 }
             } else {
-                byte[] nonce = packet.getByteArrays().read(1);
+                byte[] nonce = packet.getEncryptedVerifyToken().get();
                 return EncryptionUtil.verifyNonce(expectedToken, keyPair.getPrivate(), nonce);
             }
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException | NoSuchPaddingException

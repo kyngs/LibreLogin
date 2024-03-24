@@ -6,7 +6,7 @@
 
 package xyz.kyngs.librelogin.paper;
 
-import xyz.kyngs.librelogin.paper.protocollib.ClientPublicKey;
+import xyz.kyngs.librelogin.paper.protocol.ClientPublicKey;
 
 import java.util.UUID;
 
