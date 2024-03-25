@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 import xyz.kyngs.librelogin.api.database.User;
+import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
@@ -178,7 +179,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         }
     }*/
 
-    public void onPacketReceive(PacketReceiveEvent event) {
+    public void asyncPacketReceive(PacketReceiveEvent event) {
         var user = event.getUser();
         var type = event.getPacketType();
 
@@ -237,8 +238,10 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
                         e.printStackTrace();
                         kickPlayer("Internal error", user);
                     }
-
-                    event.setCancelled(true);
+                }
+                default -> {
+                    // The original event has been cancelled, so we need to send a fake start packet. It should be safe to set a random UUID as it will be replaced by the real one later
+                    receiveFakeStartPacket(username, clientKey.orElse(null), event.getChannel(), UUID.randomUUID());
                 }
             }
         } else {
@@ -259,49 +262,57 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
             }
 
             //Verify session
+            var privateKey = keyPair.getPrivate();
+
+            SecretKey loginKey;
 
             try {
-                var privateKey = keyPair.getPrivate();
+                loginKey = EncryptionUtil.decryptSharedKey(privateKey, sharedSecret);
+            } catch (GeneralSecurityException securityEx) {
+                kickPlayer("Cannot decrypt shared secret", user);
+                return;
+            }
 
-                SecretKey loginKey;
-
-                try {
-                    loginKey = EncryptionUtil.decryptSharedKey(privateKey, sharedSecret);
-                } catch (GeneralSecurityException securityEx) {
-                    kickPlayer("Cannot decrypt shared secret", user);
+            try {
+                if (!enableEncryption(loginKey, user, event.getChannel())) {
                     return;
                 }
+            } catch (Exception e) {
+                kickPlayer("Cannot decrypt shared secret", user);
+                return;
+            }
 
-                try {
-                    if (!enableEncryption(loginKey, user, event.getChannel())) {
-                        return;
-                    }
-                } catch (Exception e) {
-                    kickPlayer("Cannot decrypt shared secret", user);
-                    return;
+            var serverId = EncryptionUtil.getServerIdHashString("", loginKey, keyPair.getPublic());
+            var username = data.username();
+            var address = user.getAddress();
+
+            try {
+                if (hasJoined(username, serverId, address.getAddress())) {
+                    receiveFakeStartPacket(username, data.publicKey(), event.getChannel(), data.uuid());
+                } else {
+                    kickPlayer("Invalid session", user);
                 }
-
-                var serverId = EncryptionUtil.getServerIdHashString("", loginKey, keyPair.getPublic());
-                var username = data.username();
-                var address = user.getAddress();
-
-                try {
-                    if (hasJoined(username, serverId, address.getAddress())) {
-                        receiveFakeStartPacket(username, data.publicKey(), event.getChannel(), data.uuid());
-                    } else {
-                        kickPlayer("Invalid session", user);
-                    }
-                } catch (IOException e) {
-                    if (e instanceof SocketTimeoutException) {
-                        plugin.getLogger().warn("Session verification timed out (5 seconds) for " + username);
-                    }
-                    kickPlayer("Cannot verify session", user);
+            } catch (IOException e) {
+                if (e instanceof SocketTimeoutException) {
+                    plugin.getLogger().warn("Session verification timed out (5 seconds) for " + username);
                 }
-            } finally {
-                //this is a fake packet; it shouldn't be sent to the server
-                event.setCancelled(true);
+                kickPlayer("Cannot verify session", user);
             }
         }
+    }
+
+    public void onPacketReceive(PacketReceiveEvent event) {
+        event.setCancelled(true);
+
+        var copy = event.clone();
+
+        AuthenticLibreLogin.EXECUTOR.execute(() -> {
+            try {
+                asyncPacketReceive(copy);
+            } finally {
+                copy.cleanUp();
+            }
+        });
     }
 
     /**

@@ -16,7 +16,7 @@ public class PacketListener extends PacketListenerAbstract {
     private final PaperListeners delegate;
 
     public PacketListener(PaperListeners delegate) {
-        super(PacketListenerPriority.HIGH);
+        super(PacketListenerPriority.HIGHEST);
         this.delegate = delegate;
     }
 
