@@ -29,7 +29,7 @@ public class ProtocolUtil {
         var managers = SpigotReflectionUtil.getNetworkManagers();
         for (Object manager : managers) {
             var managerChannel = (Channel) getChannel(manager);
-            if (managerChannel.localAddress().equals(((Channel) channel).localAddress())) {
+            if (managerChannel.remoteAddress().equals(((Channel) channel).remoteAddress())) {
                 return manager;
             }
         }
