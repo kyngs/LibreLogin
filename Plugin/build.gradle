@@ -3,7 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'net.kyori.blossom' version '1.3.1'
     id 'java-library'
-    id 'xyz.kyngs.libby.plugin' version '1.1.1'
+    id 'xyz.kyngs.libby.plugin' version '1.2.1'
 }
 
 compileJava {
@@ -69,6 +69,9 @@ libby {
     excludeDependency 'org.checkerframework:.*:.*'
     excludeDependency 'com.google.errorprone:.*:.*'
     excludeDependency 'com.google.protobuf:.*:.*'
+
+    // Often redeploys the same version, so calculating checksum causes false flags
+    noChecksumDependency 'com.github.retrooper.packetevents:.*:.*'
 }
 
 dependencies {
