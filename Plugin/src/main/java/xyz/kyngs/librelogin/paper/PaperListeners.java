@@ -216,7 +216,11 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
                 });
             }
 
-            if (plugin.fromFloodgate(username)) return; //Floodgate player, won't handle it
+            if (plugin.fromFloodgate(username)) {
+                //Floodgate player, do not handle, only retransmit the packet. The UUID will be set by Floodgate
+                receiveFakeStartPacket(username, clientKey.orElse(null), event.getChannel(), UUID.randomUUID());
+                return;
+            }
             var preLoginResult = onPreLogin(username, user.getAddress().getAddress());
             switch (preLoginResult.state()) {
                 case DENIED -> {
