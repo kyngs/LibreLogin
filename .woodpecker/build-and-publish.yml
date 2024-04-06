@@ -43,3 +43,18 @@ steps:
     when:
       - event: push
         branch: master
+  release:
+    image: "eclipse-temurin:17-alpine"
+    commands:
+      - "./gradlew :Plugin:release"
+    environment:
+      MODRINTH_TOKEN:
+        from_secret: modrinth_token
+      POLYMART_TOKEN:
+        from_secret: polymart_token
+      GITHUB_TOKEN:
+        from_secret: github_personal_token
+    secrets: [ modrinth_token, polymart_token, github_personal_token ]
+    when:
+      event: tag
+      branch: master
