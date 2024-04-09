@@ -310,7 +310,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         return runAsync(() -> {
             var user = getUserOtherWiseInform(name);
 
-            requireOffline(user);
+            var player = getPossiblyOnlinePlayerOnThisProxy(user);
 
             audience.sendMessage(getMessage("info-editing"));
 
@@ -319,6 +319,8 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             getDatabaseProvider().updateUser(user);
 
             audience.sendMessage(getMessage("info-edited"));
+
+            if (player != null) plugin.getPlatformHandle().kick(player, getMessage("kick-premium-info-enabled"));
         });
     }
 
@@ -330,7 +332,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         return runAsync(() -> {
             var user = getUserOtherWiseInform(name);
 
-            requireOffline(user);
+            var player = getPossiblyOnlinePlayerOnThisProxy(user);
 
             audience.sendMessage(getMessage("info-editing"));
 
@@ -338,6 +340,8 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             getDatabaseProvider().updateUser(user);
 
             audience.sendMessage(getMessage("info-edited"));
+
+            if (player != null) plugin.getPlatformHandle().kick(player, getMessage("kick-premium-info-disabled"));
         });
     }
 

@@ -55,7 +55,12 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
 
         getSLF4JLogger().info("Loading libraries...");
 
-        libraryManager.configureFromJSON();
+        try {
+            libraryManager.configureFromJSON();
+        } catch (Exception e) {
+            getSLF4JLogger().error("Failed to load libraries, stopping server to prevent damage", e);
+            stopServer();
+        }
 
         libreLogin = new PaperLibreLogin(this);
     }
@@ -73,13 +78,16 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
 
         getLogger().severe("***********************************************************");
 
+        stopServer();
+    }
+
+    private void stopServer() {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException ignored) {
         }
 
         System.exit(1);
-
     }
 
     @Override
