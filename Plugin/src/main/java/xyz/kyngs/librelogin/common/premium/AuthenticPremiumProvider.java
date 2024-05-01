@@ -34,14 +34,14 @@ public class AuthenticPremiumProvider implements PremiumProvider {
     public AuthenticPremiumProvider(AuthenticLibreLogin<?, ?> plugin) {
         this.plugin = plugin;
         userCache = Caffeine.newBuilder()
-                .expireAfterWrite(20, TimeUnit.MINUTES)
+                .expireAfterWrite(10, TimeUnit.MINUTES)
                 .build();
 
         fetchers = new ArrayList<>(3);
 
         fetchers.add(this::getUserFromMojang);
         fetchers.add(this::getUserFromPlayerDB);
-        fetchers.add(this::getUserFromAschon);
+        //fetchers.add(this::getUserFromAshcon); Momentarily disabled, as it's unreliable. See https://github.com/Electroid/mojang-api/issues/79
     }
 
     @Override
@@ -50,6 +50,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
         var ex = new PremiumException[1];
 
+        String finalName = name;
         var result = userCache.get(name, x -> {
             for (int i = 0; i < fetchers.size(); i++) {
                 var fetcher = fetchers.get(i);
@@ -66,6 +67,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                         ex[0] = e;
                     }
                 } catch (RuntimeException e) {
+                    plugin.getLogger().debug("Unexpected exception while fetching premium user " + finalName, e);
                     if (i == fetchers.size() - 1) {
                         ex[0] = new PremiumException(PremiumException.Issue.UNDEFINED, e);
                     }
@@ -81,7 +83,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
         return result;
     }
 
-    private PremiumUser getUserFromAschon(String name) throws PremiumException {
+    private PremiumUser getUserFromAshcon(String name) throws PremiumException {
         try {
             plugin.reportMainThread();
             var connection = (HttpURLConnection) new URL("https://api.ashcon.app/mojang/v2/user/" + name).openConnection();
@@ -123,11 +125,11 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                     var id = data.get("data").getAsJsonObject().get("player").getAsJsonObject().get("id").getAsString();
 
                     return new PremiumUser(
-                            GeneralUtil.fromUnDashedUUID(id),
+                            UUID.fromString(id),
                             data.get("data").getAsJsonObject().get("player").getAsJsonObject().get("username").getAsString()
                     );
                 }
-                case 500 -> {
+                case 400 -> {
                     return null;
                 }
                 default ->

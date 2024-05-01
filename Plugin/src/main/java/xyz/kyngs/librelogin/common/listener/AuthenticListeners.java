@@ -109,6 +109,12 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                 return new PreLoginResult(PreLoginState.FORCE_ONLINE, null, user);
             }
         } else {
+
+            if (!username.equals(mojangData.name())) {
+                plugin.getLogger().warn("The API returned a different username (" + mojangData.name() + ") than the one that was queried (" + username + "). Disconnecting the user to avoid further damage.");
+                return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-premium-error-undefined"), null);
+            }
+
             // A user with this name exists in the Mojang database, we need to figure out whether to encrypt
             var premiumID = mojangData.uuid();
             var user = plugin.getDatabaseProvider().getByPremiumUUID(premiumID);

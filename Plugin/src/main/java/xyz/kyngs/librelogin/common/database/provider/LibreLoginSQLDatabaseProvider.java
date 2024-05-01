@@ -236,7 +236,7 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
                             "hashed_password VARCHAR(255)," +
                             "salt VARCHAR(255)," +
                             "algo VARCHAR(255)," +
-                            "last_nickname VARCHAR(255) NOT NULL," +
+                    "last_nickname VARCHAR(255) NOT NULL UNIQUE," +
                             "joined TIMESTAMP NULL DEFAULT NULL," +
                             "last_seen TIMESTAMP NULL DEFAULT NULL," +
                             "last_server VARCHAR(255)" +
@@ -261,6 +261,11 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
             }
             if (!columns.contains("email")) {
                 connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN email VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
+            }
+
+            try {
+                connection.prepareStatement(addUnique("last_nickname")).executeUpdate();
+            } catch (SQLException ignored) {
             }
         });
     }
