@@ -1,2 +1,4 @@
-0.19.6 - Geyser fix
-This release fixes an issue with geyser/floodgate on Paper
+0.20.0 - Critical Name Migration Bugfix
+
+This release disables the ashcon API, as it is faulty. This caused severe bugs.
+This release also allows you to use /librelogin user premium|cracked on online players.
