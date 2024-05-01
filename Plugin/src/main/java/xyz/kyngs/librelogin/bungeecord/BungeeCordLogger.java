@@ -27,8 +27,18 @@ public class BungeeCordLogger implements Logger {
     }
 
     @Override
+    public void info(String message, Throwable throwable) {
+        bootstrap.getLogger().log(Level.INFO, message, throwable);
+    }
+
+    @Override
     public void warn(String message) {
         bootstrap.getLogger().warning(message);
+    }
+
+    @Override
+    public void warn(String message, Throwable throwable) {
+        bootstrap.getLogger().log(Level.WARNING, message, throwable);
     }
 
     @Override
@@ -37,9 +47,21 @@ public class BungeeCordLogger implements Logger {
     }
 
     @Override
+    public void error(String message, Throwable throwable) {
+        bootstrap.getLogger().log(Level.SEVERE, message, throwable);
+    }
+
+    @Override
     public void debug(String message) {
         if (debug.get()) {
             bootstrap.getLogger().log(Level.INFO, "[DEBUG] " + message);
+        }
+    }
+
+    @Override
+    public void debug(String message, Throwable throwable) {
+        if (debug.get()) {
+            bootstrap.getLogger().log(Level.INFO, "[DEBUG] " + message, throwable);
         }
     }
 
