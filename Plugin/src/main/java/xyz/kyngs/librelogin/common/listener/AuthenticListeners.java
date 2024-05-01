@@ -110,7 +110,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             }
         } else {
 
-            if (!username.equals(mojangData.name())) {
+            if (!username.equalsIgnoreCase(mojangData.name())) {
                 plugin.getLogger().warn("The API returned a different username (" + mojangData.name() + ") than the one that was queried (" + username + "). Disconnecting the user to avoid further damage.");
                 return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-premium-error-undefined"), null);
             }
