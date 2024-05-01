@@ -1,4 +1,4 @@
-0.20.0 - Critical Name Migration Bugfix
+0.20.1 - Hotfix
 
-This release disables the ashcon API, as it is faulty. This caused severe bugs.
-This release also allows you to use /librelogin user premium|cracked on online players.
+This release fixes a sanity check introduced in the previous release that was too strict and caused some valid names to
+be rejected.
