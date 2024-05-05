@@ -65,31 +65,41 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
 
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onProfileRequest(LoginEvent event) {
-
-        if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
-
-        var profile = plugin.getDatabaseProvider().getByName(event.getConnection().getName());
-        PendingConnection connection = event.getConnection();
-
+    private void setField(PendingConnection connection, String fieldName, Object value, boolean failOnNotFound) throws NoSuchFieldException {
         Class<?> clazz = connection.getClass();
         try {
-            Field field = clazz.getDeclaredField("uniqueId");
+            Field field = clazz.getDeclaredField(fieldName);
             field.setAccessible(true);
-            field.set(connection, profile.getUuid());
+            field.set(connection, value);
         } catch (NoSuchFieldException e) {
+            if (!failOnNotFound) return;
             var logger = super.plugin.getLogger();
-            logger.error("The uuid field was not found in the PendingConnection class, please report this to the developer. And attach the class summary below.");
+            logger.error("The " + fieldName + " field was not found in the PendingConnection class, please report this to the developer. And attach the class summary below.");
             logger.error("-- BEGIN CLASS SUMMARY --");
             logger.error("Class: " + clazz.getName());
             for (Field field : clazz.getDeclaredFields()) {
                 logger.error(field.getType().getName() + ": " + field.getName());
             }
             logger.error("-- END CLASS SUMMARY --");
-            event.setCancelled(true);
+            throw e;
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onProfileRequest(LoginEvent event) {
+        if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
+
+        var profile = plugin.getDatabaseProvider().getByName(event.getConnection().getName());
+        PendingConnection connection = event.getConnection();
+
+        try {
+            setField(connection, "uniqueId", profile.getUuid(), true);
+            setField(connection, "rewriteId", profile.getUuid(), false);
+            setField(connection, "offlineId", profile.getUuid(), false);
+        } catch (NoSuchFieldException e) {
+            event.setCancelled(true);
         }
     }
 
