@@ -1,4 +1,4 @@
-0.21.0 - CrazyLogin Migration
+0.21.0 - 
 
-This release adds migration from CrazyLogin.
+
 

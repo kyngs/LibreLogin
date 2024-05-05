@@ -563,12 +563,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "authy-sqlite",
                 SQLiteDatabaseConnector.class
         ));
-
-        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+        // Currently disabled as crazylogin stores all names in lowercase
+        /*registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new CrazyLoginSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "crazylogin-mysql",
                 MySQLDatabaseConnector.class
-        ));
+        ));*/
     }
 
     private void loadForbiddenPasswords() throws IOException {
