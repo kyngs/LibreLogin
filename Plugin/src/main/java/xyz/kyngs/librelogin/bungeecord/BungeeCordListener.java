@@ -97,7 +97,7 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
         try {
             setField(connection, "uniqueId", profile.getUuid(), true);
             setField(connection, "rewriteId", profile.getUuid(), false);
-            setField(connection, "offlineId", profile.getUuid(), false);
+            //setField(connection, "offlineId", profile.getUuid(), false);
         } catch (NoSuchFieldException e) {
             event.setCancelled(true);
         }
