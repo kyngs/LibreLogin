@@ -41,7 +41,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
         fetchers.add(this::getUserFromMojang);
         fetchers.add(this::getUserFromPlayerDB);
-        //fetchers.add(this::getUserFromAshcon); Momentarily disabled, as it's unreliable. See https://github.com/Electroid/mojang-api/issues/79
+        //fetchers.add(this::getUserFromAshcon); //Momentarily disabled, as it's unreliable. See https://github.com/Electroid/mojang-api/issues/79
     }
 
     @Override
@@ -95,8 +95,9 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                     var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
                     var uuid = data.get("uuid");
+                    var username = data.get("username").getAsString();
 
-                    return new PremiumUser(UUID.fromString(uuid.getAsString()), data.get("username").getAsString());
+                    return new PremiumUser(UUID.fromString(uuid.getAsString()), username, username.equalsIgnoreCase(name));
                 }
                 case 404 -> {
                     return null;
@@ -123,10 +124,12 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                     var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
                     var id = data.get("data").getAsJsonObject().get("player").getAsJsonObject().get("id").getAsString();
+                    var username = data.get("data").getAsJsonObject().get("player").getAsJsonObject().get("username").getAsString();
 
                     return new PremiumUser(
                             UUID.fromString(id),
-                            data.get("data").getAsJsonObject().get("player").getAsJsonObject().get("username").getAsString()
+                            username,
+                            username.equalsIgnoreCase(name)
                     );
                 }
                 case 400 -> {
@@ -161,7 +164,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
                     yield demo != null ? null : new PremiumUser(
                             GeneralUtil.fromUnDashedUUID(id),
-                            data.get("name").getAsString()
+                            data.get("name").getAsString(),
+                            true // Mojang API is always authoritative
                     );
                 }
                 case 500 ->
@@ -187,7 +191,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
                     var name = data.get("name").getAsString();
 
-                    yield new PremiumUser(uuid, name);
+                    yield new PremiumUser(uuid, name, true); // Mojang API is always authoritative
                 }
                 case 500 ->
                         throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));

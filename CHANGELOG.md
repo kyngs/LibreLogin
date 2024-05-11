@@ -1,4 +1,4 @@
-0.20.3 - BungeeCord bugfix
+0.20.4 - Name Migration Fixes
 
-- Fix issue regarding UUIDs on Bungee
+- Add a temporary fix to account for the incorrect data provided by the PlayerDB.co API.
 

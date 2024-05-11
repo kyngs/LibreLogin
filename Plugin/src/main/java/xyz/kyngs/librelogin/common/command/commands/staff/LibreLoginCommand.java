@@ -220,12 +220,18 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         });
     }
 
-    public static <P> void enablePremium(P player, User user, AuthenticLibreLogin<P, ?> plugin) {
+    public static <P> void enablePremium(P player, User user, AuthenticLibreLogin<P, ?> plugin, boolean onlyValid) {
         var id = plugin.getUserOrThrowICA(user.getLastNickname());
 
-        // Users are stupid, and sometimes they connect with a differently cased name than the one they registered with at Mojang
-        if (id == null || !id.name().equals(user.getLastNickname()))
+        if (onlyValid && id != null && !id.reliable()) {
+            plugin.getLogger().warn("Data retrieved from premium provider is not reliable for user %s, can not safely enable premium login. \nPlease verify the correct capitalization using site such as NameMC and then enable it manually using the /librelogin user premium command.".formatted(user.getLastNickname()));
             throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+        }
+
+        // Users are stupid, and sometimes they connect with a differently cased name than the one they registered with at Mojang
+        if (id == null || !id.name().equals(user.getLastNickname())) {
+            throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+        }
 
         user.setPremiumUUID(id.uuid());
 
@@ -314,7 +320,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
 
             audience.sendMessage(getMessage("info-editing"));
 
-            enablePremium(null, user, plugin);
+            enablePremium(null, user, plugin, false);
 
             getDatabaseProvider().updateUser(user);
 

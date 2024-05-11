@@ -24,7 +24,6 @@ import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> {
@@ -110,11 +109,6 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             }
         } else {
 
-            if (!username.equalsIgnoreCase(mojangData.name())) {
-                plugin.getLogger().warn("The API returned a different username (" + mojangData.name() + ") than the one that was queried (" + username + "). Disconnecting the user to avoid further damage.");
-                return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-premium-error-undefined"), null);
-            }
-
             // A user with this name exists in the Mojang database, we need to figure out whether to encrypt
             var premiumID = mojangData.uuid();
             var user = plugin.getDatabaseProvider().getByPremiumUUID(premiumID);
@@ -122,7 +116,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             if (user == null) {
                 User userByName;
                 try {
-                    userByName = checkAndValidateByName(username, premiumID, true, address);
+                    userByName = checkAndValidateByName(username, mojangData, true, address);
                 } catch (InvalidCommandArgument e) {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
                 }
@@ -134,7 +128,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             } else {
                 User byName;
                 try {
-                    byName = checkAndValidateByName(username, premiumID, false, address);
+                    byName = checkAndValidateByName(username, mojangData, false, address);
                 } catch (InvalidCommandArgument e) {
                     return new PreLoginResult(PreLoginState.DENIED, e.getUserFuckUp(), null);
                 }
@@ -142,6 +136,11 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                 if (byName != null && !user.equals(byName)) {
                     // A user with this name already exists, however, it is not the same user as the premium one.
                     return handleProfileConflict(user, byName);
+                }
+
+                if (!mojangData.reliable()) {
+                    plugin.getLogger().warn("User %s has probably changed their name. Data returned from Mojang API is not reliable, faking a new one using the current nickname.".formatted(username));
+                    mojangData = new PremiumUser(mojangData.uuid(), username, false);
                 }
 
                 if (!user.getLastNickname().contentEquals(mojangData.name())) {
@@ -178,13 +177,13 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
      * Checks and validates a user by their username.
      *
      * @param username  The username of the user.
-     * @param premiumID The premium ID of the user.
+     * @param premiumUser The premium user.
      * @param generate  True if a new user should be generated if the user doesn't exist, false otherwise.
      * @param ip        The IP address of the user.
      * @return The validated user, or null if the user doesn't exist and {@code generate} is false.
      * @throws InvalidCommandArgument If the username is invalid or there are other validation issues.
      */
-    private User checkAndValidateByName(String username, @Nullable UUID premiumID, boolean generate, InetAddress ip) throws InvalidCommandArgument {
+    private User checkAndValidateByName(String username, @Nullable PremiumUser premiumUser, boolean generate, InetAddress ip) throws InvalidCommandArgument {
         // Get the user by the name not case-sensitively
         var user = plugin.getDatabaseProvider().getByName(username);
 
@@ -216,7 +215,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
 
             var newID = plugin.generateNewUUID(
                     username,
-                    premiumID
+                    premiumUser == null ? null : premiumUser.uuid()
             );
 
             var conflictingUser = plugin.getDatabaseProvider().getByUUID(newID);
@@ -227,10 +226,15 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                 ));
             }
 
-            if (premiumID != null && plugin.getConfiguration().get(ConfigurationKeys.AUTO_REGISTER)) {
+            if (premiumUser != null && premiumUser.reliable() && plugin.getConfiguration().get(ConfigurationKeys.AUTO_REGISTER)) {
+                if (!premiumUser.name().contentEquals(username)) {
+                    throw new InvalidCommandArgument(plugin.getMessages().getMessage("kick-invalid-case-username",
+                            "%username%", premiumUser.name()
+                    ));
+                }
                 user = new AuthenticUser(
                         newID,
-                        premiumID,
+                        premiumUser.uuid(),
                         null,
                         username,
                         Timestamp.valueOf(LocalDateTime.now()),
@@ -242,6 +246,9 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
                         null
                 );
             } else {
+                if (premiumUser != null && !premiumUser.reliable()) {
+                    plugin.getLogger().warn("The premium data for %s is not reliable, the user may not have the same name capitalization as the premium one. It is not safe to auto-register this user. Switching to offline registration!".formatted(username));
+                }
                 user = new AuthenticUser(
                         newID,
                         null,
