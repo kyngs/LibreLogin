@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.paper;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -21,6 +22,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
+import xyz.kyngs.librelogin.api.server.ServerHandler;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED;
@@ -29,10 +31,12 @@ public class Blockers implements Listener {
 
     private final AuthorizationProvider<Player> authorizationProvider;
     private final HoconPluginConfiguration configuration;
+    private final ServerHandler<Player, World> serverHandler;
 
     public Blockers(PaperLibreLogin plugin) {
         this.authorizationProvider = plugin.getAuthorizationProvider();
         this.configuration = plugin.getConfiguration();
+        this.serverHandler = plugin.getServerHandler();
     }
 
     private <E extends PlayerEvent & Cancellable> void cancelIfNeeded(E event) {
@@ -40,18 +44,24 @@ public class Blockers implements Listener {
     }
 
     private void cancelIfNeeded(Player player, Cancellable cancellable) {
-        if (cancellable(player)) {
+        if (inLimbo(player)) {
             cancellable.setCancelled(true);
         }
     }
 
-    private boolean cancellable(Player player) {
+    private boolean inLimbo(Player player) {
         return !authorizationProvider.isAuthorized(player) || authorizationProvider.isAwaiting2FA(player);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onTeleport(PlayerTeleportEvent event) {
-        cancelIfNeeded(event);
+        if (inLimbo(event.getPlayer())) {
+            event.setCancelled(true);
+        } else {
+            if (!serverHandler.getLimboServers().contains(event.getFrom().getWorld()) && serverHandler.getLobbyServers().containsValue(event.getTo().getWorld())) {
+                event.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.LOWEST)
@@ -124,7 +134,7 @@ public class Blockers implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
-        if (cancellable(event.getPlayer())) {
+        if (inLimbo(event.getPlayer())) {
             event.getPlayer().setInvisible(true);
         }
     }
