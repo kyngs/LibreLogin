@@ -58,7 +58,7 @@ public class Blockers implements Listener {
         if (inLimbo(event.getPlayer())) {
             event.setCancelled(true);
         } else {
-            if (!serverHandler.getLimboServers().contains(event.getFrom().getWorld()) && serverHandler.getLobbyServers().containsValue(event.getTo().getWorld())) {
+            if (serverHandler.getLimboServers().contains(event.getTo().getWorld())) {
                 event.setCancelled(true);
             }
         }

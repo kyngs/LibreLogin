@@ -1,5 +1,3 @@
-0.20.4 - Name Migration Fixes
+0.20.5 - Paper Hotfix
 
-- Add a temporary fix to account for the incorrect data provided by the PlayerDB.co API.
-- Fix a possible exploit when using poorly-written /back commands.
-
+- Fix a bug where players could not enter overworld from nether
