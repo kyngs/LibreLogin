@@ -47,6 +47,7 @@ steps:
     image: "eclipse-temurin:17-alpine"
     commands:
       - "./gradlew :Plugin:release"
+      - "apk update && apk add curl"
     environment:
       MODRINTH_TOKEN:
         from_secret: modrinth_token
@@ -54,7 +55,9 @@ steps:
         from_secret: polymart_token
       GITHUB_TOKEN:
         from_secret: github_personal_token
-    secrets: [ modrinth_token, polymart_token, github_personal_token ]
+      DISCORD_WEBHOOK_URL:
+        from_secret: discord_webhook_url
+    secrets: [ modrinth_token, polymart_token, github_personal_token, discord_webhook_url ]
     when:
       event: tag
       branch: master
