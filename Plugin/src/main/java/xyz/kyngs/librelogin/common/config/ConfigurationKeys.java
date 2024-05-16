@@ -232,6 +232,7 @@ public class ConfigurationKeys {
                     limboauth-mysql - Can convert from MySQL LimboAuth BCrypt and SHA256
                     authy-mysql - Can convert from MySQL Authy SHA256
                     authy-sqlite - Can convert from SQLite Authy SHA256
+                    logit-mysql - Can convert from MySQL LogIt SHA256
                     librelogin-mysql - Can convert from MySQL LibreLogin, useful for migrating to a different database
                     librelogin-sqlite - Can convert from SQLite LibreLogin, useful for migrating to a different database
                     """,

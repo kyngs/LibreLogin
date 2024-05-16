@@ -43,6 +43,7 @@ import xyz.kyngs.librelogin.common.config.HoconMessages;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.crypto.Argon2IDCryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.BCrypt2ACryptoProvider;
+import xyz.kyngs.librelogin.common.crypto.LogITMessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.MessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
@@ -168,7 +169,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         return version;
     }
 
-
     @Override
     public boolean validPassword(String password) {
         var length = password.length() >= configuration.get(MINIMUM_PASSWORD_LENGTH);
@@ -265,6 +265,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
         registerCryptoProvider(new Argon2IDCryptoProvider(logger));
+        registerCryptoProvider(new LogITMessageDigestCryptoProvider("LOGIT-SHA-256", "SHA-256"));
 
         setupDB();
 
@@ -563,6 +564,11 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 connector -> new AuthySQLMigrateReadProvider("players", logger, connector),
                 "authy-sqlite",
                 SQLiteDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LogItSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
+                "logit-mysql",
+                MySQLDatabaseConnector.class
         ));
         // Currently disabled as crazylogin stores all names in lowercase
         /*registerReadProvider(new ReadDatabaseProviderRegistration<>(

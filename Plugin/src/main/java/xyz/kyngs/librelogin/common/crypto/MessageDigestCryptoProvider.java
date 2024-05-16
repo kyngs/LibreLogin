@@ -21,24 +21,28 @@ public class MessageDigestCryptoProvider implements CryptoProvider {
     private final String identifier;
 
     public MessageDigestCryptoProvider(String identifier) {
+        this(identifier, identifier);
+    }
+
+    public MessageDigestCryptoProvider(String identifier, String md) {
         this.identifier = identifier;
 
         random = new SecureRandom();
 
         try {
-            sha256 = MessageDigest.getInstance(identifier);
+            sha256 = MessageDigest.getInstance(md);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String randomSalt() {
+    protected String randomSalt() {
         byte[] bytes = new byte[16];
         this.random.nextBytes(bytes);
         return String.format("%016x", new BigInteger(1, bytes));
     }
 
-    private String plainHash(String input) {
+    protected String plainHash(String input) {
         byte[] inputBytes = input.getBytes();
         byte[] hashedBytes = this.sha256.digest(inputBytes);
         return String.format("%064x", new BigInteger(1, hashedBytes));
