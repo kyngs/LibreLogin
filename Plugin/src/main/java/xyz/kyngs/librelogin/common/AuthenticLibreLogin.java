@@ -168,6 +168,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         return version;
     }
 
+
     @Override
     public boolean validPassword(String password) {
         var length = password.length() >= configuration.get(MINIMUM_PASSWORD_LENGTH);
