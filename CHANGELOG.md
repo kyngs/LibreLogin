@@ -1,3 +1,3 @@
-0.20.6 - Fix Bungee Spam
+0.20.7 - Fix critical bungee bug
 
-- Fix annoying bungee log spam on slow connections to the DB
+- fix bug on bungee where players lost their data

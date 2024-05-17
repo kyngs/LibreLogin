@@ -30,21 +30,9 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
         super(plugin);
     }
 
-    public void runAsyncEvent(AsyncEvent<?> event, Runnable runnable) {
-        event.registerIntent(plugin.getBootstrap());
-
-        GeneralUtil.ASYNC_POOL.execute(() -> {
-            try {
-                runnable.run();
-            } finally {
-                event.completeIntent(plugin.getBootstrap());
-            }
-        });
-    }
-
     @EventHandler(priority = HIGHEST)
     public void onPostLogin(PostLoginEvent event) {
-        runAsyncEvent(event, () -> onPostLogin(event.getPlayer(), null));
+        onPostLogin(event.getPlayer(), null);
     }
 
     @EventHandler
@@ -54,9 +42,12 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
 
     @EventHandler(priority = HIGHEST)
     public void onPreLogin(PreLoginEvent event) {
+
         if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
 
-        runAsyncEvent(event, () -> {
+        event.registerIntent(plugin.getBootstrap());
+
+        GeneralUtil.ASYNC_POOL.execute(() -> {
             var result = onPreLogin(event.getConnection().getName(), event.getConnection().getAddress().getAddress());
 
             switch (result.state()) {
@@ -68,7 +59,10 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
                 case FORCE_ONLINE -> event.getConnection().setOnlineMode(true);
                 case FORCE_OFFLINE -> event.getConnection().setOnlineMode(false);
             }
+
+            event.completeIntent(plugin.getBootstrap());
         });
+
     }
 
     private void setField(PendingConnection connection, String fieldName, Object value, boolean failOnNotFound) throws NoSuchFieldException {
@@ -97,18 +91,16 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
     public void onProfileRequest(LoginEvent event) {
         if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
 
-        runAsyncEvent(event, () -> {
-            var profile = plugin.getDatabaseProvider().getByName(event.getConnection().getName());
-            PendingConnection connection = event.getConnection();
+        var profile = plugin.getDatabaseProvider().getByName(event.getConnection().getName());
+        PendingConnection connection = event.getConnection();
 
-            try {
-                setField(connection, "uniqueId", profile.getUuid(), true);
-                setField(connection, "rewriteId", profile.getUuid(), false);
-                //setField(connection, "offlineId", profile.getUuid(), false);
-            } catch (NoSuchFieldException e) {
-                event.setCancelled(true);
-            }
-        });
+        try {
+            setField(connection, "uniqueId", profile.getUuid(), true);
+            setField(connection, "rewriteId", profile.getUuid(), false);
+            //setField(connection, "offlineId", profile.getUuid(), false);
+        } catch (NoSuchFieldException e) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = HIGHEST)
