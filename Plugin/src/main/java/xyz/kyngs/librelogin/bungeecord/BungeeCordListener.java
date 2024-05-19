@@ -97,18 +97,18 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
     public void onProfileRequest(LoginEvent event) {
         if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
 
-        runAsyncEvent(event, () -> {
-            var profile = plugin.getDatabaseProvider().getByName(event.getConnection().getName());
-            PendingConnection connection = event.getConnection();
+        // Note to future self: NEVER EVER RUN THIS ASYNC, IT WILL BREAK PLUGINS
 
-            try {
-                setField(connection, "uniqueId", profile.getUuid(), true);
-                setField(connection, "rewriteId", profile.getUuid(), false);
-                //setField(connection, "offlineId", profile.getUuid(), false);
-            } catch (NoSuchFieldException e) {
-                event.setCancelled(true);
-            }
-        });
+        var profile = plugin.getDatabaseProvider().getByName(event.getConnection().getName());
+        PendingConnection connection = event.getConnection();
+
+        try {
+            setField(connection, "uniqueId", profile.getUuid(), true);
+            setField(connection, "rewriteId", profile.getUuid(), false);
+            //setField(connection, "offlineId", profile.getUuid(), false);
+        } catch (NoSuchFieldException e) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = HIGHEST)
