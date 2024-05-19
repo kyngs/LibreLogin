@@ -399,4 +399,33 @@ public class ConfigurationKeys {
             "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Defines port(s) that limbo server can be bounded to.",
             ConfigurateHelper::getString
     );
+
+    public static final ConfigurationKey<Boolean> CLOUD_THESAURUS_ENABLED = new ConfigurationKey<>(
+            "Cloud-Thesaurus-Enabled",
+            true,
+            """
+                    Specifies whether to enable cloud JSON
+                    """,
+            ConfigurateHelper::getBoolean
+    );
+
+    public static final ConfigurationKey<List<String>> CLOUD_THESAURUS_URLS = new ConfigurationKey<>(
+            "Cloud-Thesaurus-Urls",
+            List.of(
+                    "https://raw.githubusercontent.com/Yurinann/Filter-Thesaurus-Cloud/main/database.json"
+            ),
+            "List in the cloud.",
+            ConfigurateHelper::getStringList
+    );
+
+    public static final ConfigurationKey<List<String>> CLOUD_THESAURUS_LOCAL = new ConfigurationKey<>(
+            "Cloud-Thesaurus-Local",
+            List.of(
+                    "NMSL",
+                    "fuck",
+                    "shit"
+            ),
+            "Local thesaurus.",
+            ConfigurateHelper::getStringList
+    );
 }

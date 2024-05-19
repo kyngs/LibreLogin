@@ -6,11 +6,20 @@
 
 package xyz.kyngs.librelogin.common.listener;
 
+import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.BiHolder;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent;
+import xyz.kyngs.librelogin.api.event.events.AuthenticatedEvent.AuthenticationReason;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
@@ -25,11 +34,12 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
+import xyz.kyngs.librelogin.paper.PaperBootstrap;
 
 public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> {
 
     @SuppressWarnings("RegExpSimplifiable") //I don't believe you
-    private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_]*");
+    private static final Pattern NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_\u4e00-\u9fa5]{1,16}");
 
     protected final Plugin plugin;
     protected final PlatformHandle<P, S> platformHandle;
@@ -37,6 +47,11 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
     public AuthenticListeners(Plugin plugin) {
         this.plugin = plugin;
         platformHandle = plugin.getPlatformHandle();
+        try {
+            initName();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void onPostLogin(P player, User user) {
@@ -51,10 +66,10 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
 
         if (user.autoLoginEnabled()) {
             plugin.delay(() -> plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-premium-logged-in")), 500);
-            plugin.getEventProvider().fire(plugin.getEventTypes().authenticated, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.PREMIUM));
+            plugin.getEventProvider().fire(plugin.getEventTypes().authenticated, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticationReason.PREMIUM));
         } else if (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now())) {
             plugin.delay(() -> plugin.getPlatformHandle().getAudienceForPlayer(player).sendMessage(plugin.getMessages().getMessage("info-session-logged-in")), 500);
-            plugin.getEventProvider().fire(plugin.getEventTypes().authenticated, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticatedEvent.AuthenticationReason.SESSION));
+            plugin.getEventProvider().fire(plugin.getEventTypes().authenticated, new AuthenticAuthenticatedEvent<>(user, player, plugin, AuthenticationReason.SESSION));
         } else {
             plugin.getAuthorizationProvider().startTracking(user, player);
         }
@@ -71,27 +86,35 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         plugin.getAuthorizationProvider().onExit(player);
     }
 
+    public static boolean containsChinese(String str) {
+        Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]");
+        return pattern.matcher(str).find();
+    }
+
     protected PreLoginResult onPreLogin(String username, InetAddress address) {
-        if (username.length() > 16 || !NAME_PATTERN.matcher(username).matches()) {
+        if (username.length() > 16 || !NAME_PATTERN.matcher(username).matches() || containsForbiddenWord(username)) {
             return new PreLoginResult(PreLoginState.DENIED, plugin.getMessages().getMessage("kick-illegal-username"), null);
         }
 
-        PremiumUser mojangData;
+        PremiumUser mojangData = null;
 
-        try {
-            mojangData = plugin.getPremiumProvider().getUserForName(username);
-        } catch (PremiumException e) {
-            var message = switch (e.getIssue()) {
-                case THROTTLED -> plugin.getMessages().getMessage("kick-premium-error-throttled");
-                default -> {
-                    plugin.getLogger().error("Encountered an exception while communicating with the Mojang API!");
-                    e.printStackTrace();
-                    yield plugin.getMessages().getMessage("kick-premium-error-undefined");
-                }
-            };
+        if (!containsChinese(username)) {
+            try {
+                mojangData = plugin.getPremiumProvider().getUserForName(username);
+            } catch (PremiumException e) {
+                var message = switch (e.getIssue()) {
+                    case THROTTLED -> plugin.getMessages().getMessage("kick-premium-error-throttled");
+                    default -> {
+                        plugin.getLogger().error("Encountered an exception while communicating with the Mojang API!");
+                        e.printStackTrace();
+                        yield plugin.getMessages().getMessage("kick-premium-error-undefined");
+                    }
+                };
 
-            return new PreLoginResult(PreLoginState.DENIED, message, null);
+                return new PreLoginResult(PreLoginState.DENIED, message, null);
+            }
         }
+       
 
         if (mojangData == null) {
             // A user with this name does not exist in the Mojang database. It is impossible for this user to be premium.
@@ -291,5 +314,48 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
         } else {
             return new BiHolder<>(false, plugin.getServerHandler().chooseLimboServer(user, player));
         }
+    }
+
+
+    public static Set<String> nameCheck = new HashSet<>();
+
+    public void initName() throws Exception {
+        nameCheck.addAll(plugin.getConfiguration().get(ConfigurationKeys.CLOUD_THESAURUS_LOCAL));
+        if (plugin.getConfiguration().get(ConfigurationKeys.CLOUD_THESAURUS_ENABLED)) {
+            for (String u : plugin.getConfiguration().get(ConfigurationKeys.CLOUD_THESAURUS_URLS)) {
+                URL url = new URL(u);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
+                Gson gson = new Gson();
+                SensitiveWords sensitiveWords = gson.fromJson(reader, SensitiveWords.class);
+                Set<String> wordSet = new HashSet<>(sensitiveWords.getWords());
+                nameCheck.addAll(wordSet);
+                reader.close();
+            }
+        }
+
+    }
+
+    public class SensitiveWords {
+        private List<String> words;
+
+        public List<String> getWords() {
+            return words;
+        }
+        
+        public void setWords(List<String> words) {
+            this.words = words;
+        }
+    }
+
+    public static boolean containsForbiddenWord(String playerName) {
+        for (int len = 1; len <= playerName.length(); len++) {
+            for (int i = 0; i + len <= playerName.length(); i++) {
+                String subWord = playerName.substring(i, i + len);
+                if (nameCheck.contains(subWord)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
