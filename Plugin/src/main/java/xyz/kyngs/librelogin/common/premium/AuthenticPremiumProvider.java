@@ -19,6 +19,7 @@ import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -171,6 +172,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 case 500 ->
                         throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
             };
+        } catch (SocketTimeoutException te) {
+            throw new PremiumException(PremiumException.Issue.THROTTLED, "Mojang API timed out");
         } catch (IOException e) {
             throw new PremiumException(PremiumException.Issue.UNDEFINED, e);
         }
