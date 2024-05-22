@@ -57,6 +57,7 @@ import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabasePro
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
+import xyz.kyngs.librelogin.common.integration.luckperms.LuckPermsIntegration;
 import xyz.kyngs.librelogin.common.listener.LoginTryListener;
 import xyz.kyngs.librelogin.common.log.Log4JFilter;
 import xyz.kyngs.librelogin.common.log.SimpleLogFilter;
@@ -104,6 +105,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private TOTPProvider totpProvider;
     private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
+    private LuckPermsIntegration<P, S> luckpermsApi;
     private SemanticVersion version;
     private HoconPluginConfiguration configuration;
     private HoconMessages messages;
@@ -324,6 +326,11 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         if (pluginPresent("floodgate")) {
             logger.info("Floodgate detected, enabling bedrock support...");
             floodgateApi = new FloodgateIntegration();
+        }
+
+        if (pluginPresent("luckperms")) {
+            logger.info("LuckPerms detected, enabling context provider");
+            luckpermsApi = new LuckPermsIntegration<>(this);
         }
 
         if (multiProxyEnabled()) {
@@ -685,6 +692,9 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 logger.error("Failed to disconnect from database, ignoring...");
             }
         }
+        if (luckpermsApi != null) {
+            luckpermsApi.disable();
+        }
     }
 
     @Override
@@ -795,6 +805,10 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public boolean floodgateEnabled() {
         return floodgateApi != null;
+    }
+
+    public boolean luckpermsEnabled() {
+        return luckpermsApi != null;
     }
 
     public boolean fromFloodgate(UUID uuid) {

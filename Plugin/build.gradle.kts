@@ -170,6 +170,8 @@ dependencies {
 
     //Geyser
     compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
+    //LuckPerms
+    compileOnly("net.luckperms:api:5.4")
 
     //Bungeecord
     compileOnly("net.md-5:bungeecord-api:1.20-R0.3-SNAPSHOT")
