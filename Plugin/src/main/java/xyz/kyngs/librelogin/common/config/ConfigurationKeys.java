@@ -46,7 +46,7 @@ public class ConfigurationKeys {
     public static final ConfigurationKey<Boolean> LIMBO_ALLOW_TP = new ConfigurationKey<>(
             "limbo-allow-tp",
             false,
-            "Reverts the /back exploit fix to allow players to teleport to the limbo dimension manually.",
+            "Reverts the /back exploit fix to allow players to teleport to the limbo world.",
             ConfigurateHelper::getBoolean
     );
 
