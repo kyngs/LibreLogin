@@ -43,6 +43,13 @@ public class ConfigurationKeys {
             ConfigurateHelper::getStringList
     );
 
+    public static final ConfigurationKey<Boolean> LIMBO_ALLOW_TP = new ConfigurationKey<>(
+            "limbo-allow-tp",
+            false,
+            "Reverts the /back exploit fix to allow players to teleport to the limbo dimension manually.",
+            ConfigurateHelper::getBoolean
+    );
+
     public static final Multimap<String, String> LOBBY_DEFAULT = HashMultimap.create();
     public static final ConfigurationKey<Multimap<String, String>> LOBBY = new ConfigurationKey<>(
             "lobby",

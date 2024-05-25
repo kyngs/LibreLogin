@@ -23,9 +23,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 
-import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.ALLOWED_COMMANDS_WHILE_UNAUTHORIZED;
+import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.*;
 
 public class Blockers implements Listener {
 
@@ -55,12 +56,16 @@ public class Blockers implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onTeleport(PlayerTeleportEvent event) {
-        if (inLimbo(event.getPlayer())) {
-            event.setCancelled(true);
-        } else {
-            if (serverHandler.getLimboServers().contains(event.getTo().getWorld())) {
+        if (!configuration.get(LIMBO_ALLOW_TP)) {
+            if (inLimbo(event.getPlayer())) {
                 event.setCancelled(true);
+            } else {
+                if (serverHandler.getLimboServers().contains(event.getTo().getWorld())) {
+                    event.setCancelled(true);
+                }
             }
+       } else {
+            cancelIfNeeded(event);
         }
     }
 
