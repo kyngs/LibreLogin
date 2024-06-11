@@ -21,7 +21,7 @@ mcupload {
             loaders = listOf("paper", "purpur", "bungeecord", "waterfall", "velocity")
             projectId = "tL0SCXYq"
             gameVersions = listOf(
-                "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
+                "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
                 "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
                 "1.18.2", "1.18.1", "1.18",
                 "1.17.1", "1.17",
@@ -102,8 +102,6 @@ tasks.withType<ShadowJar> {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
