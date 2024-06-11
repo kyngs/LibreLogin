@@ -1,5 +1,4 @@
-0.21.0 - LogIt Migration | Bungee Log Spam Fix
+0.22.0 - LuckPerms context
 
-- Add LogIt plugin migration
-- Switch to another API when Mojang timeouts
-- Fix Bungee log spam
+- Set session-timeout to 0 by default
+- Add support for LuckPerms context

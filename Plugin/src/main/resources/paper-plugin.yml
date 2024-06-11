@@ -5,11 +5,13 @@ main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
 api-version: "1.19"
 
 dependencies:
-  - name: Geyser-Spigot
-  - name: floodgate
-  - name: LuckPerms
-
-load-after:
-  - name: Geyser-Spigot
-  - name: floodgate
-  - name: LuckPerms
+  server:
+    Geyser-Spigot:
+      load: "BEFORE"
+      required: false
+    floodgate:
+      load: "BEFORE"
+      required: false
+    LuckPerms:
+      load: "BEFORE"
+      required: false
