@@ -35,6 +35,7 @@ import javax.inject.Inject;
         authors = "kyngs",
         dependencies = {
                 @Dependency(id = "floodgate", optional = true),
+                @Dependency(id = "luckperms", optional = true),
                 @Dependency(id = "protocolize", optional = true),
                 @Dependency(id = "redisbungee", optional = true),
                 @Dependency(id = "nanolimbovelocity", optional = true)
