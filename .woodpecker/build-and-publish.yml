@@ -1,11 +1,11 @@
 steps:
   shadowJar:
-    image: "eclipse-temurin:17-alpine"
+    image: "eclipse-temurin:21-alpine"
     commands:
       - "./gradlew licenseCheck shadowJar javadocJar"
 
   setup-and-run-velocity:
-    image: "eclipse-temurin:17-alpine"
+    image: "eclipse-temurin:21-alpine"
     commands:
       - "pwd"
       - "apk update && apk add curl"
@@ -44,7 +44,7 @@ steps:
       - event: push
         branch: master
   release:
-    image: "eclipse-temurin:17-alpine"
+    image: "eclipse-temurin:21-alpine"
     commands:
       - "./gradlew :Plugin:release"
       - "apk update && apk add curl"
