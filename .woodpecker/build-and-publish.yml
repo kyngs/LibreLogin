@@ -47,7 +47,8 @@ steps:
     image: "eclipse-temurin:21-alpine"
     commands:
       - "./gradlew :Plugin:release"
-      - "apk update && apk add curl"
+      - "pwd"
+      - "ls -l"
     environment:
       MODRINTH_TOKEN:
         from_secret: modrinth_token
