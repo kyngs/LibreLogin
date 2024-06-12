@@ -6,7 +6,7 @@ plugins {
     id("net.kyori.blossom").version("1.3.1")
     id("java-library")
     id("xyz.kyngs.libby.plugin").version("1.2.1")
-    id("xyz.kyngs.mcupload.plugin").version("0.3.3")
+    id("xyz.kyngs.mcupload.plugin").version("0.3.4")
 }
 
 tasks.withType<JavaCompile> {
