@@ -5,8 +5,8 @@
 
 # Quick information
 
-<img src="https://img.shields.io/badge/Java%20version-%2017+-blue?style=for-the-badge&logo=java&logoColor=white"
-alt="Plugin requires Java 17 or newer"></img>
+<img src="https://img.shields.io/badge/Java%20version-%2021+-blue?style=for-the-badge&logo=java&logoColor=white"
+alt="Plugin requires Java 21 or newer"></img>
 
 <a href="https://discord.gg/HP3CSfCv2v">
 <img src="https://img.shields.io/badge/Discord-%20SUPPORT-blue?style=for-the-badge&logo=discord&logoColor=white" 
