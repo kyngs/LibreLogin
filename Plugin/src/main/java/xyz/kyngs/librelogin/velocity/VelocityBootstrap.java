@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.velocity;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -26,7 +27,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.inject.Inject;
 
 @Plugin(
         id = "librelogin",
