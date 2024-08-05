@@ -11,6 +11,7 @@ import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.database.connector.SQLDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.AuthenticUser;
+import xyz.kyngs.librelogin.common.util.CryptoUtil;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
 import java.sql.Timestamp;
@@ -37,10 +38,10 @@ public class NLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
                     var uniqueIdString = rs.getString("unique_id");
                     var premiumIdString = rs.getString("mojang_id");
                     var lastNickname = rs.getString("last_name");
-                    var lastSeen = rs.getTimestamp("last_login");
+                    var lastSeen = rs.getTimestamp("last_seen");
                     var firstSeen = rs.getTimestamp("creation_date");
                     var rawPassword = rs.getString("password");
-                    var ip = rs.getString("last_address");
+                    var ip = rs.getString("last_ip");
 
                     if (lastNickname == null) continue; //Yes this may happen
                     if (uniqueIdString == null) continue; //Yes this may happen
@@ -48,16 +49,20 @@ public class NLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
                     HashedPassword password = null;
 
                     if (rawPassword != null) {
-                        if (!rawPassword.startsWith("$SHA512$")) {
+                        if (rawPassword.startsWith("$SHA512$")) {
+                            var split = rawPassword.substring(8).split("\\$");
+                            password = new HashedPassword(
+                                    split[0],
+                                    split[1],
+                                    "SHA-512"
+                            );
+                        }else if(rawPassword.startsWith("$2a$")){
+                            password = CryptoUtil.convertFromBCryptRaw(rawPassword);
+                        }else{
                             logger.error("User %s has invalid algorithm %s, omitting".formatted(lastNickname, rawPassword));
                             continue;
                         }
-                        var split = rawPassword.substring(8).split("\\$");
-                        password = new HashedPassword(
-                                split[0],
-                                split[1],
-                                "SHA-512"
-                        );
+
                     }
 
                     users.add(new AuthenticUser(
