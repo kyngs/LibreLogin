@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 
 public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> {
 
-    @SuppressWarnings("RegExpSimplifiable") //I don't believe you
 
     protected final Plugin plugin;
     protected final PlatformHandle<P, S> platformHandle;
