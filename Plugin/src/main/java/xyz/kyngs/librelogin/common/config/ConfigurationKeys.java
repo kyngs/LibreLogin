@@ -400,4 +400,10 @@ public class ConfigurationKeys {
             "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Defines port(s) that limbo server can be bounded to.",
             ConfigurateHelper::getString
     );
+    public static final ConfigurationKey<String> ALLOWED_NICKNAME_CHARACTERS = new ConfigurationKey<>(
+            "allowed-nickname-characters",
+            "[a-zA-Z0-9_]*",
+            "Regex pattern of allowed characters in the player name.",
+            ConfigurateHelper::getString
+    );
 }
