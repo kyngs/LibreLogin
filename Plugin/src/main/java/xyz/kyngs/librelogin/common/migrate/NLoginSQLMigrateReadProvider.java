@@ -40,7 +40,7 @@ public class NLoginSQLMigrateReadProvider extends SQLMigrateReadProvider {
                     var lastSeen = rs.getTimestamp("last_login");
                     var firstSeen = rs.getTimestamp("creation_date");
                     var rawPassword = rs.getString("password");
-                    var ip = rs.getString("last_address");
+                    var ip = rs.getString("last_ip");
 
                     if (lastNickname == null) continue; //Yes this may happen
                     if (uniqueIdString == null) continue; //Yes this may happen
