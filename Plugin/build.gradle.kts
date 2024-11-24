@@ -21,7 +21,7 @@ mcupload {
             loaders = listOf("paper", "purpur", "bungeecord", "waterfall", "velocity")
             projectId = "tL0SCXYq"
             gameVersions = listOf(
-                "1.21",
+                "1.21.3", "1.21",
                 "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
                 "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
                 "1.18.2", "1.18.1", "1.18",
@@ -185,9 +185,9 @@ dependencies {
     libby("org.bstats:bstats-bukkit:3.0.2")
 
     //Paper
-    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper:packetevents-spigot:2.4.0")
+    libby("com.github.retrooper:packetevents-spigot:2.6.0")
     compileOnly("io.netty:netty-transport:4.1.108.Final")
     compileOnly("com.mojang:datafixerupper:5.0.28") //I hate this so much
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
