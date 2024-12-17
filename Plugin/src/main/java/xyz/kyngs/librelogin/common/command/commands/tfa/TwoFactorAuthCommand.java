@@ -36,7 +36,7 @@ public class TwoFactorAuthCommand<P> extends Command<P> {
             if (!plugin.getImageProjector().canProject(player)) {
                 throw new InvalidCommandArgument(getMessage("totp-wrong-version",
                         "%low%", "1.13",
-                        "%high%", "1.20.1"
+                        "%high%", "1.21.1"
                 ));
             }
 
