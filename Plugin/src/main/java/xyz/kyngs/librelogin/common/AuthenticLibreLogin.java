@@ -670,8 +670,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 logger.warn("!! PLEASE UPDATE TO THE LATEST VERSION !!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.warn("Failed to check for updates");
+            logger.warn("Failed to check for updates", e);
         }
     }
 
