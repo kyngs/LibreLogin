@@ -29,6 +29,22 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
         super(connector, plugin);
     }
 
+    private User getUserByColumn(String columnName, String value) {
+        plugin.reportMainThread();
+        return connector.runQuery(connection -> {
+            var ps = connection.prepareStatement(
+                    "SELECT uuid, premium_uuid, hashed_password, salt, algo, last_nickname, joined, last_seen, secret, ip, last_authentication, last_server, email " +
+                            "FROM librepremium_data WHERE " + columnName + "=?"
+            );
+
+            ps.setString(1, value);
+
+            var rs = ps.executeQuery();
+
+            return getUserFromResult(rs);
+        });
+    }
+
     @Override
     public Collection<User> getByIP(String ip) {
         plugin.reportMainThread();
@@ -53,17 +69,7 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
 
     @Override
     public User getByName(String name) {
-        plugin.reportMainThread();
-        return connector.runQuery(connection -> {
-            var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE LOWER(last_nickname)=LOWER(?)");
-
-            ps.setString(1, name);
-
-            var rs = ps.executeQuery();
-
-            return getUserFromResult(rs);
-
-        });
+        return getUserByColumn("last_nickname", name);
     }
 
     @Override
@@ -88,31 +94,12 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
 
     @Override
     public User getByUUID(UUID uuid) {
-        plugin.reportMainThread();
-        return connector.runQuery(connection -> {
-            var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE uuid=?");
-
-            ps.setString(1, uuid.toString());
-
-            var rs = ps.executeQuery();
-
-            return getUserFromResult(rs);
-
-        });
+        return getUserByColumn("uuid", uuid.toString());
     }
 
     @Override
     public User getByPremiumUUID(UUID uuid) {
-        plugin.reportMainThread();
-        return connector.runQuery(connection -> {
-            var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE premium_uuid=?");
-
-            ps.setString(1, uuid.toString());
-
-            var rs = ps.executeQuery();
-
-            return getUserFromResult(rs);
-        });
+        return getUserByColumn("premium_uuid", uuid.toString());
     }
 
     @Nullable
@@ -236,7 +223,7 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
                             "hashed_password VARCHAR(255)," +
                             "salt VARCHAR(255)," +
                             "algo VARCHAR(255)," +
-                    "last_nickname VARCHAR(255) NOT NULL UNIQUE," +
+                            "last_nickname VARCHAR(255) NOT NULL UNIQUE," +
                             "joined TIMESTAMP NULL DEFAULT NULL," +
                             "last_seen TIMESTAMP NULL DEFAULT NULL," +
                             "last_server VARCHAR(255)" +
