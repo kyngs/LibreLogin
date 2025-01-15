@@ -60,11 +60,6 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 try {
                     return fetcher.apply(x);
                 } catch (PremiumException e) {
-                    if (i == 0 && e.getIssue() == PremiumException.Issue.UNDEFINED) {
-                        exceptionToThrow[0] = e;
-                        break;
-                    }
-
                     if (i == fetchers.size() - 1) {
                         exceptionToThrow[0] = e;
                     } else if (e.getIssue() == PremiumException.Issue.SERVER_EXCEPTION) {
