@@ -63,7 +63,11 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                     if (i == fetchers.size() - 1) {
                         exceptionToThrow[0] = e;
                     } else if (e.getIssue() == PremiumException.Issue.SERVER_EXCEPTION) {
-                        plugin.getLogger().warn("Got server exception while fetching premium user, falling back to an another API", e);
+                        plugin.getLogger().warn("Got a server exception while fetching premium user. Falling back to an alternative API. Player's information's might not be up-to-date.", e);
+                    } else if (e.getIssue() == PremiumException.Issue.THROTTLED) {
+                        plugin.getLogger().warn("Your IP has been rate limited while fetching premium user. Falling back to an alternative API. Player's information's might not be up-to-date.", e);
+                    } else {
+                        plugin.getLogger().warn("Got unexpected exception while fetching premium user. Falling back to an alternative API. Player's information's might not be up-to-date.", e);
                     }
                 } catch (RuntimeException e) {
                     plugin.getLogger().debug("Unexpected exception while fetching premium user " + finalName, e);
