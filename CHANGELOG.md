@@ -1,4 +1,4 @@
-0.23.0 - Velocity fix | 1.21
+0.23.1 - Mojang API fix
 
-- Fix an issue where the plugin wouldn't boot on modern velocity versions
-- 1.21 compatibility
+- This release works around the Mojang API that is currently faulty.
+- Expect delays when connecting and errors in the log as librelogin falls back to alternative APIs.
