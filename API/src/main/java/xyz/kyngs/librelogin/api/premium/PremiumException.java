@@ -64,7 +64,9 @@ public class PremiumException extends Exception {
         /**
          * Other issues.
          */
-        UNDEFINED
+        UNDEFINED,
+
+        FORBIDDEN
     }
 
 }

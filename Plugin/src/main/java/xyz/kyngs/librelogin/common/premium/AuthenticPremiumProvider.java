@@ -154,9 +154,9 @@ public class AuthenticPremiumProvider implements PremiumProvider {
             return switch (connection.getResponseCode()) {
                 case 429 ->
                         throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
+                case 403,401 -> throw new PremiumException(PremiumException.Issue.FORBIDDEN, GeneralUtil.readInput(connection.getErrorStream()));
                 case 204, 404 -> null;
-                default ->
-                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+
                 case 200 -> {
                     var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
@@ -171,6 +171,8 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 }
                 case 500 ->
                         throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             };
         } catch (SocketTimeoutException te) {
             throw new PremiumException(PremiumException.Issue.THROTTLED, "Mojang API timed out");
