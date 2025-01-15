@@ -61,11 +61,11 @@ repositories {
     maven { url = uri("https://repo.opencollab.dev/maven-snapshots/") }
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     maven { url = uri("https://hub.spigotmc.org/nexus/") }
+    maven { url = uri("https://repo.kyngs.xyz/public/") }
     maven { url = uri("https://mvn.exceptionflug.de/repository/exceptionflug-public/") }
     maven { url = uri("https://repo.dmulloy2.net/repository/public/") }
     maven { url = uri("https://repo.alessiodp.com/releases/") }
     maven { url = uri("https://jitpack.io/") }
-    maven { url = uri("https://repo.kyngs.xyz/public/") }
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
 }

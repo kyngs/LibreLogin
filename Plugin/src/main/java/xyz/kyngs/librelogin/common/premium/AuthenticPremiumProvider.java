@@ -42,6 +42,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
 
         fetchers.add(this::getUserFromMojang);
         fetchers.add(this::getUserFromPlayerDB);
+        fetchers.add(this::getUserFromMinetools);
         //fetchers.add(this::getUserFromAshcon); //Momentarily disabled, as it's unreliable. See https://github.com/Electroid/mojang-api/issues/79
     }
 
@@ -49,7 +50,7 @@ public class AuthenticPremiumProvider implements PremiumProvider {
     public PremiumUser getUserForName(String name) throws PremiumException {
         name = name.toLowerCase();
 
-        var ex = new PremiumException[1];
+        var exceptionToThrow = new PremiumException[1];
 
         String finalName = name;
         var result = userCache.get(name, x -> {
@@ -60,25 +61,27 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                     return fetcher.apply(x);
                 } catch (PremiumException e) {
                     if (i == 0 && e.getIssue() == PremiumException.Issue.UNDEFINED) {
-                        ex[0] = e;
+                        exceptionToThrow[0] = e;
                         break;
                     }
 
                     if (i == fetchers.size() - 1) {
-                        ex[0] = e;
+                        exceptionToThrow[0] = e;
+                    } else if (e.getIssue() == PremiumException.Issue.SERVER_EXCEPTION) {
+                        plugin.getLogger().warn("Got server exception while fetching premium user, falling back to an another API", e);
                     }
                 } catch (RuntimeException e) {
                     plugin.getLogger().debug("Unexpected exception while fetching premium user " + finalName, e);
                     if (i == fetchers.size() - 1) {
-                        ex[0] = new PremiumException(PremiumException.Issue.UNDEFINED, e);
+                        exceptionToThrow[0] = new PremiumException(PremiumException.Issue.UNDEFINED, e);
                     }
                 }
             }
             return null;
         });
 
-        if (ex[0] != null) {
-            throw ex[0];
+        if (exceptionToThrow[0] != null) {
+            throw exceptionToThrow[0];
         }
 
         return result;
@@ -136,9 +139,58 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 case 400 -> {
                     return null;
                 }
+                case 500 ->
+                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
                 default ->
                         throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             }
+        } catch (IOException e) {
+            throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, e);
+        }
+    }
+
+    private PremiumUser getUserFromMinetools(String name) throws PremiumException {
+        try {
+            plugin.reportMainThread();
+            var connection = (HttpURLConnection) new URL("https://api.minetools.eu/uuid/" + name).openConnection();
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+
+            switch (connection.getResponseCode()) {
+                case 200 -> {
+                    var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
+
+                    var rawId = data.get("id");
+                    if (rawId == null || rawId.isJsonNull()) {
+                        var error = data.get("error");
+                        if (error == null) {
+                            return null;
+                        }
+                        var errorMessage = error.getAsString();
+                        if (errorMessage.equals("Invalid UUID or nickname.")) {
+                            return null;
+                        } else {
+                            throw new PremiumException(PremiumException.Issue.UNDEFINED, errorMessage);
+                        }
+                    }
+                    var username = data.get("name").getAsString();
+
+                    return new PremiumUser(
+                            GeneralUtil.fromUnDashedUUID(rawId.getAsString()),
+                            username,
+                            username.equalsIgnoreCase(name)
+                    );
+                }
+                case 400 -> {
+                    return null;
+                }
+                case 500 ->
+                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+            }
+        } catch (SocketTimeoutException te) {
+            throw new PremiumException(PremiumException.Issue.THROTTLED, "Minetools API timed out");
         } catch (IOException e) {
             throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, e);
         }
@@ -155,8 +207,6 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                 case 429 ->
                         throw new PremiumException(PremiumException.Issue.THROTTLED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 204, 404 -> null;
-                default ->
-                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
                 case 200 -> {
                     var data = AuthenticLibreLogin.GSON.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject.class);
 
@@ -169,8 +219,16 @@ public class AuthenticPremiumProvider implements PremiumProvider {
                             true // Mojang API is always authoritative
                     );
                 }
+                case 403 -> {
+                    if ("text/html".equals(connection.getContentType())) {
+                        throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
+                    }
+                    throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
+                }
                 case 500 ->
                         throw new PremiumException(PremiumException.Issue.SERVER_EXCEPTION, GeneralUtil.readInput(connection.getErrorStream()));
+                default ->
+                        throw new PremiumException(PremiumException.Issue.UNDEFINED, GeneralUtil.readInput(connection.getErrorStream()));
             };
         } catch (SocketTimeoutException te) {
             throw new PremiumException(PremiumException.Issue.THROTTLED, "Mojang API timed out");
