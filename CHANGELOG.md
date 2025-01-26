@@ -1,4 +1,4 @@
-0.23.1 - Mojang API fix
+0.24.0 - 1.21.1 - 1.21.4 Support
 
-- This release works around the Mojang API that is currently faulty.
-- Expect delays when connecting and errors in the log as librelogin falls back to alternative APIs.
+- Add support for 1.21.4
+- Add support for Java 23

@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("io.github.goooler.shadow") version "8.1.8"
     id("net.kyori.blossom").version("1.3.1")
     id("java-library")
     id("xyz.kyngs.libby.plugin").version("1.2.1")
@@ -21,7 +21,7 @@ mcupload {
             loaders = listOf("paper", "purpur", "bungeecord", "waterfall", "velocity")
             projectId = "tL0SCXYq"
             gameVersions = listOf(
-                "1.21",
+                "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
                 "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
                 "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
                 "1.18.2", "1.18.1", "1.18",
@@ -138,19 +138,19 @@ dependencies {
     implementation(project(":API"))
 
     //Velocity
-    annotationProcessor("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
-    compileOnly("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
+    annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+    compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     compileOnly("com.velocitypowered:velocity-proxy:3.2.0-SNAPSHOT-277")
 
     //MySQL
-    libby("org.mariadb.jdbc:mariadb-java-client:3.3.3")
-    libby("com.zaxxer:HikariCP:5.1.0")
+    libby("org.mariadb.jdbc:mariadb-java-client:3.5.1")
+    libby("com.zaxxer:HikariCP:6.2.1")
 
     //SQLite
-    libby("org.xerial:sqlite-jdbc:3.43.0.0")
+    libby("org.xerial:sqlite-jdbc:3.47.1.0")
 
     //PostgreSQL
-    libby("org.postgresql:postgresql:42.7.3")
+    libby("org.postgresql:postgresql:42.7.5")
 
     //ACF
     libby("com.github.kyngs.commands:acf-velocity:7d5bf7cac0")
@@ -158,12 +158,12 @@ dependencies {
     libby("com.github.kyngs.commands:acf-paper:7d5bf7cac0")
 
     //Utils
-    libby("com.github.ben-manes.caffeine:caffeine:3.1.8")
+    libby("com.github.ben-manes.caffeine:caffeine:3.2.0")
     libby("org.spongepowered:configurate-hocon:4.1.2")
     libby("at.favre.lib:bcrypt:0.10.2")
     libby("dev.samstevens.totp:totp:1.7.1")
     compileOnly("dev.simplix:protocolize-api:2.4.2")
-    libby("org.bouncycastle:bcprov-jdk18on:1.77")
+    libby("org.bouncycastle:bcprov-jdk18on:1.80")
     libby("org.apache.commons:commons-email:1.6.0")
     // DO NOT UPGRADE TO 4.15.0 OR ABOVE BEFORE TESTING WATERFALL AND BUNGEECORD COMPATIBILITY!!!
     libby("net.kyori:adventure-text-minimessage:4.14.0")
@@ -175,8 +175,8 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
 
     //Bungeecord
-    compileOnly("net.md-5:bungeecord-api:1.20-R0.3-SNAPSHOT")
-    compileOnly("com.github.limework.redisbungee:RedisBungee-API:0.7.2")
+    compileOnly("net.md-5:bungeecord-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("com.github.ProxioDev.ValioBungee:RedisBungee-Bungee:0.12.5")
     libby("net.kyori:adventure-platform-bungeecord:4.1.2")
 
     //BStats
@@ -185,18 +185,18 @@ dependencies {
     libby("org.bstats:bstats-bukkit:3.0.2")
 
     //Paper
-    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper:packetevents-spigot:2.4.0")
+    libby("com.github.retrooper:packetevents-spigot:2.7.0")
     compileOnly("io.netty:netty-transport:4.1.108.Final")
     compileOnly("com.mojang:datafixerupper:5.0.28") //I hate this so much
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
 
     //Libby
-    implementation("xyz.kyngs.libby:libby-bukkit:1.5.0")
-    implementation("xyz.kyngs.libby:libby-velocity:1.5.0")
-    implementation("xyz.kyngs.libby:libby-bungee:1.5.0")
-    implementation("xyz.kyngs.libby:libby-paper:1.5.0")
+    implementation("xyz.kyngs.libby:libby-bukkit:1.6.0")
+    implementation("xyz.kyngs.libby:libby-velocity:1.6.0")
+    implementation("xyz.kyngs.libby:libby-bungee:1.6.0")
+    implementation("xyz.kyngs.libby:libby-paper:1.6.0")
 
     //NanoLimboPlugin
     compileOnly("com.github.bivashy.NanoLimboPlugin:api:1.0.8")
