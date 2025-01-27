@@ -34,6 +34,7 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.config.MessageKeys;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import xyz.kyngs.librelogin.paper.protocol.ClientPublicKey;
@@ -219,6 +220,11 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
                     return new ClientPublicKey(expires, key, signatureData);
                 });
+            }
+
+            if (Bukkit.getPlayer(username) != null) {
+                kickPlayer(plugin.getMessages().getMessage(MessageKeys.KICK_ALREADY_CONNECTED.key()), user);
+                return;
             }
 
             if (plugin.fromFloodgate(username)) {

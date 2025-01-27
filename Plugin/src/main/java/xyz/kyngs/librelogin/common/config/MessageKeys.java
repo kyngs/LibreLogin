@@ -145,6 +145,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> KICK_ALREADY_CONNECTED = new ConfigurationKey<>(
+            "kick-already-connected",
+            "You are already connected!",
+            "This message is displayed when the player is already connected, but tries to join from another location.",
+            ConfigurateHelper::getString
+    );
+
     /*
     Errors related to commands
      */
