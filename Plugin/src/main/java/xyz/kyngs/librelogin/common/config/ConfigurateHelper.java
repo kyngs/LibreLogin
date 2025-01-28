@@ -18,6 +18,7 @@ import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public record ConfigurateHelper(CommentedConfigurationNode configuration) {
 
@@ -31,6 +32,15 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
 
     public Boolean getBoolean(String path) {
         return get(Boolean.class, path);
+    }
+
+    public Pattern getPattern(String path) {
+        var pattern = getString(path);
+        return pattern == null ? null : Pattern.compile(pattern);
+    }
+
+    public void setPattern(String path, Pattern pattern) {
+        set(path, pattern == null ? null : pattern.pattern());
     }
 
     public Long getLong(String path) {
@@ -77,6 +87,10 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
         });
     }
 
+    public <T> void set(ConfigurationKey<T> key, T value) {
+        key.setter().set(this, key.key(), value);
+    }
+
     public void set(String path, Object value) {
         try {
             var node = resolve(path);
@@ -106,11 +120,11 @@ public record ConfigurateHelper(CommentedConfigurationNode configuration) {
         }
     }
 
-    public void setDefault(ConfigurationKey<?> key, String prefix) {
+    public <T> void setDefault(ConfigurationKey<T> key, String prefix) {
         var defaultValue = key.defaultValue();
 
         if (defaultValue != null) {
-            set(prefix + key.key(), defaultValue);
+            key.setter().set(this, prefix + key.key(), defaultValue);
         }
     }
 

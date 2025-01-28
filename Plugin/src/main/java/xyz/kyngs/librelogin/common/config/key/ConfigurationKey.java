@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.common.config.key;
 
+import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.common.config.ConfigurateHelper;
 
 import java.util.function.BiFunction;
@@ -14,17 +15,23 @@ public class ConfigurationKey<T> {
 
     private final String key;
     private final BiFunction<ConfigurateHelper, String, T> getter;
+    private final Setter<T> setter;
     private T defaultValue;
     private String comment;
 
     public ConfigurationKey(String key, T defaultValue, String comment, BiFunction<ConfigurateHelper, String, T> getter) {
+        this(key, defaultValue, comment, getter, null);
+    }
+
+    public ConfigurationKey(String key, T defaultValue, String comment, BiFunction<ConfigurateHelper, String, T> getter, @Nullable Setter<T> setter) {
         this.key = key;
         this.getter = getter;
         this.defaultValue = defaultValue;
         this.comment = comment;
+        this.setter = setter == null ? ConfigurateHelper::set : setter;
     }
 
-    public static ConfigurationKey<?> getComment(String key, String comment) {
+    public static ConfigurationKey<?> createCommentKey(String key, String comment) {
         return new ConfigurationKey<>(key, null, comment, (x, y) -> {
             throw new UnsupportedOperationException();
         });
@@ -40,6 +47,10 @@ public class ConfigurationKey<T> {
 
     public BiFunction<ConfigurateHelper, String, T> getter() {
         return getter;
+    }
+
+    public Setter<T> setter() {
+        return setter;
     }
 
     public T defaultValue() {
@@ -58,5 +69,9 @@ public class ConfigurationKey<T> {
         var value = getter.apply(configurateHelper, key());
 
         return value == null ? defaultValue : value;
+    }
+
+    public interface Setter<T> {
+        void set(ConfigurateHelper helper, String key, T value);
     }
 }

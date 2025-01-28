@@ -12,6 +12,7 @@ import xyz.kyngs.librelogin.common.authorization.ProfileConflictResolutionStrate
 import xyz.kyngs.librelogin.common.config.key.ConfigurationKey;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * All the keys for the configuration.
@@ -50,7 +51,7 @@ public class ConfigurationKeys {
             """
                     !!WHEN USING PAPER, PUT ALL WORLDS UNDER "root"!!
                     On Paper, players will be spawned on the world spawn.
-                                        
+                    
                     The servers/worlds player should be sent to when they are authenticated. THE SERVERS MUST BE REGISTERED IN THE PROXY CONFIG. IN CASE OF PAPER, THE WORLDS MUST EXIST.
                     The configuration allows configuring forced hosts; the servers/worlds in "root" are used when players do not connect from a forced host. Use § instead of dots.
                     See: https://github.com/kyngs/LibrePremium/wiki/Configuring-Servers
@@ -180,7 +181,7 @@ public class ConfigurationKeys {
             ConfigurateHelper::getInt
     );
 
-    public static final ConfigurationKey<?> DATABASE = ConfigurationKey.getComment(
+    public static final ConfigurationKey<?> DATABASE = ConfigurationKey.createCommentKey(
             "database",
             "This section is used for MySQL database configuration."
     );
@@ -197,7 +198,7 @@ public class ConfigurationKeys {
             ConfigurateHelper::getString
     );
 
-    public static final ConfigurationKey<?> MIGRATION = ConfigurationKey.getComment(
+    public static final ConfigurationKey<?> MIGRATION = ConfigurationKey.createCommentKey(
             "migration",
             """
                     This is used for migrating the database from other plugins.
@@ -253,12 +254,12 @@ public class ConfigurationKeys {
             ConfigurateHelper::getString
     );
 
-    public static final ConfigurationKey<?> TOTP = ConfigurationKey.getComment(
+    public static final ConfigurationKey<?> TOTP = ConfigurationKey.createCommentKey(
             "totp",
             """
                     This section is used for 2FA configuration.
                     !! YOU MUST HAVE PROTOCOLIZE INSTALLED FOR THIS TO WORK !!
-                                        
+                    
                     You can find more information on the wiki: https://github.com/kyngs/LibreLogin/wiki/2FA
                     """
     );
@@ -378,12 +379,12 @@ public class ConfigurationKeys {
             "The email to use as a sender in the From field.",
             ConfigurateHelper::getString
     );
-
-    private static final ConfigurationKey<?> MAIL = ConfigurationKey.getComment(
-            "mail",
-            """
-                    This section is used for configuring the email password recovery feature.
-                    """
+    public static final ConfigurationKey<Pattern> ALLOWED_NICKNAME_CHARACTERS = new ConfigurationKey<>(
+            "allowed-nickname-characters",
+            Pattern.compile("^[a-zA-Z0-9_]{3,16}$"),
+            "Regex pattern of allowed characters in the player name. Don't touch this unless you know what you are doing.",
+            ConfigurateHelper::getPattern,
+            ConfigurateHelper::setPattern
     );
     public static final ConfigurationKey<Boolean> ALLOW_PROXY_CONNECTIONS = new ConfigurationKey<>(
             "allow-proxy-connections",
@@ -399,5 +400,11 @@ public class ConfigurationKeys {
             "30000-40000",
             "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Defines port(s) that limbo server can be bounded to.",
             ConfigurateHelper::getString
+    );
+    private static final ConfigurationKey<?> MAIL = ConfigurationKey.createCommentKey(
+            "mail",
+            """
+                    This section is used for configuring the email password recovery feature.
+                    """
     );
 }

@@ -14,8 +14,8 @@ public interface ConfigurationMigrator {
 
     void migrate(ConfigurateHelper helper, Logger logger);
 
-    default void rename(String from, ConfigurationKey<?> to, ConfigurateHelper helper) {
-        helper.set(to.key(), to.getter().apply(helper, from));
+    default <T> void rename(String from, ConfigurationKey<T> to, ConfigurateHelper helper) {
+        helper.set(to, to.getter().apply(helper, from));
         helper.set(from, null);
     }
 

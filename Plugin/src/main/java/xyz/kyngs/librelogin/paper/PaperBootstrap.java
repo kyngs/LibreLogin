@@ -16,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
+import xyz.kyngs.librelogin.api.util.SemanticVersion;
 
 public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Player, World> {
 
@@ -98,6 +99,16 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
     @Override
     public PaperLibreLogin getLibreLogin() {
         return libreLogin;
+    }
+
+    @Override
+    public String getVersion() {
+        return getPluginMeta().getVersion();
+    }
+
+    @Override
+    public SemanticVersion getParsedVersion() {
+        return SemanticVersion.parse(getVersion());
     }
 
     protected void disable() {

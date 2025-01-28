@@ -22,6 +22,7 @@ import net.byteflux.libby.VelocityLibraryManager;
 import org.slf4j.Logger;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
+import xyz.kyngs.librelogin.api.util.SemanticVersion;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -42,6 +43,9 @@ import java.util.concurrent.Executors;
         }
 )
 public class VelocityBootstrap implements LibreLoginProvider<Player, RegisteredServer> {
+
+    @Inject
+    PluginDescription pluginDescription;
 
     ProxyServer server;
     private final VelocityLibreLogin libreLogin;
@@ -90,6 +94,17 @@ public class VelocityBootstrap implements LibreLoginProvider<Player, RegisteredS
     @Override
     public LibreLoginPlugin<Player, RegisteredServer> getLibreLogin() {
         return libreLogin;
+    }
+
+    @Override
+    public String getVersion() {
+        return pluginDescription.getVersion().orElse(null);
+    }
+
+    @Override
+    public SemanticVersion getParsedVersion() {
+        var version = getVersion();
+        return version == null ? null : SemanticVersion.parse(version);
     }
 
     @Subscribe

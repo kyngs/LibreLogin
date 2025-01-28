@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.api.provider;
 
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
+import xyz.kyngs.librelogin.api.util.SemanticVersion;
 
 /**
  * This class is used to obtain the instance of the plugin
@@ -22,5 +23,21 @@ public interface LibreLoginProvider<P, S> {
      * @return the instance of the plugin
      */
     LibreLoginPlugin<P, S> getLibreLogin();
+
+    /**
+     * Gets the plugin's version.
+     *
+     * @return The version
+     * @since 0.25.0
+     */
+    String getVersion();
+
+    /**
+     * Gets the plugin's parsed version.
+     *
+     * @return The parsed version
+     * @since 0.25.0
+     */
+    SemanticVersion getParsedVersion();
 
 }

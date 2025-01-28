@@ -840,7 +840,7 @@ public class MessageKeys {
     Commands Syntax
      */
 
-    public static final ConfigurationKey<?> SYNTAX = ConfigurationKey.getComment(
+    public static final ConfigurationKey<?> SYNTAX = ConfigurationKey.createCommentKey(
             "syntax",
             "This section contains syntax for commands. It is pretty large, so most people leave the defaults."
     );
@@ -1010,7 +1010,7 @@ public class MessageKeys {
     Commands autocomplete
      */
 
-    public static final ConfigurationKey<?> AUTOCOMPLETE = ConfigurationKey.getComment(
+    public static final ConfigurationKey<?> AUTOCOMPLETE = ConfigurationKey.createCommentKey(
             "autocomplete",
             """
                     This section contains autocompletes for commands. It is pretty large, so most people leave the defaults.

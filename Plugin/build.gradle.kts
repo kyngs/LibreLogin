@@ -65,9 +65,10 @@ repositories {
     maven { url = uri("https://mvn.exceptionflug.de/repository/exceptionflug-public/") }
     maven { url = uri("https://repo.dmulloy2.net/repository/public/") }
     maven { url = uri("https://repo.alessiodp.com/releases/") }
-    maven { url = uri("https://jitpack.io/") }
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
+    maven { url = uri("https://repo.codemc.io/repository/maven-snapshots/") }
+    maven { url = uri("https://jitpack.io/") }
 }
 
 blossom {
@@ -187,7 +188,7 @@ dependencies {
     //Paper
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper:packetevents-spigot:2.7.1-SNAPSHOT")
+    libby("com.github.retrooper:packetevents-spigot:2.7.0")
     compileOnly("io.netty:netty-transport:4.1.108.Final")
     compileOnly("com.mojang:datafixerupper:5.0.28") //I hate this so much
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
