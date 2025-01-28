@@ -187,7 +187,7 @@ dependencies {
     //Paper
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper:packetevents-spigot:2.7.0")
+    libby("com.github.retrooper:packetevents-spigot:2.7.1-SNAPSHOT")
     compileOnly("io.netty:netty-transport:4.1.108.Final")
     compileOnly("com.mojang:datafixerupper:5.0.28") //I hate this so much
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")
