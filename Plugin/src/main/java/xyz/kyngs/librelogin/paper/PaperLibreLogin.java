@@ -17,8 +17,12 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
@@ -32,6 +36,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.UUID;
 
+import static org.bukkit.Bukkit.getWorld;
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
 
 public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
@@ -183,9 +188,42 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             }
 
             var finalLocation = location;
+
+            if(isFirstJoin(player, Bukkit.getWorlds().get(0))){
+                Location preciseSpawn = new Location(
+                        getWorld(Bukkit.getWorlds().get(0).getName()),
+                        Bukkit.getWorlds().get(0).getSpawnLocation().getX() + 0.5,
+                        Bukkit.getWorlds().get(0).getSpawnLocation().getY(),
+                        Bukkit.getWorlds().get(0).getSpawnLocation().getZ() + 0.5,
+                        (float) -90, // player looking direction is east
+                        // Bukkit.getWorlds().get(0).getSpawnLocation().getYaw() always returns 0 bruh..
+                        Bukkit.getWorlds().get(0).getSpawnLocation().getPitch()
+                );
+
+                PaperUtil.runSyncAndWait(() -> player.teleportAsync(preciseSpawn), this);
+                return;
+            }
+
             PaperUtil.runSyncAndWait(() -> player.teleportAsync(finalLocation), this);
 
         } catch (EventCancelledException ignored) {}
+    }
+
+    public boolean isFirstJoin(Player player, World world) {
+        // Get the persistent data container for the world
+        PersistentDataContainer worldContainer = world.getPersistentDataContainer();
+
+        // Create a unique NamespacedKey for this player in this world
+        NamespacedKey playerKey = new NamespacedKey("librelogin", "player_visited_" + player.getUniqueId().toString());
+
+        // Check if the world has data for this player
+        if (worldContainer.has(playerKey, PersistentDataType.BYTE)) {
+            return false; // Player has joined this world before
+        } else {
+            // Store data indicating the player has now visited this world
+            worldContainer.set(playerKey, PersistentDataType.BYTE, (byte)1);
+            return true; // First time joining this world
+        }
     }
 
     @Override
