@@ -10,9 +10,26 @@ import java.util.logging.Filter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+/**
+ * A simple implementation of the LogFilter for Java's built-in logging system.
+ * <p>
+ * This class extends {@link LogFilter} and implements {@link Filter} interface to provide filtering capabilities for the standard Java logging framework.
+ * <p>
+ * This implementation preserves any existing filter that was already set on the logger by chaining it with this filter's functionality.</p>
+ */
 public class SimpleLogFilter extends LogFilter implements Filter {
 
+    /**
+     * The original filter that was set on the logger before this filter was applied.
+     * <p>
+     * This is preserved to maintain the existing filtering chain.
+     */
     private final Filter filter;
+    /**
+     * The logger instance that this filter is attached to.
+     * <p>
+     * Used for filter injection and management.
+     */
     private final Logger logger;
 
     public SimpleLogFilter(Logger logger) {
@@ -24,7 +41,7 @@ public class SimpleLogFilter extends LogFilter implements Filter {
     public boolean isLoggable(LogRecord record) {
         if (filter != null && !filter.isLoggable(record)) return false;
 
-        return checkMessage(record.getMessage());
+        return checkMessage(record.getMessage(), record.getParameters());
     }
 
     @Override

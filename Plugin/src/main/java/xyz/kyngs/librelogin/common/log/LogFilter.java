@@ -6,47 +6,67 @@
 
 package xyz.kyngs.librelogin.common.log;
 
-import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A filter that prevents sensitive authentication commands from being logged.
+ * <p>
+ * This abstract class provides functionality to filter out commands that might contain sensitive information such as passwords or authentication tokens.
+ */
 public abstract class LogFilter {
 
-    private static final Set<String> PROTECTED_COMMANDS;
+    /**
+     * A set of command prefixes that should be protected from logging.
+     * <p>
+     * These commands typically contain sensitive information like passwords.
+     */
+    private static final Set<String> PROTECTED_COMMANDS = Set.of(
+        "/login ",
+        "/l ",
+        "/log ",
+        "/register ",
+        "/reg ",
+        "/premium ",
+        "/autologin ",
+        "/2faconfirm ",
+        "/changepassword ",
+        "/changepass ",
+        "/passch ",
+        "/passwd ",
+        "/confirmpasswordreset ",
+        "/setemail ",
+        "/librelogin user register ",
+        "/librelogin user pass-change "
+    );
 
-    static {
-        PROTECTED_COMMANDS = new HashSet<>();
+    /**
+     * Checks if a log message containing a command should be filtered out.
+     *
+     * @param message The message pattern being logged
+     * @param parameters The parameters being used in the message.
+     * @return {@code true} if the message should be logged, {@code false} if it should be filtered out
+     */
+    protected boolean checkMessage(String message, Object[] parameters) {
+        if (parameters == null || parameters.length <= 1 || !(parameters[1] instanceof String parameter)) return true;
 
-        PROTECTED_COMMANDS.add("login");
-        PROTECTED_COMMANDS.add("l");
-        PROTECTED_COMMANDS.add("log");
-        PROTECTED_COMMANDS.add("register");
-        PROTECTED_COMMANDS.add("reg");
-        PROTECTED_COMMANDS.add("premium");
-        PROTECTED_COMMANDS.add("autologin");
-        PROTECTED_COMMANDS.add("2faconfirm");
-        PROTECTED_COMMANDS.add("changepassword");
-        PROTECTED_COMMANDS.add("changepass");
-        PROTECTED_COMMANDS.add("passch");
-        PROTECTED_COMMANDS.add("passwd");
-        PROTECTED_COMMANDS.add("confirmpasswordreset");
-        PROTECTED_COMMANDS.add("setemail");
-        PROTECTED_COMMANDS.add("librelogin user register");
-        PROTECTED_COMMANDS.add("librelogin user pass-change");
-    }
+        parameter = switch (message) {
+            case "{} issued server command: {}" -> parameter;
+            case "{0} executed command: /{1}", "{} -> executed command /{}" -> '/' + parameter;
+            default -> "";
+        };
 
-    protected boolean checkMessage(String message) {
-        // This sucks, but it's the only way to filter out the spam from the plugin
-        if (message.contains("Plugin listener xyz.kyngs.librelogin.bungeecord.BungeeCordListener took")) return false;
-        if (!message.contains("issued server command: /") && !message.contains("executed command /") && !message.contains("executed command: /") && !message.contains("Duplicate key name"))
-            return true;
+        if (parameter.isEmpty()) return true;
 
         for (String command : PROTECTED_COMMANDS) {
-            if (message.contains(command)) return false;
+            if (parameter.startsWith(command)) return false;
         }
 
         return true;
     }
 
+    /**
+     * Injects this filter into the logging system.
+     */
     public abstract void inject();
 
 }
