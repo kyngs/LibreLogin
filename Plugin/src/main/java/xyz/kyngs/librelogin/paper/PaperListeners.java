@@ -155,8 +155,8 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
                 event.setSpawnLocation(bed == null ? world.value().getSpawnLocation() : bed);
             }
             //This is terrible, but should work
-            if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(event.getSpawnLocation().getWorld().getName())) {
-                if (plugin.getConfiguration().get(ConfigurationKeys.LIMBO).contains(world.value().getName())) {
+            if (event.getPlayer().hasPlayedBefore() && !plugin.getConfiguration().get(ConfigurationKeys.LIMBO).containsValue(event.getSpawnLocation().getWorld().getName())) {
+                if (plugin.getConfiguration().get(ConfigurationKeys.LIMBO).containsValue(world.value().getName())) {
                     spawnLocationCache.put(event.getPlayer(), event.getSpawnLocation());
                 } else {
                     return;

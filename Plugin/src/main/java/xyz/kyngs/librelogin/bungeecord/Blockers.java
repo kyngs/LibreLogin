@@ -65,7 +65,7 @@ public class Blockers implements Listener {
         if (!authorizationProvider.isAuthorized(event.getPlayer()) && event.getReason() != ServerConnectEvent.Reason.JOIN_PROXY) {
             event.setCancelled(true);
         } else if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
-            if (!configuration.get(LIMBO).contains(event.getTarget().getName())) {
+            if (!configuration.get(LIMBO).containsValue(event.getTarget().getName())) {
                 event.setCancelled(true);
             }
         }

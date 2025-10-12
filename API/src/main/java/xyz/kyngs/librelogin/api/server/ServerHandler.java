@@ -74,7 +74,7 @@ public interface ServerHandler<P, S> {
      *
      * @return The limbo servers
      */
-    Collection<S> getLimboServers();
+    Multimap<String, S> getLimboServers();
 
     /**
      * Registers a new lobby server.
@@ -97,7 +97,8 @@ public interface ServerHandler<P, S> {
      * Registers a new limbo server.
      *
      * @param server The server to register
+     * @param forcedHost The forced host
      */
-    void registerLimboServer(S server);
+    void registerLimboServer(S server, String forcedHost);
 
 }

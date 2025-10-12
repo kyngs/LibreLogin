@@ -166,7 +166,7 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
                                 .add("main", plugin.getDescription().getMain())
                                 .toString()
                 ).toList(),
-                plugin.getServerHandler().getLimboServers().stream().map(this::fromServer).toList(),
+                plugin.getServerHandler().getLimboServers().values().stream().map(this::fromServer).toList(),
                 plugin.getServerHandler().getLobbyServers().values().stream().map(this::fromServer).toList()
         );
     }

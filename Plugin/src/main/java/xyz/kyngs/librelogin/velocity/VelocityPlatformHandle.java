@@ -144,7 +144,7 @@ public class VelocityPlatformHandle implements PlatformHandle<Player, Registered
                                 .add("desc", plugin.getDescription().toString())
                                 .toString()
                 ).toList(),
-                plugin.getServerHandler().getLimboServers().stream().map(Object::toString).toList(),
+                plugin.getServerHandler().getLimboServers().values().stream().map(Object::toString).toList(),
                 plugin.getServerHandler().getLobbyServers().values().stream().map(Object::toString).toList()
         );
     }

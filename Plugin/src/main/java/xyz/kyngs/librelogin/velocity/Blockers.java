@@ -53,7 +53,7 @@ public class Blockers {
     @Subscribe(order = PostOrder.FIRST)
     public void onServerConnect(ServerPreConnectEvent event) {
         if (authorizationProvider.isAwaiting2FA(event.getPlayer())) {
-            if (!configuration.get(ConfigurationKeys.LIMBO).contains(event.getOriginalServer().getServerInfo().getName())) {
+            if (!configuration.get(ConfigurationKeys.LIMBO).containsValue(event.getOriginalServer().getServerInfo().getName())) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
             }
         }

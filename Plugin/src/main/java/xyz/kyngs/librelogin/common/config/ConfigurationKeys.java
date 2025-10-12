@@ -36,12 +36,18 @@ public class ConfigurationKeys {
             ConfigurateHelper::getStringList
     );
 
-    public static final ConfigurationKey<List<String>> LIMBO = new ConfigurationKey<>(
+    public static final Multimap<String, String> LIMBO_DEFAULT = HashMultimap.create();
+    public static final ConfigurationKey<Multimap<String, String>> LIMBO = new ConfigurationKey<>(
             "limbo",
-            List.of("limbo0", "limbo1"),
+            LIMBO_DEFAULT,
             "The authentication servers/worlds, players should be sent to, when not authenticated. On Paper, players will be spawned on the world spawn. THIS SERVERS MUST BE REGISTERED IN THE PROXY CONFIG. IN CASE OF PAPER, THE WORLDS MUST EXIST.",
-            ConfigurateHelper::getStringList
+            ConfigurateHelper::getServerMap
     );
+
+    static {
+        LIMBO_DEFAULT.put("root", "limbo0");
+        LIMBO_DEFAULT.put("root", "limbo1");
+    }
 
     public static final Multimap<String, String> LOBBY_DEFAULT = HashMultimap.create();
     public static final ConfigurationKey<Multimap<String, String>> LOBBY = new ConfigurationKey<>(

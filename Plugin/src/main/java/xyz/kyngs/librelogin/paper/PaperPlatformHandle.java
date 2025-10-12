@@ -149,7 +149,7 @@ public class PaperPlatformHandle implements PlatformHandle<Player, World> {
                                 .add("authors", plugin.getDescription().getAuthors())
                                 .toString()
                 ).toList(),
-                plugin.getServerHandler().getLimboServers().stream().map(this::fromWorld).toList(),
+                plugin.getServerHandler().getLimboServers().values().stream().map(this::fromWorld).toList(),
                 plugin.getServerHandler().getLobbyServers().values().stream().map(this::fromWorld).toList()
         );
     }

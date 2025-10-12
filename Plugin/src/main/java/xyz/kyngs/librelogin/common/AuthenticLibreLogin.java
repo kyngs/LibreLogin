@@ -253,7 +253,9 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         }
 
         if (platformHandle.getPlatformIdentifier().equals("paper")) {
-            LIMBO.setDefault(List.of("limbo"));
+            var limbo = HashMultimap.<String, String>create();
+            limbo.put("root", "limbo");
+            LIMBO.setDefault(limbo);
 
             var lobby = HashMultimap.<String, String>create();
             lobby.put("root", "world");
@@ -442,7 +444,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             var lobby = configuration.get(LOBBY);
 
             for (String value : lobby.values()) {
-                if (limbos.contains(value)) {
+                if (limbos.containsValue(value)) {
                     throw new CorruptedConfigurationException("Lobby server/world %s is also a limbo server/world, this is not allowed".formatted(value));
                 }
             }
@@ -791,7 +793,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             var server = platformHandle.getPlayersServerName(player);
             if (server == null) return;
             var user = databaseProvider.getByUUID(platformHandle.getUUIDForPlayer(player));
-            if (user != null && !getConfiguration().get(LIMBO).contains(server)) {
+            if (user != null && !getConfiguration().get(LIMBO).containsValue(server)) {
                 user.setLastServer(server);
                 databaseProvider.updateUser(user);
             }
