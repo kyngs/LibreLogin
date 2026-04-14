@@ -2,11 +2,11 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    id("io.github.goooler.shadow") version "8.1.8"
-    id("net.kyori.blossom").version("1.3.1")
+    id("com.gradleup.shadow") version "8.3.7"
+    id("net.kyori.blossom") version "2.2.0"
     id("java-library")
-    id("xyz.kyngs.libby.plugin").version("1.2.1")
-    id("xyz.kyngs.mcupload.plugin").version("0.3.4")
+    id("xyz.kyngs.libby.plugin") version "1.2.1"
+    id("xyz.kyngs.mcupload.plugin") version "0.3.4"
 }
 
 tasks.withType<JavaCompile> {
@@ -71,8 +71,12 @@ repositories {
     maven { url = uri("https://jitpack.io/") }
 }
 
-blossom {
-    replaceToken("@version@", version)
+sourceSets.main {
+    blossom {
+        resources {
+            property("@version@", version.toString())
+        }
+    }
 }
 
 tasks.withType<ShadowJar> {
@@ -188,7 +192,7 @@ dependencies {
     //Paper
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper:packetevents-spigot:2.7.0")
+    libby("com.github.retrooper:packetevents-spigot:2.12.0")
     compileOnly("io.netty:netty-transport:4.1.108.Final")
     compileOnly("com.mojang:datafixerupper:5.0.28") //I hate this so much
     compileOnly("org.apache.logging.log4j:log4j-core:2.23.1")

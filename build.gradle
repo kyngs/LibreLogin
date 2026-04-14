@@ -1,8 +1,8 @@
 plugins {
-    id 'org.cadixdev.licenser' version '0.6.1'
+    id 'com.github.hierynomus.license' version '0.16.1'
 }
 
-defaultTasks 'updateLicenses', 'shadowJar'
+defaultTasks 'shadowJar'
 
 version '0.25.0-SNAPSHOT'
 
@@ -10,7 +10,7 @@ subprojects {
     version = rootProject.version
     group = 'xyz.kyngs.librelogin'
 
-    apply plugin: 'org.cadixdev.licenser'
+    apply plugin: 'com.github.hierynomus.license'
 
     repositories {
         mavenLocal()
@@ -24,11 +24,7 @@ subprojects {
     license {
         header = rootProject.file('HEADER.txt')
         include '**/*.java'
-        newLine = true
-
-        matching("**/protocollib/EncryptionUtil.java") {
-            header = rootProject.file("licenses/FASTLOGIN_LICENSE")
-        }
+        exclude '**/protocollib/EncryptionUtil.java'
     }
 
 }
