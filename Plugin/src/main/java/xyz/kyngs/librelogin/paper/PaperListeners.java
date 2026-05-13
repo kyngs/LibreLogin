@@ -274,6 +274,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
             if (!verifyNonce(packet, data.publicKey(), expectedToken)) {
                 kickPlayer("Invalid nonce", user);
+                return;
             }
 
             //Verify session
@@ -362,7 +363,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
         conn.connect();
         int responseCode = conn.getResponseCode();
         conn.disconnect();
-        return responseCode != 204;
+        return responseCode == HttpURLConnection.HTTP_OK;
     }
 
     /**
@@ -407,7 +408,7 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
             }
         } catch (Exception ex) {
             kickPlayer("Couldn't enable encryption", user);
-            ex.printStackTrace();
+            plugin.getLogger().error("Failed to enable encryption for " + user.getName(), ex);
             return false;
         }
 

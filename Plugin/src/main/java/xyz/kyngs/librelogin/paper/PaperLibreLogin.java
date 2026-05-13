@@ -18,6 +18,7 @@ import org.bstats.charts.CustomChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.database.User;
@@ -26,6 +27,7 @@ import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
+import xyz.kyngs.librelogin.paper.protocol.PacketEventsFixes;
 import xyz.kyngs.librelogin.paper.protocol.PacketListener;
 
 import java.io.File;
@@ -51,6 +53,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
                 .bStats(false);
 
         PacketEvents.getAPI().load();
+        PacketEventsFixes.skipUdpServerChannels();
     }
 
     public PaperBootstrap getBootstrap() {
@@ -122,10 +125,24 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
         super.disable();
     }
 
+    private boolean proxySupportEnabled() {
+        return getConfigFlag("spigot.yml", "settings.bungeecord")
+                || getConfigFlag("paper.yml", "settings.velocity-support.enabled")
+                || getConfigFlag("config/paper-global.yml", "proxies.velocity.enabled");
+    }
+
+    private boolean getConfigFlag(String path, String key) {
+        var file = new File(path);
+        if (!file.isFile()) return false;
+
+        return YamlConfiguration.loadConfiguration(file).getBoolean(key, false);
+    }
+
     @Override
     protected void enable() {
 
         logger = provideLogger();
+        PacketEventsFixes.skipUdpServerChannels();
 
         if (Bukkit.getOnlineMode()) {
             getLogger().error("!!!The server is running in online mode! LibreLogin won't start unless you set it to false!!!");
@@ -133,7 +150,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
             return;
         }
 
-        if (Bukkit.spigot().getSpigotConfig().getBoolean("settings.bungeecord") || Bukkit.spigot().getPaperConfig().getBoolean("settings.velocity-support.enabled")) {
+        if (proxySupportEnabled()) {
             getLogger().error("!!!This server is running under a proxy, LibreLogin won't start!!!");
             getLogger().error("If you want to use LibreLogin under a proxy, place it on the proxy and remove it from the server.");
             disable();
