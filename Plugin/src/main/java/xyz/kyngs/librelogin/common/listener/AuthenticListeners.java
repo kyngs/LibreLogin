@@ -38,7 +38,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
     protected void onPostLogin(P player, User user) {
         var ip = platformHandle.getIP(player);
         var uuid = platformHandle.getUUIDForPlayer(player);
-        if (plugin.fromFloodgate(uuid)) return;
+        if (plugin.externallyAuthenticated(uuid)) return;
 
         if (user == null) {
             user = plugin.getDatabaseProvider().getByUUID(uuid);
@@ -63,6 +63,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
     }
 
     protected void onPlayerDisconnect(P player) {
+        plugin.getConnectIntegration().removePlayer(platformHandle.getUUIDForPlayer(player));
         plugin.onExit(player);
         plugin.getAuthorizationProvider().onExit(player);
     }
@@ -268,11 +269,11 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
 
     protected BiHolder<Boolean, S> chooseServer(P player, @Nullable String ip, @Nullable User user) {
         var id = platformHandle.getUUIDForPlayer(player);
-        var fromFloodgate = plugin.fromFloodgate(id);
+        var externallyAuthenticated = plugin.externallyAuthenticated(id);
 
         var sessionTime = Duration.ofSeconds(plugin.getConfiguration().get(ConfigurationKeys.SESSION_TIMEOUT));
 
-        if (fromFloodgate) {
+        if (externallyAuthenticated) {
             user = null;
         } else if (user == null) {
             user = plugin.getDatabaseProvider().getByUUID(id);
@@ -282,7 +283,7 @@ public class AuthenticListeners<Plugin extends AuthenticLibreLogin<P, S>, P, S> 
             ip = platformHandle.getIP(player);
         }
 
-        if (fromFloodgate || user.autoLoginEnabled() || (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
+        if (externallyAuthenticated || user.autoLoginEnabled() || (sessionTime != null && user.getLastAuthentication() != null && ip.equals(user.getIp()) && user.getLastAuthentication().toLocalDateTime().plus(sessionTime).isAfter(LocalDateTime.now()))) {
             return new BiHolder<>(true, plugin.getServerHandler().chooseLobbyServer(user, player, true, false));
         } else {
             return new BiHolder<>(false, plugin.getServerHandler().chooseLimboServer(user, player));

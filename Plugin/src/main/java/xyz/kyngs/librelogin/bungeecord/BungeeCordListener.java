@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.bungeecord;
 
+import io.netty.channel.Channel;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -15,6 +16,7 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.integration.ConnectIntegration;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
@@ -56,6 +58,12 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
     public void onPreLogin(PreLoginEvent event) {
         if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
 
+        // Minekube Connect authenticated the player at its own edge, there is no Mojang session left
+        // for this proxy to verify. Setting online mode would make the proxy send an encryption
+        // request that can never be answered, so the login flow has to be skipped, just like it is
+        // for Floodgate players above.
+        if (fromConnect(event.getConnection())) return;
+
         runAsyncEvent(event, () -> {
             var result = onPreLogin(event.getConnection().getName(), event.getConnection().getAddress().getAddress());
 
@@ -93,9 +101,50 @@ public class BungeeCordListener extends AuthenticListeners<BungeeCordLibreLogin,
         }
     }
 
+    /**
+     * Reads the connection channel out of the {@link PendingConnection} implementation, so that the
+     * attributes other systems put on it can be looked at. BungeeCord exposes neither the field nor
+     * its type through its API, hence the reflection.
+     *
+     * @return the channel, or null if it could not be read
+     */
+    private Channel getChannel(PendingConnection connection) {
+        try {
+            Field field = connection.getClass().getDeclaredField("ch");
+            field.setAccessible(true);
+
+            Object wrapper = field.get(connection);
+            if (wrapper == null) return null;
+
+            return (Channel) wrapper.getClass().getMethod("getHandle").invoke(wrapper);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            plugin.getLogger().debug("Failed to read the channel of a pending connection.", e);
+            return null;
+        }
+    }
+
+    /**
+     * Checks whether the connection was already authenticated by Minekube Connect, which marks such
+     * connections with the {@code connect-player} channel attribute before any login event fires.
+     * <p>
+     * This fails open: if the channel cannot be read the connection is treated as if Connect was not
+     * installed, which is exactly what happened before this check existed.
+     */
+    private boolean fromConnect(PendingConnection connection) {
+        return ConnectIntegration.isConnectChannel(getChannel(connection));
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onProfileRequest(LoginEvent event) {
         if (plugin.fromFloodgate(event.getConnection().getUniqueId())) return;
+
+        if (fromConnect(event.getConnection())) {
+            // Connect has already put the player's real uuid on the connection, rewriting it here
+            // would replace it with LibreLogin's own. Remember the uuid, as the channel is no longer
+            // reachable once the player is online.
+            plugin.getConnectIntegration().addPlayer(event.getConnection().getUniqueId());
+            return;
+        }
 
         // Note to future self: NEVER EVER RUN THIS ASYNC, IT WILL BREAK PLUGINS
 
