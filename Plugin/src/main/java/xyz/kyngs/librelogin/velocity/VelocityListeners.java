@@ -23,6 +23,7 @@ import io.netty.util.AttributeKey;
 import net.kyori.adventure.text.Component;
 import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
+import xyz.kyngs.librelogin.common.integration.ConnectIntegration;
 import xyz.kyngs.librelogin.common.listener.AuthenticListeners;
 import xyz.kyngs.librelogin.common.util.GeneralUtil;
 
@@ -78,6 +79,33 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
         super(plugin);
     }
 
+    private static Channel getChannel(InboundConnection connection) throws IllegalAccessException {
+        if (INITIAL_CONNECTION_DELEGATE != null) {
+            connection = (InboundConnection) INITIAL_CONNECTION_DELEGATE.get(connection);
+        }
+
+        Object mcConnection = INITIAL_MINECRAFT_CONNECTION.get(connection);
+
+        return (Channel) CHANNEL.get(mcConnection);
+    }
+
+    /**
+     * Checks whether the connection was already authenticated by Minekube Connect, which marks such
+     * connections with the {@code connect-player} channel attribute before any login event fires.
+     * <p>
+     * Unlike the Floodgate check this one fails open: if the channel cannot be read we simply
+     * proceed as if Connect was not installed, which is exactly what happened before this check
+     * existed.
+     */
+    private boolean fromConnect(InboundConnection connection) {
+        try {
+            return ConnectIntegration.isConnectChannel(getChannel(connection));
+        } catch (Exception e) {
+            plugin.getLogger().debug("Failed to check if player is coming from Connect.", e);
+            return false;
+        }
+    }
+
     @Subscribe(order = PostOrder.LAST)
     public void onPostLogin(PostLoginEvent event) {
         onPostLogin(event.getPlayer(), null);
@@ -94,6 +122,14 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
 
         if (existing != null && plugin.fromFloodgate(existing.getId())) return;
 
+        if (existing != null && fromConnect(event.getConnection())) {
+            // Connect has already put the player's real uuid and skin properties into the profile,
+            // rebuilding it from the original one would throw both away. Remember the uuid, as the
+            // channel is no longer reachable once the player is online.
+            plugin.getConnectIntegration().addPlayer(existing.getId());
+            return;
+        }
+
         var profile = plugin.getDatabaseProvider().getByName(event.getUsername());
 
         var gProfile = event.getOriginalProfile();
@@ -109,15 +145,8 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
 
         // If floodgate is present, attempt to extract the floodgate player from the connection channel.
         if (plugin.floodgateEnabled()) {
-            Channel channel;
-            InboundConnection connection = event.getConnection();
             try {
-                if (INITIAL_CONNECTION_DELEGATE != null) {
-                    connection = (InboundConnection) INITIAL_CONNECTION_DELEGATE.get(connection);
-                }
-
-                Object mcConnection = INITIAL_MINECRAFT_CONNECTION.get(connection);
-                channel = (Channel) CHANNEL.get(mcConnection);
+                Channel channel = getChannel(event.getConnection());
 
                 if (channel.attr(FLOODGATE_ATTR).get() != null) {
                     return; // Player is coming from Floodgate
@@ -128,6 +157,14 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
                 event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("Internal LibreLogin error")));
                 return;
             }
+        }
+
+        // Minekube Connect authenticated the player at its own edge, there is no Mojang session
+        // left for this proxy to verify. Forcing online mode would make the proxy send an encryption
+        // request that can never be answered, so the login flow has to be skipped, just like it is
+        // for Floodgate players above.
+        if (fromConnect(event.getConnection())) {
+            return; // Player has already been authenticated by Connect
         }
 
         var result = onPreLogin(event.getUsername(), event.getConnection().getRemoteAddress().getAddress());

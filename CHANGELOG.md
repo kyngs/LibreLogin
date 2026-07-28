@@ -2,3 +2,4 @@
 
 - Add RegEx name validation
 - Allow to retrieve the plugin version from LibreLoginProvider
+- Skip the login flow for players already authenticated by Minekube Connect

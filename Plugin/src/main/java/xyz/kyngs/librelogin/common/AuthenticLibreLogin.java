@@ -56,6 +56,7 @@ import xyz.kyngs.librelogin.common.database.provider.LibreLoginPostgreSQLDatabas
 import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabaseProvider;
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
+import xyz.kyngs.librelogin.common.integration.ConnectIntegration;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
 import xyz.kyngs.librelogin.common.integration.luckperms.LuckPermsIntegration;
 import xyz.kyngs.librelogin.common.listener.LoginTryListener;
@@ -98,6 +99,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private final Multimap<P, CancellableTask> cancelOnExit;
     private final PlatformHandle<P, S> platformHandle;
     private final Set<String> forbiddenPasswords;
+    private final ConnectIntegration connectApi;
     protected Logger logger;
     private AuthenticPremiumProvider premiumProvider;
     private AuthenticEventProvider<P, S> eventProvider;
@@ -123,6 +125,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
         cancelOnExit = HashMultimap.create();
+        connectApi = new ConnectIntegration();
     }
 
     public Map<Class<?>, DatabaseConnectorRegistration<?, ?>> getDatabaseConnectors() {
@@ -812,6 +815,26 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public boolean fromFloodgate(UUID uuid) {
         return floodgateApi != null && uuid != null && floodgateApi.isFloodgateId(uuid);
+    }
+
+    public ConnectIntegration getConnectIntegration() {
+        return connectApi;
+    }
+
+    public boolean fromConnect(UUID uuid) {
+        return connectApi.isConnectId(uuid);
+    }
+
+    /**
+     * Whether the player has already been authenticated before the connection reached this proxy,
+     * either by Floodgate or by Minekube Connect. LibreLogin must not run its own login flow for
+     * such players.
+     *
+     * @param uuid the player's uuid
+     * @return whether the player has been authenticated externally
+     */
+    public boolean externallyAuthenticated(UUID uuid) {
+        return fromFloodgate(uuid) || fromConnect(uuid);
     }
 
     protected void shutdownProxy(int code) {
