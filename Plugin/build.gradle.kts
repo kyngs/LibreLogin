@@ -175,7 +175,8 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
 
     //Bungeecord
-    compileOnly("net.md-5:bungeecord-api:1.21-R0.1-SNAPSHOT")
+    // 1.21-R0.1-SNAPSHOT is no longer published to any reachable repo; the release of the same API level is.
+    compileOnly("net.md-5:bungeecord-api:1.21-R0.1")
     compileOnly("com.github.ProxioDev.ValioBungee:RedisBungee-Bungee:0.12.5")
     libby("net.kyori:adventure-platform-bungeecord:4.1.2")
 
