@@ -103,7 +103,7 @@ public class AuthenticPostgreSQLDatabaseConnector extends AuthenticDatabaseConne
 
         public static final ConfigurationKey<Integer> PORT = new ConfigurationKey<>(
                 "port",
-                3306,
+                5432,
                 "The port of the database.",
                 ConfigurateHelper::getInt
         );

@@ -23,6 +23,11 @@ public interface Event<P, S> {
      */
     LibreLoginPlugin<P, S> getPlugin();
 
+    /**
+     * Gets the platform handle
+     *
+     * @return the platform handle
+     */
     PlatformHandle<P, S> getPlatformHandle();
 
 }

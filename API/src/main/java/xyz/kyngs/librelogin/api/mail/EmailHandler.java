@@ -32,9 +32,10 @@ public interface EmailHandler {
     /**
      * This method sends a password reset email to the user.
      *
-     * @param email The email to send the email to.
-     * @param token The token to reset the password.
-     * @param ip    The ip of the user.
+     * @param email    The email to send the email to.
+     * @param token    The token to reset the password.
+     * @param ip       The ip of the user.
+     * @param username The username of the user.
      */
     void sendPasswordResetMail(String email, String token, String username, String ip);
 
@@ -43,6 +44,7 @@ public interface EmailHandler {
      *
      * @param email The email to send the email to.
      * @param token The token to verify the email.
+     * @param username The username of the user.
      */
     void sendVerificationMail(String email, String token, String username);
 }

@@ -6,7 +6,9 @@
 
 package xyz.kyngs.librelogin.paper;
 
-import xyz.kyngs.librelogin.paper.protocollib.ClientPublicKey;
+import xyz.kyngs.librelogin.paper.protocol.ClientPublicKey;
 
-public record EncryptionData(String username, byte[] token, ClientPublicKey publicKey) {
+import java.util.UUID;
+
+public record EncryptionData(String username, byte[] token, ClientPublicKey publicKey, UUID uuid) {
 }

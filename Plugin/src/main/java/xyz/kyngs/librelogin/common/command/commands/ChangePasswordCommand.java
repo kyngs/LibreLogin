@@ -8,10 +8,12 @@ package xyz.kyngs.librelogin.common.command.commands;
 
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
+import xyz.kyngs.librelogin.api.event.events.WrongPasswordEvent.AuthenticationSource;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.Command;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
 import xyz.kyngs.librelogin.common.event.events.AuthenticPasswordChangeEvent;
+import xyz.kyngs.librelogin.common.event.events.AuthenticWrongPasswordEvent;
 
 import java.util.concurrent.CompletionStage;
 
@@ -36,6 +38,9 @@ public class ChangePasswordCommand<P> extends Command<P> {
             var crypto = getCrypto(hashed);
 
             if (!crypto.matches(oldPass, hashed)) {
+                plugin.getEventProvider()
+                        .unsafeFire(plugin.getEventTypes().wrongPassword,
+                                new AuthenticWrongPasswordEvent<>(user, player, plugin, AuthenticationSource.CHANGE_PASSWORD));
                 throw new InvalidCommandArgument(getMessage("error-password-wrong"));
             }
 

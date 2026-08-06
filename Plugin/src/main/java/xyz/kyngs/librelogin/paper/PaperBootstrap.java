@@ -6,6 +6,9 @@
 
 package xyz.kyngs.librelogin.paper;
 
+import net.byteflux.libby.BukkitLibraryManager;
+import net.byteflux.libby.LibraryManager;
+import net.byteflux.libby.PaperLibraryManager;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
@@ -41,6 +44,24 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
 
         getLogger().info("Detected Adventure-compatible server distribution - " + getServer().getName() + " " + getServer().getVersion());
 
+        LibraryManager libraryManager;
+
+        try {
+            Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
+            libraryManager = new PaperLibraryManager(this);
+        } catch (ClassNotFoundException e) {
+            libraryManager = new BukkitLibraryManager(this);
+        }
+
+        getSLF4JLogger().info("Loading libraries...");
+
+        try {
+            libraryManager.configureFromJSON();
+        } catch (Exception e) {
+            getSLF4JLogger().error("Failed to load libraries, stopping server to prevent damage", e);
+            stopServer();
+        }
+
         libreLogin = new PaperLibreLogin(this);
     }
 
@@ -57,13 +78,16 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
 
         getLogger().severe("***********************************************************");
 
+        stopServer();
+    }
+
+    private void stopServer() {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException ignored) {
         }
 
         System.exit(1);
-
     }
 
     @Override

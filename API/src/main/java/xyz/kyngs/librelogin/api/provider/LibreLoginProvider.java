@@ -16,6 +16,11 @@ import xyz.kyngs.librelogin.api.LibreLoginPlugin;
  */
 public interface LibreLoginProvider<P, S> {
 
+    /**
+     * Gets the instance of the plugin
+     *
+     * @return the instance of the plugin
+     */
     LibreLoginPlugin<P, S> getLibreLogin();
 
 }

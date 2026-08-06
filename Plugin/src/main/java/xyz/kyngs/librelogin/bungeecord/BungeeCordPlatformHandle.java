@@ -67,7 +67,12 @@ public class BungeeCordPlatformHandle implements PlatformHandle<ProxiedPlayer, S
 
     @Override
     public ServerInfo getServer(String name, boolean limbo) {
-        return plugin.getBootstrap().getProxy().getServerInfo(name);
+        ServerInfo serverInfo = plugin.getBootstrap().getProxy().getServerInfo(name);
+        if (serverInfo != null)
+            return serverInfo;
+        if (limbo && plugin.getLimboIntegration() != null)
+            return plugin.getLimboIntegration().createLimbo(name);
+        return null;
     }
 
     @Override

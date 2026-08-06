@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.common.command.commands.staff;
 
 import co.aikar.commands.annotation.*;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.audience.Audience;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
@@ -22,6 +23,8 @@ import xyz.kyngs.librelogin.common.util.GeneralUtil;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -99,6 +102,44 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             server.add("limbos", GSON.toJsonTree(proxyData.limbos()));
             server.add("lobbies", GSON.toJsonTree(proxyData.lobbies()));
 
+            var threads = new JsonObject();
+
+            var mxBean = ManagementFactory.getThreadMXBean();
+
+            for (ThreadInfo info : mxBean.dumpAllThreads(true, true)) {
+                var thread = new JsonObject();
+
+                thread.addProperty("id", info.getThreadId());
+                thread.addProperty("name", info.getThreadName());
+                thread.addProperty("state", info.getThreadState().name());
+                thread.addProperty("priority", info.getPriority());
+                thread.addProperty("isDaemon", info.isDaemon());
+                thread.addProperty("isInNative", info.isInNative());
+                thread.addProperty("isSuspended", info.isSuspended());
+
+                var lock = new JsonObject();
+
+                if (info.getLockName() != null) {
+                    lock.addProperty("name", info.getLockName());
+                    lock.addProperty("ownerId", info.getLockOwnerId());
+                    lock.addProperty("ownerName", info.getLockOwnerName());
+                }
+
+                thread.add("lock", lock);
+
+                var stackTrace = new JsonArray();
+
+                for (StackTraceElement element : info.getStackTrace()) {
+                    stackTrace.add(element.getClassName() + "#" + element.getMethodName() + "#" + element.getLineNumber());
+                }
+
+                thread.add("stackTrace", stackTrace);
+
+                threads.add(info.getThreadName(), thread);
+            }
+
+            server.add("threads", threads);
+
             dump.add("server", server);
 
             try (var writer = new FileWriter(dumpFile)) {
@@ -172,16 +213,25 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
                     "%last_seen%", DATE_TIME_FORMATTER.format(user.getLastSeen().toLocalDateTime()),
                     "%joined%", DATE_TIME_FORMATTER.format(user.getJoinDate().toLocalDateTime()),
                     "%2fa%", user.getSecret() != null ? "Enabled" : "Disabled",
+                    "%email%", user.getEmail() == null ? "N/A" : user.getEmail(),
                     "%ip%", user.getIp() == null ? "N/A" : user.getIp(),
                     "%last_authenticated%", user.getLastAuthentication() == null ? "N/A" : DATE_TIME_FORMATTER.format(user.getLastAuthentication().toLocalDateTime())
             ));
         });
     }
 
-    public static <P> void enablePremium(P player, User user, AuthenticLibreLogin<P, ?> plugin) {
+    public static <P> void enablePremium(P player, User user, AuthenticLibreLogin<P, ?> plugin, boolean onlyValid) {
         var id = plugin.getUserOrThrowICA(user.getLastNickname());
 
-        if (id == null) throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+        if (onlyValid && id != null && !id.reliable()) {
+            plugin.getLogger().warn("Data retrieved from premium provider is not reliable for user %s, can not safely enable premium login. \nPlease verify the correct capitalization using site such as NameMC and then enable it manually using the /librelogin user premium command.".formatted(user.getLastNickname()));
+            throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+        }
+
+        // Users are stupid, and sometimes they connect with a differently cased name than the one they registered with at Mojang
+        if (id == null || !id.name().equals(user.getLastNickname())) {
+            throw new InvalidCommandArgument(plugin.getMessages().getMessage("error-not-paid"));
+        }
 
         user.setPremiumUUID(id.uuid());
 
@@ -266,15 +316,17 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         return runAsync(() -> {
             var user = getUserOtherWiseInform(name);
 
-            requireOffline(user);
+            var player = getPossiblyOnlinePlayerOnThisProxy(user);
 
             audience.sendMessage(getMessage("info-editing"));
 
-            enablePremium(null, user, plugin);
+            enablePremium(null, user, plugin, false);
 
             getDatabaseProvider().updateUser(user);
 
             audience.sendMessage(getMessage("info-edited"));
+
+            if (player != null) plugin.getPlatformHandle().kick(player, getMessage("kick-premium-info-enabled"));
         });
     }
 
@@ -286,7 +338,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
         return runAsync(() -> {
             var user = getUserOtherWiseInform(name);
 
-            requireOffline(user);
+            var player = getPossiblyOnlinePlayerOnThisProxy(user);
 
             audience.sendMessage(getMessage("info-editing"));
 
@@ -294,6 +346,8 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             getDatabaseProvider().updateUser(user);
 
             audience.sendMessage(getMessage("info-edited"));
+
+            if (player != null) plugin.getPlatformHandle().kick(player, getMessage("kick-premium-info-disabled"));
         });
     }
 
@@ -316,9 +370,9 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             if (hashedPassword == null) {
                 throw new InvalidCommandArgument(getMessage("error-password-too-long"));
             }
-
+            var premiumUser = plugin.getUserOrThrowICA(name);
             user = new AuthenticUser(
-                    plugin.generateNewUUID(name, plugin.getUserOrThrowICA(name).uuid()),
+                    plugin.generateNewUUID(name, premiumUser == null ? null : premiumUser.uuid()),
                     null,
                     hashedPassword,
                     name,
@@ -368,6 +422,42 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             audience.sendMessage(getMessage("info-editing"));
 
             user.setSecret(null);
+
+            getDatabaseProvider().updateUser(user);
+
+            audience.sendMessage(getMessage("info-edited"));
+        });
+    }
+
+    @Subcommand("user emailoff")
+    @CommandPermission("librepremium.user.emailoff")
+    @Syntax("{@@syntax.user-email-off}")
+    @CommandCompletion("%autocomplete.user-email-off")
+    public CompletionStage<Void> onUserEMailOff(Audience audience, String name) {
+        return runAsync(() -> {
+            var user = getUserOtherWiseInform(name);
+
+            audience.sendMessage(getMessage("info-editing"));
+
+            user.setEmail(null);
+
+            getDatabaseProvider().updateUser(user);
+
+            audience.sendMessage(getMessage("info-edited"));
+        });
+    }
+
+    @Subcommand("user setemail")
+    @CommandPermission("librepremium.user.setemail")
+    @Syntax("{@@syntax.user-set-email}")
+    @CommandCompletion("%autocomplete.user-set-email")
+    public CompletionStage<Void> onUserSetEMail(Audience audience, String name, String email) {
+        return runAsync(() -> {
+            var user = getUserOtherWiseInform(name);
+
+            audience.sendMessage(getMessage("info-editing"));
+
+            user.setEmail(email);
 
             getDatabaseProvider().updateUser(user);
 

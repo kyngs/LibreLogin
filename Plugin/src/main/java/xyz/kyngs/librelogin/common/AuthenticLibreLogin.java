@@ -13,8 +13,6 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import net.byteflux.libby.Library;
-import net.byteflux.libby.LibraryManager;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.charts.CustomChart;
 import org.jetbrains.annotations.Nullable;
@@ -24,11 +22,13 @@ import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
+import xyz.kyngs.librelogin.api.crypto.HashedPassword;
 import xyz.kyngs.librelogin.api.database.*;
 import xyz.kyngs.librelogin.api.database.connector.DatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.MySQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.PostgreSQLDatabaseConnector;
 import xyz.kyngs.librelogin.api.database.connector.SQLiteDatabaseConnector;
+import xyz.kyngs.librelogin.api.integration.LimboIntegration;
 import xyz.kyngs.librelogin.api.premium.PremiumException;
 import xyz.kyngs.librelogin.api.premium.PremiumUser;
 import xyz.kyngs.librelogin.api.server.ServerHandler;
@@ -43,8 +43,10 @@ import xyz.kyngs.librelogin.common.config.HoconMessages;
 import xyz.kyngs.librelogin.common.config.HoconPluginConfiguration;
 import xyz.kyngs.librelogin.common.crypto.Argon2IDCryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.BCrypt2ACryptoProvider;
+import xyz.kyngs.librelogin.common.crypto.LogITMessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.crypto.MessageDigestCryptoProvider;
 import xyz.kyngs.librelogin.common.database.AuthenticDatabaseProvider;
+import xyz.kyngs.librelogin.common.database.AuthenticUser;
 import xyz.kyngs.librelogin.common.database.connector.AuthenticMySQLDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.connector.AuthenticPostgreSQLDatabaseConnector;
 import xyz.kyngs.librelogin.common.database.connector.AuthenticSQLiteDatabaseConnector;
@@ -55,6 +57,8 @@ import xyz.kyngs.librelogin.common.database.provider.LibreLoginSQLiteDatabasePro
 import xyz.kyngs.librelogin.common.event.AuthenticEventProvider;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
+import xyz.kyngs.librelogin.common.integration.luckperms.LuckPermsIntegration;
+import xyz.kyngs.librelogin.common.listener.LoginTryListener;
 import xyz.kyngs.librelogin.common.log.Log4JFilter;
 import xyz.kyngs.librelogin.common.log.SimpleLogFilter;
 import xyz.kyngs.librelogin.common.mail.AuthenticEMailHandler;
@@ -69,8 +73,10 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
@@ -99,6 +105,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private TOTPProvider totpProvider;
     private AuthenticImageProjector<P, S> imageProjector;
     private FloodgateIntegration floodgateApi;
+    private LuckPermsIntegration<P, S> luckpermsApi;
     private SemanticVersion version;
     private HoconPluginConfiguration configuration;
     private HoconMessages messages;
@@ -107,11 +114,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     private ReadWriteDatabaseProvider databaseProvider;
     private DatabaseConnector<?, ?> databaseConnector;
     private AuthenticEMailHandler eMailHandler;
+    private LoginTryListener<P, S> loginTryListener;
 
     protected AuthenticLibreLogin() {
-        cryptoProviders = new HashMap<>();
-        readProviders = new HashMap<>();
-        databaseConnectors = new HashMap<>();
+        cryptoProviders = new ConcurrentHashMap<>();
+        readProviders = new ConcurrentHashMap<>();
+        databaseConnectors = new ConcurrentHashMap<>();
         platformHandle = providePlatformHandle();
         forbiddenPasswords = new HashSet<>();
         cancelOnExit = HashMultimap.create();
@@ -136,6 +144,17 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         return eMailHandler;
     }
 
+    @Nullable
+    @Override
+    public LimboIntegration<S> getLimboIntegration() {
+        return null;
+    }
+
+    @Override
+    public User createUser(UUID uuid, UUID premiumUUID, HashedPassword hashedPassword, String lastNickname, Timestamp joinDate, Timestamp lastSeen, String secret, String ip, Timestamp lastAuthentication, String lastServer, String email) {
+        return new AuthenticUser(uuid, premiumUUID, hashedPassword, lastNickname, joinDate, lastSeen, secret, ip, lastAuthentication, lastServer, email);
+    }
+
     public void registerDatabaseConnector(DatabaseConnectorRegistration<?, ?> registration, Class<?> clazz) {
         databaseConnectors.put(clazz, registration);
     }
@@ -151,6 +170,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     public SemanticVersion getParsedVersion() {
         return version;
     }
+
 
     @Override
     public boolean validPassword(String password) {
@@ -226,8 +246,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             }
         }
 
-        loadLibraries();
-
         try {
             Files.copy(getResourceAsStream("LICENSE.txt"), new File(folder, "LICENSE.txt").toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ignored) {
@@ -250,6 +268,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         registerCryptoProvider(new MessageDigestCryptoProvider("SHA-512"));
         registerCryptoProvider(new BCrypt2ACryptoProvider());
         registerCryptoProvider(new Argon2IDCryptoProvider(logger));
+        registerCryptoProvider(new LogITMessageDigestCryptoProvider("LOGIT-SHA-256", "SHA-256"));
 
         setupDB();
 
@@ -272,6 +291,8 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         connectToDB();
 
         serverHandler = new AuthenticServerHandler<>(this);
+
+        this.loginTryListener = new LoginTryListener<>(this);
 
         // Moved to a different class to avoid class loading issues
         GeneralUtil.checkAndMigrate(configuration, logger, this);
@@ -307,6 +328,11 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
             floodgateApi = new FloodgateIntegration();
         }
 
+        if (pluginPresent("luckperms")) {
+            logger.info("LuckPerms detected, enabling context provider");
+            luckpermsApi = new LuckPermsIntegration<>(this);
+        }
+
         if (multiProxyEnabled()) {
             logger.info("Detected MultiProxy setup, enabling MultiProxy support...");
         }
@@ -315,8 +341,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     public <C extends DatabaseConnector<?, ?>> DatabaseConnectorRegistration<?, C> getDatabaseConnector(Class<C> clazz) {
         return (DatabaseConnectorRegistration<?, C>) databaseConnectors.get(clazz);
     }
-
-    protected abstract LibraryManager provideLibraryManager();
 
     private void connectToDB() {
         logger.info("Connecting to the database...");
@@ -470,14 +494,19 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 PostgreSQLDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new AegisSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "aegis-mysql",
                 MySQLDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "authme-mysql",
                 MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthMeSQLMigrateReadProvider(configuration.get(MIGRATION_POSTGRESQL_OLD_DATABASE_TABLE), logger, connector),
+                "authme-postgresql",
+                PostgreSQLDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
                 connector -> new AuthMeSQLMigrateReadProvider("authme", logger, connector),
@@ -485,12 +514,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 SQLiteDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new DBASQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "dba-mysql",
                 MySQLDatabaseConnector.class
         ));
         registerReadProvider(new ReadDatabaseProviderRegistration<>(
-                connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_OLD_DATABASE_TABLE), logger, connector),
+                connector -> new JPremiumSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
                 "jpremium-mysql",
                 MySQLDatabaseConnector.class
         ));
@@ -514,171 +543,47 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 "fastlogin-sqlite",
                 SQLiteDatabaseConnector.class
         ));
-
-    }
-
-    private void loadLibraries() {
-        logger.info("Loading libraries...");
-
-        var libraryManager = provideLibraryManager();
-
-        //libraryManager.addMavenLocal();
-        libraryManager.addMavenCentral();
-
-        var repos = new ArrayList<>(customRepositories());
-
-        repos.add("https://jitpack.io/");
-        repos.add("https://mvn.exceptionflug.de/repository/exceptionflug-public/");
-        repos.add("https://repo.kyngs.xyz/repository/maven-libraries/");
-
-        repos.forEach(libraryManager::addRepository);
-
-        var dependencies = new ArrayList<>(customDependencies());
-
-        dependencies.add(Library.builder()
-                .groupId("com{}zaxxer")
-                .artifactId("HikariCP")
-                .version("5.0.1")
-                .relocate("com{}zaxxer{}hikari", "xyz{}kyngs{}librelogin{}lib{}hikari")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("mysql")
-                .artifactId("mysql-connector-java")
-                .version("8.0.30")
-                .relocate("com{}mysql", "xyz{}kyngs{}librelogin{}lib{}mysql")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("com{}github{}ben-manes{}caffeine")
-                .artifactId("caffeine")
-                .version("3.1.1")
-                .relocate("com{}github{}benmanes{}caffeine", "xyz{}kyngs{}librelogin{}lib{}caffeine")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("org{}spongepowered")
-                .artifactId("configurate-hocon")
-                .version("4.1.2")
-                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librelogin{}lib{}configurate")
-                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librelogin{}lib{}reflect")
-                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librelogin{}lib{}hocon")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("org{}spongepowered")
-                .artifactId("configurate-core")
-                .version("4.1.2")
-                .relocate("org{}spongepowered{}configurate", "xyz{}kyngs{}librelogin{}lib{}configurate")
-                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librelogin{}lib{}reflect")
-                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librelogin{}lib{}hocon")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("io{}leangen{}geantyref")
-                .artifactId("geantyref")
-                .relocate("io{}leangen{}geantyref", "xyz{}kyngs{}librelogin{}lib{}reflect")
-                .version("1.3.13")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("com{}typesafe")
-                .artifactId("config")
-                .version("1.4.2")
-                .relocate("com{}typesafe{}config", "xyz{}kyngs{}librelogin{}lib{}hocon")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("at{}favre{}lib")
-                .artifactId("bcrypt")
-                .version("0.9.0")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("dev{}samstevens{}totp")
-                .artifactId("totp")
-                .version("1.7.1")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("at{}favre{}lib")
-                .artifactId("bytes")
-                .version("1.5.0")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("org{}xerial")
-                .artifactId("sqlite-jdbc")
-                .version("3.40.1.0")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("commons-codec")
-                .artifactId("commons-codec")
-                .version("1.13")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("com{}google{}zxing")
-                .artifactId("core")
-                .version("3.4.0")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("com{}google{}zxing")
-                .artifactId("javase")
-                .version("3.4.0")
-                .build()
-        );
-        dependencies.add(Library.builder()
-                .groupId("org{}bouncycastle")
-                .artifactId("bcprov-jdk18on")
-                .version("1.73")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("org{}postgresql")
-                .artifactId("postgresql")
-                .version("42.6.0")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("javax{}activation")
-                .artifactId("activation")
-                .version("1.1")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("com{}sun{}mail")
-                .artifactId("javax.mail")
-                .version("1.5.6")
-                .build()
-        );
-
-        dependencies.add(Library.builder()
-                .groupId("org{}apache{}commons")
-                .artifactId("commons-email")
-                .version("1.5")
-                .build()
-        );
-
-        dependencies.forEach(libraryManager::loadLibrary);
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new UniqueCodeAuthSQLMigrateReadProvider("uniquecode_proxy_users", logger, connector, this),
+                "uniquecodeauth-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LoginSecuritySQLMigrateReadProvider("ls_players", logger, connector),
+                "loginsecurity-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LoginSecuritySQLMigrateReadProvider("ls_players", logger, connector),
+                "loginsecurity-sqlite",
+                SQLiteDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LimboAuthSQLMigrateReadProvider("AUTH", logger, connector),
+                "limboauth-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthySQLMigrateReadProvider("players", logger, connector),
+                "authy-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new AuthySQLMigrateReadProvider("players", logger, connector),
+                "authy-sqlite",
+                SQLiteDatabaseConnector.class
+        ));
+        registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new LogItSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
+                "logit-mysql",
+                MySQLDatabaseConnector.class
+        ));
+        // Currently disabled as crazylogin stores all names in lowercase
+        /*registerReadProvider(new ReadDatabaseProviderRegistration<>(
+                connector -> new CrazyLoginSQLMigrateReadProvider(configuration.get(MIGRATION_MYSQL_OLD_DATABASE_TABLE), logger, connector),
+                "crazylogin-mysql",
+                MySQLDatabaseConnector.class
+        ));*/
     }
 
     private void loadForbiddenPasswords() throws IOException {
@@ -765,8 +670,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 logger.warn("!! PLEASE UPDATE TO THE LATEST VERSION !!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.warn("Failed to check for updates");
+            logger.warn("Failed to check for updates", e);
         }
     }
 
@@ -786,6 +690,9 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
                 e.printStackTrace();
                 logger.error("Failed to disconnect from database, ignoring...");
             }
+        }
+        if (luckpermsApi != null) {
+            luckpermsApi.disable();
         }
     }
 
@@ -874,6 +781,10 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         return eventProvider;
     }
 
+    public LoginTryListener<P, S> getLoginTryListener() {
+        return loginTryListener;
+    }
+
     public void onExit(P player) {
         cancelOnExit.removeAll(player).forEach(CancellableTask::cancel);
         if (configuration.get(REMEMBER_LAST_SERVER)) {
@@ -895,6 +806,10 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         return floodgateApi != null;
     }
 
+    public boolean luckpermsEnabled() {
+        return luckpermsApi != null;
+    }
+
     public boolean fromFloodgate(UUID uuid) {
         return floodgateApi != null && uuid != null && floodgateApi.isFloodgateId(uuid);
     }
@@ -910,10 +825,6 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
     }
 
     public abstract Audience getAudienceFromIssuer(CommandIssuer issuer);
-
-    protected abstract List<Library> customDependencies();
-
-    protected abstract List<String> customRepositories();
 
     protected boolean mainThread() {
         return false;

@@ -23,10 +23,10 @@ import xyz.kyngs.librelogin.common.event.events.AuthenticAuthenticatedEvent;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S> implements AuthorizationProvider<P> {
@@ -38,8 +38,8 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
 
     public AuthenticAuthorizationProvider(AuthenticLibreLogin<P, S> plugin) {
         super(plugin);
-        unAuthorized = new HashMap<>();
-        awaiting2FA = new HashMap<>();
+        unAuthorized = new ConcurrentHashMap<>();
+        awaiting2FA = new ConcurrentHashMap<>();
 
         var millis = plugin.getConfiguration().get(ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION);
 

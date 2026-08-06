@@ -6,6 +6,7 @@
 
 package xyz.kyngs.librelogin.bungeecord;
 
+import net.byteflux.libby.BungeeLibraryManager;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -17,6 +18,12 @@ public class BungeeCordBootstrap extends Plugin implements LibreLoginProvider<Pr
 
     @Override
     public void onLoad() {
+        var libraryManager = new BungeeLibraryManager(this);
+
+        getLogger().info("Loading libraries...");
+
+        libraryManager.configureFromJSON();
+
         libreLogin = new BungeeCordLibreLogin(this);
     }
 

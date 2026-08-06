@@ -1,10 +1,10 @@
 plugins {
-    id 'org.cadixdev.licenser' version '0.6.1' apply false
+    id 'org.cadixdev.licenser' version '0.6.1'
 }
 
 defaultTasks 'updateLicenses', 'shadowJar'
 
-version '0.17.1'
+version '0.24.0'
 
 subprojects {
     version = rootProject.version
@@ -25,6 +25,10 @@ subprojects {
         header = rootProject.file('HEADER.txt')
         include '**/*.java'
         newLine = true
+
+        matching("**/protocollib/EncryptionUtil.java") {
+            header = rootProject.file("licenses/FASTLOGIN_LICENSE")
+        }
     }
 
 }

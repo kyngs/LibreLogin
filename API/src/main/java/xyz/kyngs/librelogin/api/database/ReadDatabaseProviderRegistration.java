@@ -24,6 +24,13 @@ import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 public record ReadDatabaseProviderRegistration<R extends ReadDatabaseProvider, C extends DatabaseConnector<E, ?>, E extends Exception>(
         ThrowableFunction<C, R, E> factory, String id, @Nullable Class<C> databaseConnector) {
 
+    /**
+     * Creates an instance of a read database provider using the given database connector.
+     *
+     * @param connector the database connector to be used
+     * @return the created object
+     * @throws E if an error occurs during the creation process
+     */
     public R create(DatabaseConnector<?, ?> connector) throws E {
         return factory.apply((C) connector);
     }

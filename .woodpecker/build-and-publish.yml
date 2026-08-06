@@ -1,11 +1,11 @@
 steps:
   shadowJar:
-    image: "eclipse-temurin:17-alpine"
+    image: "eclipse-temurin:21-alpine"
     commands:
-      - "./gradlew licenseCheck shadowJar"
+      - "./gradlew licenseCheck shadowJar javadocJar"
 
   setup-and-run-velocity:
-    image: "eclipse-temurin:17-alpine"
+    image: "eclipse-temurin:21-alpine"
     commands:
       - "pwd"
       - "apk update && apk add curl"
@@ -43,3 +43,20 @@ steps:
     when:
       - event: push
         branch: master
+  release:
+    image: "eclipse-temurin:21-alpine"
+    commands:
+      - "./gradlew :Plugin:release"
+    environment:
+      MODRINTH_TOKEN:
+        from_secret: modrinth_token
+      POLYMART_TOKEN:
+        from_secret: polymart_token
+      GITHUB_TOKEN:
+        from_secret: github_personal_token
+      DISCORD_WEBHOOK_URL:
+        from_secret: discord_webhook_url
+    secrets: [ modrinth_token, polymart_token, github_personal_token, discord_webhook_url ]
+    when:
+      event: tag
+      branch: master

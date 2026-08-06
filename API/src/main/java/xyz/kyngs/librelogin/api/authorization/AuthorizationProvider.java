@@ -47,6 +47,7 @@ public interface AuthorizationProvider<P> {
      *
      * @param player The player.
      * @param code   The code.
+     * @param user   The user.
      * @return whether the code is valid.
      */
     boolean confirmTwoFactorAuth(P player, Integer code, User user);

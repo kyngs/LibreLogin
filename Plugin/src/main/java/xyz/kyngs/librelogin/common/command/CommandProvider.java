@@ -131,7 +131,7 @@ public class CommandProvider<P, S> extends AuthenticHandler<P, S> {
 
         audience.sendMessage(plugin.getMessages().getMessage("info-enabling"));
 
-        LibreLoginCommand.enablePremium(player, user, plugin);
+        LibreLoginCommand.enablePremium(player, user, plugin, true);
 
         plugin.getDatabaseProvider().updateUser(user);
 

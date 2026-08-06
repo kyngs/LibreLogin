@@ -12,10 +12,21 @@ package xyz.kyngs.librelogin.api.configuration;
  * @author kyngs
  */
 public class CorruptedConfigurationException extends Exception {
+
+    /**
+     * Creates a new instance of CorruptedConfigurationException with the specified cause.
+     *
+     * @param cause the {@link Throwable} cause of the exception
+     */
     public CorruptedConfigurationException(Throwable cause) {
         super(cause);
     }
 
+    /**
+     * Creates a new instance of CorruptedConfigurationException with the specified detail message.
+     *
+     * @param message the detail message
+     */
     public CorruptedConfigurationException(String message) {
         super(message);
     }

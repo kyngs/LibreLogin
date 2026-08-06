@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 /**
  * This interface is used to project images to the players
  *
- * @param <P>
+ * @param <P> The type of the player
  */
 public interface ImageProjector<P> {
 

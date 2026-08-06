@@ -4,8 +4,7 @@ version: '${version}'
 main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
 api-version: 1.13
 
-depend:
-  - ProtocolLib
 softdepend:
   - Geyser-Spigot
   - floodgate
+  - LuckPerms

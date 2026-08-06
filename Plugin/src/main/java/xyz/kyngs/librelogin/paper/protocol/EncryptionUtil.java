@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package xyz.kyngs.librelogin.paper.protocollib;
+package xyz.kyngs.librelogin.paper.protocol;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
@@ -12,8 +12,6 @@ import com.google.common.io.Resources;
 import com.google.common.primitives.Longs;
 import xyz.kyngs.librelogin.paper.PaperBootstrap;
 
-import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -26,6 +24,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 import java.util.UUID;
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Encryption and decryption minecraft util for connection between servers

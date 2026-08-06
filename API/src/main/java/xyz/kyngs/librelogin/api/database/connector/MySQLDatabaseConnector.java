@@ -6,5 +6,10 @@
 
 package xyz.kyngs.librelogin.api.database.connector;
 
+/**
+ * The MySQLDatabaseConnector interface extends the SQLDatabaseConnector interface with specific
+ * implementation for MySQL databases.
+ * It provides methods to connect to a MySQL database, handle SQLExceptions, and obtain a Connection object.
+ */
 public interface MySQLDatabaseConnector extends SQLDatabaseConnector {
 }

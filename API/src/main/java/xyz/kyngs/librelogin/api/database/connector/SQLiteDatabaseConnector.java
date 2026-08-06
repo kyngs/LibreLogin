@@ -6,5 +6,20 @@
 
 package xyz.kyngs.librelogin.api.database.connector;
 
+/**
+ * This interface represents a connector for interacting with a SQLite database.
+ *
+ * <p>
+ * The interface extends the {@link SQLDatabaseConnector} interface, which provides
+ * methods for executing SQL queries and managing database connections.
+ * </p>
+ *
+ * <p>
+ * The implementation of this interface should provide methods specifically for
+ * interacting with a SQLite database.
+ * </p>
+ *
+ * @see SQLDatabaseConnector
+ */
 public interface SQLiteDatabaseConnector extends SQLDatabaseConnector {
 }

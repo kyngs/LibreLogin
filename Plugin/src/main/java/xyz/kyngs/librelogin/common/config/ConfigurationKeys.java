@@ -28,7 +28,9 @@ public class ConfigurationKeys {
                     "2faconfirm",
                     "l",
                     "log",
-                    "reg"
+                    "reg",
+                    "resetpassword",
+                    "confirmpasswordreset"
             ),
             "Commands that are allowed while the user is not authorized.",
             ConfigurateHelper::getStringList
@@ -61,6 +63,16 @@ public class ConfigurationKeys {
         LOBBY_DEFAULT.put("root", "lobby1");
     }
 
+    public static final ConfigurationKey<Boolean> IGNORE_MAX_PLAYERS_FROM_BACKEND_PING = new ConfigurationKey<>(
+            "ignore-max-players-from-backend-ping",
+            false,
+            """
+                    By default, when choosing available lobby/limbos LibreLogin will rule out all the servers which are full.
+                    Sometimes this may not work as expected. In such case, you can enable this option, which will ignore the max players field obtained by pinging the backend server.
+                    """,
+            ConfigurateHelper::getBoolean
+    );
+
     public static final ConfigurationKey<String> DEFAULT_CRYPTO_PROVIDER = new ConfigurationKey<>(
             "default-crypto-provider",
             "BCrypt-2A",
@@ -86,11 +98,18 @@ public class ConfigurationKeys {
             (helper, key) -> ProfileConflictResolutionStrategy.valueOf(helper.getString(key).toUpperCase()).name() // Sanity check
     );
 
-    public static final ConfigurationKey<Boolean> KICK_ON_WRONG_PASSWORD = new ConfigurationKey<>(
-            "kick-on-wrong-password",
-            false,
-            "Kick the player, if the password is wrong.",
-            ConfigurateHelper::getBoolean
+    public static final ConfigurationKey<Integer> MAX_LOGIN_ATTEMPTS = new ConfigurationKey<>(
+            "max-login-attempts",
+            -1,
+            "Kick the player, if the password was incorrect more or equal times. -1 means disabled",
+            ConfigurateHelper::getInt
+    );
+
+    public static final ConfigurationKey<Integer> MILLISECONDS_TO_EXPIRE_LOGIN_ATTEMPTS = new ConfigurationKey<>(
+            "milliseconds-to-refresh-login-attempts",
+            10000,
+            "Time to reset login attempts. The amount of time the player should have waited for their login attempts to expire. On every rejoin, login attempts are reset.",
+            ConfigurateHelper::getInt
     );
 
     public static final ConfigurationKey<Boolean> USE_TITLES = new ConfigurationKey<>(
@@ -198,21 +217,37 @@ public class ConfigurationKeys {
             "authme-sqlite",
             """
                     The type of the migration. Available Types:
-                    jpremium-mysql - Can convert from MySQL JPremium SHA256 and BCrypt
+                    jpremium-mysql - Can convert from MySQL JPremium SHA256, SHA512 and BCrypt
                     authme-mysql - Can convert from MySQL AuthMe BCrypt and SHA256
                     authme-sqlite - Can convert from SQLite AuthMe BCrypt and SHA256
+                    authme-postgresql - Can convert from PostgreSQL AuthMe BCrypt and SHA256
                     aegis-mysql - Can convert from MySQL Aegis BCrypt
                     dba-mysql - Can convert from MySQL DynamicBungeeAuth, which was configured to use SHA-512
+                    nlogin-sqlite - Can convert from SQLite NLogin SHA512
+                    nlogin-mysql - Can convert from MySQL NLogin SHA512
+                    loginsecurity-mysql - Can convert from MySQL LoginSecurity BCrypt
+                    loginsecurity-sqlite - Can convert from SQLite LoginSecurity BCrypt
                     fastlogin-sqlite - Can convert from SQLite FastLogin, !!YOU MUST RUN CONVERSION FROM AUTHME FIRST!!
                     fastlogin-mysql - Can convert from MySQL FastLogin, !!YOU MUST RUN CONVERSION FROM AUTHME FIRST!!
+                    limboauth-mysql - Can convert from MySQL LimboAuth BCrypt and SHA256
+                    authy-mysql - Can convert from MySQL Authy SHA256
+                    authy-sqlite - Can convert from SQLite Authy SHA256
+                    logit-mysql - Can convert from MySQL LogIt SHA256
                     librelogin-mysql - Can convert from MySQL LibreLogin, useful for migrating to a different database
                     librelogin-sqlite - Can convert from SQLite LibreLogin, useful for migrating to a different database
                     """,
             ConfigurateHelper::getString
     );
 
-    public static final ConfigurationKey<String> MIGRATION_OLD_DATABASE_TABLE = new ConfigurationKey<>(
+    public static final ConfigurationKey<String> MIGRATION_MYSQL_OLD_DATABASE_TABLE = new ConfigurationKey<>(
             "migration.old-database.mysql.table",
+            "user-data",
+            "The table of the old database.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> MIGRATION_POSTGRESQL_OLD_DATABASE_TABLE = new ConfigurationKey<>(
+            "migration.old-database.postgresql.table",
             "user-data",
             "The table of the old database.",
             ConfigurateHelper::getString
@@ -261,7 +296,7 @@ public class ConfigurationKeys {
 
     public static final ConfigurationKey<Long> SESSION_TIMEOUT = new ConfigurationKey<>(
             "session-timeout",
-            604800L,
+            0L,
             "Defines a time in seconds after a player's session expires. Default value is one week (604800 seconds). Set to zero or less to disable sessions.",
             ConfigurateHelper::getLong
     );
@@ -289,7 +324,7 @@ public class ConfigurationKeys {
 
     public static final ConfigurationKey<Boolean> FALLBACK = new ConfigurationKey<>(
             "fallback",
-            true,
+            false,
             "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Should we fallback players to lobby servers if the server they are on shutdowns? If set to false, they will be kicked.",
             ConfigurateHelper::getBoolean
     );
@@ -337,10 +372,32 @@ public class ConfigurationKeys {
             "The sender of the email.",
             ConfigurateHelper::getString
     );
+    public static final ConfigurationKey<String> MAIL_EMAIL = new ConfigurationKey<>(
+            "mail.email",
+            "email@something.com",
+            "The email to use as a sender in the From field.",
+            ConfigurateHelper::getString
+    );
+
     private static final ConfigurationKey<?> MAIL = ConfigurationKey.getComment(
             "mail",
             """
                     This section is used for configuring the email password recovery feature.
                     """
+    );
+    public static final ConfigurationKey<Boolean> ALLOW_PROXY_CONNECTIONS = new ConfigurationKey<>(
+            "allow-proxy-connections",
+            true,
+            """
+                    !!!THIS ONLY AFFECTS PAPER!!!
+                    Verifies whether the IP the players had used when authenticating to Mojang matches the IP they are connecting from. Disabling this may break LibreLogin if the server is running under a reverse proxy/VPN.
+                    """,
+            ConfigurateHelper::getBoolean
+    );
+    public static final ConfigurationKey<String> LIMBO_PORT_RANGE = new ConfigurationKey<>(
+            "limbo-port-range",
+            "30000-40000",
+            "!!THIS OPTION IS IRRELEVANT WHEN USING PAPER!! Defines port(s) that limbo server can be bounded to.",
+            ConfigurateHelper::getString
     );
 }

@@ -26,8 +26,18 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
+    public void info(String message, Throwable throwable) {
+        slf4j.info(message, throwable);
+    }
+
+    @Override
     public void warn(String message) {
         slf4j.warn(message);
+    }
+
+    @Override
+    public void warn(String message, Throwable throwable) {
+        slf4j.warn(message, throwable);
     }
 
     @Override
@@ -36,9 +46,21 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
+    public void error(String message, Throwable throwable) {
+        slf4j.error(message, throwable);
+    }
+
+    @Override
     public void debug(String message) {
         if (debug.get()) {
             slf4j.info("[DEBUG] " + message);
+        }
+    }
+
+    @Override
+    public void debug(String message, Throwable throwable) {
+        if (debug.get()) {
+            slf4j.info("[DEBUG] " + message, throwable);
         }
     }
 }

@@ -49,7 +49,7 @@ public class ResetPasswordViaEMailCommand<P> extends EMailCommand<P> {
             audience.sendMessage(getMessage("info-mail-sending"));
 
             try {
-                mailHandler.sendPasswordResetMail(user.getEmail(), token, user.getLastNickname(), user.getIp());
+                mailHandler.sendPasswordResetMail(user.getEmail(), token, user.getLastNickname(), plugin.getPlatformHandle().getIP(player));
                 getAuthorizationProvider().getPasswordResetCache().put(uuid, token);
             } catch (Exception e) {
                 if (plugin.getConfiguration().get(ConfigurationKeys.DEBUG)) {

@@ -8,8 +8,10 @@ package xyz.kyngs.librelogin.common.command.commands.premium;
 
 import co.aikar.commands.annotation.*;
 import net.kyori.adventure.audience.Audience;
+import xyz.kyngs.librelogin.api.event.events.WrongPasswordEvent.AuthenticationSource;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.command.InvalidCommandArgument;
+import xyz.kyngs.librelogin.common.event.events.AuthenticWrongPasswordEvent;
 
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -33,6 +35,9 @@ public class PremiumEnableCommand<P> extends PremiumCommand<P> {
             var crypto = getCrypto(hashed);
 
             if (!crypto.matches(password, hashed)) {
+                plugin.getEventProvider()
+                        .unsafeFire(plugin.getEventTypes().wrongPassword,
+                                new AuthenticWrongPasswordEvent<>(user, player, plugin, AuthenticationSource.PREMIUM_ENABLE));
                 throw new InvalidCommandArgument(getMessage("error-password-wrong"));
             }
 

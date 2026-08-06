@@ -17,12 +17,32 @@ import xyz.kyngs.librelogin.api.event.PlayerBasedEvent;
  */
 public interface AuthenticatedEvent<P, S> extends PlayerBasedEvent<P, S> {
 
+    /**
+     * Gets the reason for authentication.
+     *
+     * @return The reason for authentication
+     */
     AuthenticationReason getReason();
 
+    /**
+     * Possible reasons for authentication.
+     */
     enum AuthenticationReason {
+        /**
+         * The player has used the /login command, or they've been logged in by an admin
+         */
         LOGIN,
+        /**
+         * The player has registered
+         */
         REGISTER,
+        /**
+         * The player has been logged in automatically due to having enabled the auto-login feature
+         */
         PREMIUM,
+        /**
+         * The player has been logged in due to having a valid session
+         */
         SESSION
     }
 

@@ -13,7 +13,8 @@ import java.util.UUID;
  *
  * @param uuid The (premium) UUID of the player.
  * @param name The name of the player.
+ * @param reliable Whether the information is reliable. If not, the {@link PremiumUser#name()} string might not match the queried name (ignoring case).
  */
-public record PremiumUser(UUID uuid, String name) {
+public record PremiumUser(UUID uuid, String name, boolean reliable) {
 
 }

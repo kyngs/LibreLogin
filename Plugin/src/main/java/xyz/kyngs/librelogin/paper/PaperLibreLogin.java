@@ -10,11 +10,8 @@ import co.aikar.commands.BukkitCommandIssuer;
 import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.CommandManager;
 import co.aikar.commands.PaperCommandManager;
-import com.comphenix.protocol.ProtocolLibrary;
-import net.byteflux.libby.BukkitLibraryManager;
-import net.byteflux.libby.Library;
-import net.byteflux.libby.LibraryManager;
-import net.byteflux.libby.PaperLibraryManager;
+import com.github.retrooper.packetevents.PacketEvents;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import net.kyori.adventure.audience.Audience;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.CustomChart;
@@ -29,11 +26,10 @@ import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
+import xyz.kyngs.librelogin.paper.protocol.PacketListener;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
@@ -47,6 +43,14 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     public PaperLibreLogin(PaperBootstrap bootstrap) {
         this.bootstrap = bootstrap;
         this.started = false;
+
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(bootstrap));
+
+        PacketEvents.getAPI().getSettings()
+                .checkForUpdates(false)
+                .bStats(false);
+
+        PacketEvents.getAPI().load();
     }
 
     public PaperBootstrap getBootstrap() {
@@ -112,7 +116,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
     @Override
     protected void disable() {
-        ProtocolLibrary.getProtocolManager().getAsynchronousManager().unregisterAsyncHandlers(bootstrap);
+        PacketEvents.getAPI().terminate();
         if (getDatabaseProvider() == null) return; //Not initialized
 
         super.disable();
@@ -154,6 +158,7 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
 
         Bukkit.getPluginManager().registerEvents(listeners, bootstrap);
         Bukkit.getPluginManager().registerEvents(new Blockers(this), bootstrap);
+        PacketEvents.getAPI().getEventManager().registerListener(new PacketListener(listeners));
 
         started = true;
     }
@@ -229,29 +234,5 @@ public class PaperLibreLogin extends AuthenticLibreLogin<Player, World> {
     @Override
     public Audience getAudienceFromIssuer(CommandIssuer issuer) {
         return ((BukkitCommandIssuer) issuer).getIssuer();
-    }
-
-    @Override
-    protected List<Library> customDependencies() {
-        return List.of(
-
-        );
-    }
-
-    @Override
-    protected List<String> customRepositories() {
-        return List.of(
-
-        );
-    }
-
-    @Override
-    protected LibraryManager provideLibraryManager() {
-        try {
-            Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
-            return new PaperLibraryManager(bootstrap);
-        } catch (ClassNotFoundException e) {
-            return new BukkitLibraryManager(bootstrap);
-        }
     }
 }

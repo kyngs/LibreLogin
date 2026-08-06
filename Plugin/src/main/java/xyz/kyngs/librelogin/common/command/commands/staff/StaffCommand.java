@@ -40,6 +40,18 @@ public class StaffCommand<P> extends Command<P> {
         return player;
     }
 
+    protected P getPossiblyOnlinePlayerOnThisProxy(User user) {
+        if (plugin.multiProxyEnabled()) {
+            if (plugin.isPresent(user.getUuid())) {
+                throw new InvalidCommandArgument(getMessage("error-player-online"));
+            } else {
+                return null;
+            }
+        }
+
+        return plugin.getPlayerForUUID(user.getUuid());
+    }
+
     protected void requireUnAuthorized(P player) {
         if (plugin.getAuthorizationProvider().isAuthorized(player))
             throw new InvalidCommandArgument(getMessage("error-player-authorized"));

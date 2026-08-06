@@ -11,62 +11,41 @@ import co.aikar.commands.CommandManager;
 import co.aikar.commands.VelocityCommandIssuer;
 import co.aikar.commands.VelocityCommandManager;
 import com.google.inject.Inject;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.network.ProtocolVersion;
-import com.velocitypowered.api.plugin.Dependency;
-import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import net.byteflux.libby.Library;
-import net.byteflux.libby.LibraryManager;
-import net.byteflux.libby.VelocityLibraryManager;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bstats.charts.CustomChart;
 import org.bstats.velocity.Metrics;
 import org.jetbrains.annotations.Nullable;
-import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.Logger;
 import xyz.kyngs.librelogin.api.PlatformHandle;
 import xyz.kyngs.librelogin.api.database.User;
 import xyz.kyngs.librelogin.api.event.exception.EventCancelledException;
-import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
+import xyz.kyngs.librelogin.api.integration.LimboIntegration;
 import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.SLF4JLogger;
+import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.image.AuthenticImageProjector;
 import xyz.kyngs.librelogin.common.image.protocolize.ProtocolizeImageProjector;
 import xyz.kyngs.librelogin.common.util.CancellableTask;
+import xyz.kyngs.librelogin.velocity.integration.VelocityNanoLimboIntegration;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static xyz.kyngs.librelogin.common.config.ConfigurationKeys.DEBUG;
 
+public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredServer> {
 
-@Plugin(
-        id = "librelogin",
-        name = "LibreLogin",
-        version = "@version@",
-        authors = "kyngs",
-        dependencies = {
-                @Dependency(id = "floodgate", optional = true),
-                @Dependency(id = "protocolize", optional = true),
-                @Dependency(id = "redisbungee", optional = true),
-                @Dependency(id = "nanolimbovelocity", optional = true)
-        }
-)
-public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredServer> implements LibreLoginProvider<Player, RegisteredServer> {
-
+    private final VelocityBootstrap bootstrap;
     @Inject
     private org.slf4j.Logger logger;
     @Inject
@@ -80,6 +59,17 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     private PluginDescription description;
     @Nullable
     private VelocityRedisBungeeIntegration redisBungee;
+    @Nullable
+    private LimboIntegration<RegisteredServer> limboIntegration;
+
+    public VelocityLibreLogin(VelocityBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
+    }
+
+    @Override
+    protected void disable() {
+        super.disable();
+    }
 
     public ProxyServer getServer() {
         return server;
@@ -101,7 +91,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
     @Override
     public CommandManager<?, ?, ?, ?, ?, ?> provideManager() {
-        return new VelocityCommandManager(server, this);
+        return new VelocityCommandManager(server, bootstrap);
     }
 
     @Override
@@ -135,7 +125,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     @Override
     public CancellableTask delay(Runnable runnable, long delayInMillis) {
         var task = server.getScheduler()
-                .buildTask(this, runnable)
+                .buildTask(bootstrap, runnable)
                 .delay(delayInMillis, TimeUnit.MILLISECONDS)
                 .schedule();
         return task::cancel;
@@ -144,7 +134,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     @Override
     public CancellableTask repeat(Runnable runnable, long delayInMillis, long repeatInMillis) {
         var task = server.getScheduler()
-                .buildTask(this, runnable)
+                .buildTask(bootstrap, runnable)
                 .delay(delayInMillis, TimeUnit.MILLISECONDS)
                 .repeat(repeatInMillis, TimeUnit.MILLISECONDS)
                 .schedule();
@@ -221,7 +211,7 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
 
     @Override
     protected void initMetrics(CustomChart... charts) {
-        var metrics = factory.make(this, 17981);
+        var metrics = factory.make(bootstrap, 17981);
 
         for (CustomChart chart : charts) {
             metrics.addCustomChart(chart);
@@ -234,38 +224,6 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
     }
 
     @Override
-    protected List<Library> customDependencies() {
-        return List.of(
-
-        );
-    }
-
-    @Override
-    protected List<String> customRepositories() {
-        return List.of(
-
-        );
-    }
-
-    @Override
-    protected LibraryManager provideLibraryManager() {
-        return new VelocityLibraryManager<>(logger, Path.of("plugins", "librelogin"), server.getPluginManager(), this);
-    }
-
-    @Subscribe
-    public void onInitialization(ProxyInitializeEvent event) {
-        enable();
-
-        server.getEventManager().register(this, new Blockers(getAuthorizationProvider(), getConfiguration(), getMessages()));
-        server.getEventManager().register(this, new VelocityListeners(this));
-    }
-
-    @Subscribe
-    public void onShutdown(ProxyShutdownEvent event) {
-        disable();
-    }
-
-    @Override
     public InputStream getResourceAsStream(String name) {
         return getClass().getClassLoader().getResourceAsStream(name);
     }
@@ -275,8 +233,15 @@ public class VelocityLibreLogin extends AuthenticLibreLogin<Player, RegisteredSe
         return dataDir.toFile();
     }
 
+    @Nullable
     @Override
-    public LibreLoginPlugin<Player, RegisteredServer> getLibreLogin() {
-        return this;
+    public LimboIntegration<RegisteredServer> getLimboIntegration() {
+        if (pluginPresent("nanolimbovelocity") && limboIntegration == null) {
+            limboIntegration = new VelocityNanoLimboIntegration(server,
+                    getConfiguration().get(ConfigurationKeys.LIMBO_PORT_RANGE));
+        }
+        return limboIntegration;
     }
+
+
 }
