@@ -18,13 +18,13 @@ import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import net.byteflux.libby.VelocityLibraryManager;
 import org.slf4j.Logger;
+import xyz.kyngs.librarian.VelocityLibraryManager;
+import xyz.kyngs.librelogin.BuildParameters;
 import xyz.kyngs.librelogin.api.LibreLoginPlugin;
 import xyz.kyngs.librelogin.api.provider.LibreLoginProvider;
 import xyz.kyngs.librelogin.api.util.SemanticVersion;
 
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 @Plugin(
         id = "librelogin",
         name = "LibreLogin",
-        version = "{{ version }}",
+        version = BuildParameters.VERSION,
         authors = "kyngs",
         dependencies = {
                 @Dependency(id = "floodgate", optional = true),
@@ -54,11 +54,13 @@ public class VelocityBootstrap implements LibreLoginProvider<Player, RegisteredS
     public VelocityBootstrap(ProxyServer server, Injector injector, Logger logger, PluginContainer container) {
         this.server = server;
 
+        logger.info("Loading libraries...");
+
         // This is a very ugly hack to be able to load libraries in the constructor
         // We cannot pass this as a parameter to the constructor because the plugin is technically still not loaded
         // And, we cannot past the container as a parameter to the constructor because the proxy still did not assign the instance to it.
         // So, we have to "mock" the container and pass this as the instance. I'm kinda surprised this works, but in theory could break in the future.
-        var libraryManager = new VelocityLibraryManager<>(logger, Path.of("plugins", "librelogin"), server.getPluginManager(), new PluginContainer() {
+        var libraryManager = new VelocityLibraryManager<PluginContainer>(server.getPluginManager(), new PluginContainer() {
             @Override
             public PluginDescription getDescription() {
                 return container.getDescription();
@@ -74,8 +76,6 @@ public class VelocityBootstrap implements LibreLoginProvider<Player, RegisteredS
                 return Executors.newSingleThreadExecutor();
             }
         });
-
-        logger.info("Loading libraries...");
 
         libraryManager.configureFromJSON();
 

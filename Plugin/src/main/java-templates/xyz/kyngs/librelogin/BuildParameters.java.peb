@@ -1,0 +1,5 @@
+package xyz.kyngs.librelogin;
+
+public class BuildParameters {
+    public static final String VERSION = "{{ version }}";
+}
