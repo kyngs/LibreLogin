@@ -89,10 +89,15 @@ tasks.withType<ProcessResources> {
     }
 }
 
-blossom {
-    replaceToken("@version@", version)
+sourceSets {
+    main {
+        blossom {
+            javaSources {
+                property("version", version.toString())
+            }
+        }
+    }
 }
-
 
 // Dependencies pulled in transitively that we never want shaded or downloaded at runtime.
 val excludedLibs = listOf(
