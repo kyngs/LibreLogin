@@ -1,7 +1,6 @@
 plugins {
     id("java-library")
     id("maven-publish")
-    id("java")
 }
 
 repositories {
@@ -9,20 +8,16 @@ repositories {
 }
 
 dependencies {
-    api("javax.annotation:javax.annotation-api:1.3.2")
-    compileOnly("net.kyori:adventure-platform-bungeecord:4.1.2")
-    compileOnly("com.google.guava:guava:30.0-jre")
+    api(libs.javax.annotation)
+    compileOnly(libs.guava)
+    compileOnly(libs.adventure.api)
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("-parameters")
 }
 
 java {
@@ -34,11 +29,8 @@ publishing {
     repositories {
         maven {
             name = "kyngsRepo"
-            url = uri(
-                "https://repo.kyngs.xyz/" + (if (project.version.toString()
-                        .contains("SNAPSHOT")
-                ) "snapshots" else "releases") + "/"
-            )
+            val channel = if (project.version.toString().contains("SNAPSHOT")) "snapshots" else "releases"
+            url = uri("https://repo.kyngs.xyz/$channel/")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")

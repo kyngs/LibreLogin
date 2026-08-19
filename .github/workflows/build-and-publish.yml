@@ -1,0 +1,60 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+    tags:
+      - '*'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build with Gradle
+        run: ./gradlew licenseCheck shadowJar javadocJar
+
+      - name: Setup Velocity environment
+        run: |
+          mkdir -p velocity/plugins
+          cp Plugin/build/libs/LibreLogin.jar velocity/plugins/
+          curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/258/downloads/velocity-3.2.0-SNAPSHOT-258.jar -o velocity/velocity.jar
+
+      - name: Run Velocity
+        run: |
+          cd velocity
+          java -jar velocity.jar
+
+      - name: Publish with Gradle
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
+        run: ./gradlew :API:publish -PkyngsRepoUsername=${{ secrets.KYNGS_REPO_TOKEN }} -PkyngsRepoPassword=${{ secrets.KYNGS_REPO_SECRET }}
+
+      - name: Update Wiki
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git clone https://github.com/kyngs/LibreLogin.wiki.git wiki
+          cd wiki
+          echo '```hocon' > Config.md && cat ../velocity/plugins/librelogin/config.conf >> Config.md && echo '```' >> Config.md
+          echo '```hocon' > Messages.md && cat ../velocity/plugins/librelogin/messages.conf >> Messages.md && echo '```' >> Messages.md
+          git config --local user.email 'kyngs@users.noreply.github.com'
+          git config --local user.name 'Kyngs CI (GitHub Actions)'
+          git add .
+          git diff-index --quiet HEAD || git commit -m 'Update configuration and messages on wiki' && git push https://kyngs:${{ secrets.GITHUB_TOKEN }}@github.com/kyngs/LibreLogin.wiki.git
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: ./gradlew :Plugin:release

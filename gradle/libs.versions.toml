@@ -1,0 +1,79 @@
+[versions]
+adventure = "5.2.0"
+velocity = "3.4.0-SNAPSHOT"
+acf = "7d5bf7cac0"
+bstats = "3.0.2"
+librarian = "2.0.0-SNAPSHOT"
+junit = "5.9.1"
+
+[libraries]
+# API
+javax-annotation = "javax.annotation:javax.annotation-api:1.3.2"
+guava = "com.google.guava:guava:30.0-jre"
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+
+# Velocity
+velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
+velocity-proxy = "com.velocitypowered:velocity-proxy:3.2.0-SNAPSHOT-277"
+
+# Databases
+mariadb = "org.mariadb.jdbc:mariadb-java-client:3.5.1"
+hikari = "com.zaxxer:HikariCP:6.2.1"
+sqlite = "org.xerial:sqlite-jdbc:3.47.1.0"
+postgresql = "org.postgresql:postgresql:42.7.5"
+
+# ACF
+acf-velocity = { module = "com.github.kyngs.commands:acf-velocity", version.ref = "acf" }
+acf-paper = { module = "com.github.kyngs.commands:acf-paper", version.ref = "acf" }
+
+# Utils
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.0"
+configurate-hocon = "org.spongepowered:configurate-hocon:4.1.2"
+bcrypt = "at.favre.lib:bcrypt:0.10.2"
+totp = "dev.samstevens.totp:totp:1.7.1"
+protocolize-api = "dev.simplix:protocolize-api:2.4.2"
+bouncycastle = "org.bouncycastle:bcprov-jdk18on:1.80"
+commons-email = "org.apache.commons:commons-email:1.6.0"
+legacymessage = "com.github.kyngs:LegacyMessage:0.2.0"
+
+# Adventure (do NOT upgrade minimessage to 4.15.0+ before testing Waterfall/BungeeCord)
+adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+
+# Geyser / LuckPerms
+floodgate-api = "org.geysermc.floodgate:api:2.2.0-SNAPSHOT"
+luckperms-api = "net.luckperms:api:5.4"
+
+#RedisBungee
+redisbungee = "com.github.ProxioDev.ValioBungee:RedisBungee-Bungee:0.12.5"
+
+# bStats
+bstats-velocity = { module = "org.bstats:bstats-velocity", version.ref = "bstats" }
+bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+
+# Paper
+paper-api = "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
+packetevents-spigot = "com.github.retrooper:packetevents-spigot:2.9.4"
+netty-transport = "io.netty:netty-transport:4.1.108.Final"
+datafixerupper = "com.mojang:datafixerupper:5.0.28"
+log4j-core = "org.apache.logging.log4j:log4j-core:2.23.1"
+
+# Librarian
+librarian-velocity = { module = "xyz.kyngs.librarian:librarian-velocity", version.ref = "librarian" }
+librarian-paper = { module = "xyz.kyngs.librarian:librarian-paper", version.ref = "librarian" }
+
+# NanoLimboPlugin
+nanolimbo-api = "com.github.bivashy.NanoLimboPlugin:api:1.0.8"
+
+[bundles]
+acf = ["acf-velocity", "acf-paper"]
+bstats = ["bstats-velocity", "bstats-bukkit"]
+librarian = ["librarian-velocity", "librarian-paper"]
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version = "9.4.3" }
+blossom = { id = "net.kyori.blossom", version = "1.3.1" }
+librarian = { id = "xyz.kyngs.librarian.plugin", version.ref = "librarian" }
+mcupload = { id = "xyz.kyngs.mcupload.plugin", version = "0.3.4" }
+licenser = { id = "org.cadixdev.licenser", version = "0.6.1" }
