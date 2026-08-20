@@ -34,6 +34,14 @@ public interface AuthorizationProvider<P> {
     boolean isAwaiting2FA(P player);
 
     /**
+     * Checks whether the player is in the process of disabling 2FA.
+     *
+     * @param player The player.
+     * @return True if the player needs to confirm the action of disabling 2FA, false otherwise.
+     */
+    boolean isAwaiting2FADisable(P player);
+
+    /**
      * Authorizes the player, if the player is not already authorized. Implementation must make sure that {@link #isAuthorized(P)} returns false.
      *
      * @param user   The user.
@@ -51,4 +59,14 @@ public interface AuthorizationProvider<P> {
      * @return whether the code is valid.
      */
     boolean confirmTwoFactorAuth(P player, Integer code, User user);
+
+    /**
+     * Finishes the 2FA disabling process.
+     *
+     * @param player The player.
+     * @param code   The code.
+     * @param user   The user.
+     * @return whether the code is valid.
+     */
+    boolean confirmTwoFactorAuthDisable(P player, Integer code, User user);
 }

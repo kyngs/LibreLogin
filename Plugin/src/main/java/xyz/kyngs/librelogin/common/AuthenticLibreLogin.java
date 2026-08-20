@@ -290,26 +290,12 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
         connectToDB();
 
-        serverHandler = new AuthenticServerHandler<>(this);
-
         this.loginTryListener = new LoginTryListener<>(this);
 
         // Moved to a different class to avoid class loading issues
         GeneralUtil.checkAndMigrate(configuration, logger, this);
 
-        imageProjector = provideImageProjector();
-
-        if (imageProjector != null) {
-            if (!configuration.get(TOTP_ENABLED)) {
-                imageProjector = null;
-                logger.warn("2FA is disabled in the configuration, aborting...");
-            } else {
-                imageProjector.enable();
-            }
-        }
-
-        totpProvider = imageProjector == null ? null : new AuthenticTOTPProvider(this);
-        eMailHandler = configuration.get(MAIL_ENABLED) ? new AuthenticEMailHandler(this) : null;
+        reloadComponents();
 
         authorizationProvider = new AuthenticAuthorizationProvider<>(this);
         commandProvider = new CommandProvider<>(this);
@@ -715,6 +701,30 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         var folder = getDataFolder();
 
         if (!folder.exists()) if (!folder.mkdir()) throw new RuntimeException("Failed to create datafolder");
+    }
+
+    @Override
+    public void reloadConfiguration() throws CorruptedConfigurationException, IOException {
+        this.getConfiguration().reload(this);
+        if (serverHandler != null) serverHandler.shutdown();
+        reloadComponents();
+    }
+
+    private void reloadComponents() {
+        serverHandler = new AuthenticServerHandler<>(this);
+
+        imageProjector = provideImageProjector();
+
+        if (imageProjector != null) {
+            if (!configuration.get(TOTP_ENABLED)) {
+                imageProjector = null;
+            } else {
+                imageProjector.enable();
+            }
+        }
+
+        totpProvider = configuration.get(TOTP_ENABLED) ? new AuthenticTOTPProvider(this) : null;
+        eMailHandler = configuration.get(MAIL_ENABLED) ? new AuthenticEMailHandler(this) : null;
     }
 
     protected abstract Logger provideLogger();

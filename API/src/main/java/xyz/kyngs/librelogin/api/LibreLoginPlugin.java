@@ -7,6 +7,7 @@
 package xyz.kyngs.librelogin.api;
 
 import xyz.kyngs.librelogin.api.authorization.AuthorizationProvider;
+import xyz.kyngs.librelogin.api.configuration.CorruptedConfigurationException;
 import xyz.kyngs.librelogin.api.configuration.Messages;
 import xyz.kyngs.librelogin.api.crypto.CryptoProvider;
 import xyz.kyngs.librelogin.api.crypto.HashedPassword;
@@ -24,6 +25,7 @@ import xyz.kyngs.librelogin.api.util.SemanticVersion;
 import xyz.kyngs.librelogin.api.util.ThrowableFunction;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.Map;
@@ -291,4 +293,9 @@ public interface LibreLoginPlugin<P, S> {
             String lastServer,
             String email
     );
+
+    /**
+     * Reloads the configurations and registers/unregisters new handlers (if possible).
+     */
+    void reloadConfiguration() throws CorruptedConfigurationException, IOException;
 }

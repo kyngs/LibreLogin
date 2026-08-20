@@ -100,4 +100,9 @@ public interface ServerHandler<P, S> {
      */
     void registerLimboServer(S server);
 
+    /**
+     * Shuts down server handler.
+     */
+    void shutdown();
+
 }

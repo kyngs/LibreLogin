@@ -160,7 +160,7 @@ public class LibreLoginCommand<P> extends StaffCommand<P> {
             audience.sendMessage(getMessage("info-reloading"));
 
             try {
-                plugin.getConfiguration().reload(plugin);
+                plugin.reloadConfiguration();
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new InvalidCommandArgument(getMessage("error-unknown"));
