@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    `java`
+    java
     alias(libs.plugins.shadow)
     alias(libs.plugins.blossom)
     alias(libs.plugins.librarian)
@@ -44,7 +44,8 @@ dependencies {
     librarian(libs.postgresql)
 
     // ACF
-    librarian(libs.bundles.acf)
+    librarian(libs.acf.velocity)
+    librarian(libs.acf.paper)
 
     // Utils
     librarian(libs.caffeine)
@@ -66,17 +67,19 @@ dependencies {
     compileOnly(libs.redisbungee)
 
     // bStats
-    librarian(libs.bundles.bstats)
+    librarian(libs.bstats.velocity)
+    librarian(libs.bstats.bukkit)
 
     // Paper
     compileOnly(libs.paper.api)
-    implementation(libs.packetevents.spigot)
+    compileOnly(libs.packetevents.spigot)
     compileOnly(libs.netty.transport)
-    compileOnly(libs.datafixerupper) // I hate this so much
+    compileOnly(libs.datafixerupper)
     compileOnly(libs.log4j.core)
 
     // Libby
-    implementation(libs.bundles.librarian)
+    implementation(libs.librarian.velocity)
+    implementation(libs.librarian.paper)
 
     // NanoLimboPlugin
     compileOnly(libs.nanolimbo.api)
@@ -126,8 +129,6 @@ tasks.withType<ShadowJar> {
     relocate("org.spongepowered.configurate", "xyz.kyngs.librelogin.lib.configurate")
     relocate("xyz.kyngs.librarian", "xyz.kyngs.librelogin.lib.librarian")
     relocate("org.postgresql", "xyz.kyngs.librelogin.lib.postgresql")
-    relocate("com.github.retrooper.packetevents", "xyz.kyngs.librelogin.lib.packetevents.api")
-    relocate("io.github.retrooper.packetevents", "xyz.kyngs.librelogin.lib.packetevents.platform")
 }
 
 tasks.withType<Jar> {
@@ -136,9 +137,6 @@ tasks.withType<Jar> {
 
 librarian {
     excludedLibs.forEach { excludeDependency(it) }
-
-    // Often redeploys the same version, so calculating checksum causes false flags
-    noChecksumDependency("com.github.retrooper.packetevents:.*:.*")
 }
 
 

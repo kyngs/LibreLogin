@@ -53,8 +53,8 @@ bstats-velocity = { module = "org.bstats:bstats-velocity", version.ref = "bstats
 bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 
 # Paper
-paper-api = "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
-packetevents-spigot = "com.github.retrooper:packetevents-spigot:2.9.4"
+paper-api = "io.papermc.paper:paper-api:26.2.build.+"
+packetevents-spigot = "com.github.retrooper:packetevents-spigot:2.13.0"
 netty-transport = "io.netty:netty-transport:4.1.108.Final"
 datafixerupper = "com.mojang:datafixerupper:5.0.28"
 log4j-core = "org.apache.logging.log4j:log4j-core:2.23.1"
@@ -65,11 +65,6 @@ librarian-paper = { module = "xyz.kyngs.librarian:librarian-paper", version.ref 
 
 # NanoLimboPlugin
 nanolimbo-api = "com.github.bivashy.NanoLimboPlugin:api:1.0.8"
-
-[bundles]
-acf = ["acf-velocity", "acf-paper"]
-bstats = ["bstats-velocity", "bstats-bukkit"]
-librarian = ["librarian-velocity", "librarian-paper"]
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version = "9.4.3" }

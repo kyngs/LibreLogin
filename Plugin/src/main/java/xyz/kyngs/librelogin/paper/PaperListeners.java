@@ -56,17 +56,22 @@ import static xyz.kyngs.librelogin.paper.protocol.ProtocolUtil.getServerVersion;
 
 public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, World> implements Listener {
 
-    private static final String ENCRYPTION_CLASS_NAME = "MinecraftEncryption";
     private static final Class<?> ENCRYPTION_CLASS;
     private static Method encryptMethod;
     private static Method cipherMethod;
 
     static {
+        Class<?> tempClass;
         try {
-            ENCRYPTION_CLASS = Class.forName("net.minecraft.util." + ENCRYPTION_CLASS_NAME);
+            tempClass = Class.forName("net.minecraft.util.Crypt");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            try {
+                tempClass = Class.forName("net.minecraft.util.MinecraftEncryption");
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
         }
+        ENCRYPTION_CLASS = tempClass;
     }
 
     private final KeyPair keyPair = EncryptionUtil.generateKeyPair();

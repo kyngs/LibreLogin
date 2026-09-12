@@ -2,9 +2,15 @@ name: "LibreLogin"
 author: "kyngs"
 version: '${version}'
 main: "xyz.kyngs.librelogin.paper.PaperBootstrap"
+loader: "xyz.kyngs.librelogin.paper.PaperLoader"
 api-version: "1.19"
 
 dependencies:
+  bootstrap:
+    ViaVersion:
+      load: "BEFORE"
+      required: false
+      join-classpath: true
   server:
     Geyser-Spigot:
       load: "BEFORE"
@@ -15,3 +21,6 @@ dependencies:
     LuckPerms:
       load: "BEFORE"
       required: false
+    packetevents:
+      load: "BEFORE"
+      required: true

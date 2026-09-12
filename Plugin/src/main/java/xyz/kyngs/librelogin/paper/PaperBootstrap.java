@@ -6,9 +6,6 @@
 
 package xyz.kyngs.librelogin.paper;
 
-import net.byteflux.libby.BukkitLibraryManager;
-import net.byteflux.libby.LibraryManager;
-import net.byteflux.libby.PaperLibraryManager;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
@@ -31,38 +28,6 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
 
     @Override
     public void onLoad() {
-        getLogger().info("Analyzing server setup...");
-
-        try {
-            var adventureClass = Class.forName("net.kyori.adventure.audience.Audience");
-
-            if (!adventureClass.isAssignableFrom(Player.class)) {
-                throw new ClassNotFoundException();
-            }
-        } catch (ClassNotFoundException e) {
-            unsupportedSetup();
-        }
-
-        getLogger().info("Detected Adventure-compatible server distribution - " + getServer().getName() + " " + getServer().getVersion());
-
-        LibraryManager libraryManager;
-
-        try {
-            Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
-            libraryManager = new PaperLibraryManager(this);
-        } catch (ClassNotFoundException e) {
-            libraryManager = new BukkitLibraryManager(this);
-        }
-
-        getSLF4JLogger().info("Loading libraries...");
-
-        try {
-            libraryManager.configureFromJSON();
-        } catch (Exception e) {
-            getSLF4JLogger().error("Failed to load libraries, stopping server to prevent damage", e);
-            stopServer();
-        }
-
         libreLogin = new PaperLibreLogin(this);
     }
 
@@ -70,16 +35,6 @@ public class PaperBootstrap extends JavaPlugin implements LibreLoginProvider<Pla
     public void onEnable() {
         getLogger().info("Bootstrapping LibreLogin...");
         libreLogin.enable();
-    }
-
-    private void unsupportedSetup() {
-        getLogger().severe("***********************************************************");
-
-        getLogger().severe("Detected an unsupported server distribution. Please use Paper or its forks. SPIGOT IS NOT SUPPORTED!");
-
-        getLogger().severe("***********************************************************");
-
-        stopServer();
     }
 
     private void stopServer() {
