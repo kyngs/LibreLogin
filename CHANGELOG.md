@@ -5,3 +5,4 @@
 - Allow to retrieve the plugin version from LibreLoginProvider
 - Drop BungeeCord/Waterfall support
 - Port to Adventure 5.x
+- Unmount Player's vehicle on disconnect to prevent teleporting it to the limbo on rejoin

@@ -108,6 +108,13 @@ public class PaperListeners extends AuthenticListeners<PaperLibreLogin, Player, 
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        if (event.getPlayer().getVehicle() != null) {
+            // FIXME: This is a suboptimal workaround to prevent teleporting the mount to the limbo.
+            //  Unfortunately, Bukkit does not allow us to unmount during the player login while keeping the mount in the original world.
+            //  The only feasible workaround would be to hook into NMS, read the RootVehicle tag, and spawn the mount after login is done.
+            //  See ServerPlayer#loadAndSpawnParentVehicle for future reference
+            event.getPlayer().getVehicle().eject();
+        }
         GeneralUtil.runAsync(() -> onPlayerDisconnect(event.getPlayer()));
     }
 
