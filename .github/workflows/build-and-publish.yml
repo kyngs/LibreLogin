@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir -p velocity/plugins
           cp Plugin/build/libs/LibreLogin.jar velocity/plugins/
-          curl -sL https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/258/downloads/velocity-3.2.0-SNAPSHOT-258.jar -o velocity/velocity.jar
+          curl -sL https://fill-data.papermc.io/v1/objects/5d3f48df4b160077aaf159b154fef9fde0a198119b99285c26ce2df1a0357bd8/velocity-4.1.2-SNAPSHOT-28.jar -o velocity/velocity.jar
 
       - name: Run Velocity
         run: |
