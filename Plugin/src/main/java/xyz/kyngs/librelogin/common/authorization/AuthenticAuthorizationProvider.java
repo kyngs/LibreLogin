@@ -33,6 +33,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
 
     private final Map<P, Boolean> unAuthorized;
     private final Map<P, String> awaiting2FA;
+    private final Map<P, String> awaiting2FADisable;
     private final Cache<UUID, EmailVerifyData> emailConfirmCache;
     private final Cache<UUID, String> passwordResetCache;
 
@@ -40,6 +41,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         super(plugin);
         unAuthorized = new ConcurrentHashMap<>();
         awaiting2FA = new ConcurrentHashMap<>();
+        awaiting2FADisable = new ConcurrentHashMap<>();
 
         var millis = plugin.getConfiguration().get(ConfigurationKeys.MILLISECONDS_TO_REFRESH_NOTIFICATION);
 
@@ -69,6 +71,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     public void onExit(P player) {
         stopTracking(player);
         awaiting2FA.remove(player);
+        awaiting2FADisable.remove(player);
         emailConfirmCache.invalidate(platformHandle.getUUIDForPlayer(player));
         passwordResetCache.invalidate(platformHandle.getUUIDForPlayer(player));
     }
@@ -81,6 +84,11 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
     @Override
     public boolean isAwaiting2FA(P player) {
         return awaiting2FA.containsKey(player);
+    }
+
+    @Override
+    public boolean isAwaiting2FADisable(P player) {
+        return awaiting2FADisable.containsKey(player);
     }
 
     @Override
@@ -107,6 +115,17 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         var secret = awaiting2FA.get(player);
         if (plugin.getTOTPProvider().verify(code, secret)) {
             user.setSecret(secret);
+            plugin.getDatabaseProvider().updateUser(user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean confirmTwoFactorAuthDisable(P player, Integer code, User user) {
+        var secret = awaiting2FADisable.get(player);
+        if (plugin.getTOTPProvider().verify(code, secret)) {
+            user.setSecret(null);
             plugin.getDatabaseProvider().updateUser(user);
             return true;
         }
@@ -214,5 +233,9 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         platformHandle.movePlayer(player, limbo).whenComplete((t, e) -> {
             if (t != null || e != null) awaiting2FA.remove(player);
         });
+    }
+
+    public void beginTwoFactorAuthDisable(User user, P player) {
+        awaiting2FADisable.put(player, user.getSecret());
     }
 }

@@ -19,6 +19,7 @@ import xyz.kyngs.librelogin.common.AuthenticLibreLogin;
 import xyz.kyngs.librelogin.common.config.ConfigurationKeys;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLimboServerChooseEvent;
 import xyz.kyngs.librelogin.common.event.events.AuthenticLobbyServerChooseEvent;
+import xyz.kyngs.librelogin.common.util.CancellableTask;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
     private final AuthenticLibreLogin<P, S> plugin;
     private final Collection<S> limboServers;
     private final Multimap<String, S> lobbyServers;
+    private final CancellableTask pingCacheRefreshTask;
 
     public AuthenticServerHandler(AuthenticLibreLogin<P, S> plugin) {
         this.plugin = plugin;
@@ -52,7 +54,7 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
                     return Optional.ofNullable(plugin.getConfiguration().get(IGNORE_MAX_PLAYERS_FROM_BACKEND_PING) ? new ServerPing(Integer.MAX_VALUE) : ping);
                 });
 
-        plugin.repeat(() -> pingCache.refreshAll(pingCache.asMap().keySet()), 10000, 10000);
+        pingCacheRefreshTask = plugin.repeat(() -> pingCache.refreshAll(pingCache.asMap().keySet()), 10000, 10000);
 
         var handle = plugin.getPlatformHandle();
 
@@ -181,5 +183,12 @@ public class AuthenticServerHandler<P, S> implements ServerHandler<P, S> {
     public void registerLimboServer(S server) {
         getLatestPing(server);
         limboServers.add(server);
+    }
+
+    @Override
+    public void shutdown() {
+        pingCacheRefreshTask.cancel();
+        pingCache.invalidateAll();
+        pingCache.cleanUp();
     }
 }

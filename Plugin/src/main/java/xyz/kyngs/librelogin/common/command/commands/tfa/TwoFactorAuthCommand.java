@@ -33,24 +33,23 @@ public class TwoFactorAuthCommand<P> extends Command<P> {
                 throw new InvalidCommandArgument(getMessage("totp-show-info"));
             }
 
-            if (!plugin.getImageProjector().canProject(player)) {
-                throw new InvalidCommandArgument(getMessage("totp-wrong-version",
-                        "%low%", "1.13",
-                        "%high%", "1.21.1"
-                ));
-            }
-
             sender.sendMessage(getMessage("totp-generating"));
 
             var data = plugin.getTOTPProvider().generate(user);
 
             auth.beginTwoFactorAuth(user, player, data);
 
-            plugin.cancelOnExit(plugin.delay(() -> {
-                plugin.getImageProjector().project(data.qr(), player);
+            if (plugin.getImageProjector() != null && plugin.getImageProjector().canProject(player)) {
+                plugin.cancelOnExit(plugin.delay(() -> {
+                    plugin.getImageProjector().project(data.qr(), player);
 
-                sender.sendMessage(getMessage("totp-show-info"));
-            }, plugin.getConfiguration().get(ConfigurationKeys.TOTP_DELAY)), player);
+                    sender.sendMessage(getMessage("totp-show-info"));
+                }, plugin.getConfiguration().get(ConfigurationKeys.TOTP_DELAY)), player);
+            } else {
+                sender.sendMessage(getMessage("totp-show-info-fallback",
+                        "%totp_secret%", data.secret()
+                ));
+            }
         });
     }
 }

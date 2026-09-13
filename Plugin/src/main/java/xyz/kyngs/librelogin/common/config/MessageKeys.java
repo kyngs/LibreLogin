@@ -778,6 +778,36 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> TOTP_SHOW_INFO_FALLBACK = new ConfigurationKey<>(
+            "totp-show-info-fallback",
+            """
+                    It is currently not possible to display the 2FA QR code on screen.
+                    Please open your 2FA app (e.g., Google Authenticator or Authy) and manually add a new entry using the following secret key:
+                    %totp_secret%
+                    Once done, execute the /2faconfirm <code> command to complete the process.
+                    Disconnect to abort.""",
+            "This message is displayed when the player is prompted to scan the 2FA QR code but can't show in game graphic.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> TOTP_DISABLE = new ConfigurationKey<>(
+            "totp-disable",
+            """
+                    Please confirm that you want to disable 2FA by executing the command again:
+                    /2fadisable <code>
+                    Once 2FA is disabled, you will be able to log in without a 2FA code.
+                    This action is irreversible. Once disabled, old codes will no longer work.""",
+            "This message is displayed when the player is prompted to confirm he wants to disable 2fa.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> TOTP_DISABLE_CONFIRM = new ConfigurationKey<>(
+            "totp-disable-confirm",
+            "2FA has been disabled! You can now log in without a 2FA code.",
+            "This message is displayed when the 2fa is disabled.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> TOTP_GENERATING = new ConfigurationKey<>(
             "totp-generating",
             "Generating 2FA code...",
@@ -964,6 +994,13 @@ public class MessageKeys {
             ConfigurateHelper::getString
     );
 
+    public static final ConfigurationKey<String> SYNTAX_2FA_DISABLE = new ConfigurationKey<>(
+            "syntax.2fa-disable",
+            "<code>",
+            "This message is displayed when the player attempts to disable 2FA with wrong syntax.",
+            ConfigurateHelper::getString
+    );
+
     public static final ConfigurationKey<String> SYNTAX_CHANGE_PASSWORD = new ConfigurationKey<>(
             "syntax.change-password",
             "<oldPassword> <newPassword>",
@@ -1133,7 +1170,14 @@ public class MessageKeys {
     public static final ConfigurationKey<String> AUTOCOMPLETE_2FA_CONFIRM = new ConfigurationKey<>(
             "autocomplete.2fa-confirm",
             "code",
-            "This hint is displayed when the player starts typing the /2fa-confirm command.",
+            "This hint is displayed when the player starts typing the /2faconfirm command.",
+            ConfigurateHelper::getString
+    );
+
+    public static final ConfigurationKey<String> AUTOCOMPLETE_2FA_DISABLE = new ConfigurationKey<>(
+            "autocomplete.2fa-disable",
+            "code",
+            "This hint is displayed when the player starts typing the /2fadisable command.",
             ConfigurateHelper::getString
     );
 
