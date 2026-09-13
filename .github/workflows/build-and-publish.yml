@@ -60,4 +60,10 @@ jobs:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: ./gradlew :Plugin:release
+        run: ./gradlew :Plugin:release -PbuildTarget=release
+
+      - name: Publish dev build
+        if: github.ref == 'refs/heads/dev'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEV_WEBHOOK_URL }}
+        run: ./gradlew :Plugin:release -PbuildTarget=dev

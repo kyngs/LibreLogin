@@ -1,3 +1,4 @@
+import club.minnced.discord.webhook.send.WebhookEmbed
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
@@ -144,36 +145,47 @@ mcupload {
     file = tasks.shadowJar
     swallowErrors = true
     platforms {
-        modrinth {
-            loaders = listOf("paper", "purpur", "bungeecord", "waterfall", "velocity")
-            projectId = "tL0SCXYq"
-            gameVersions = listOf(
-                "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
-                "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
-                "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
-                "1.18.2", "1.18.1", "1.18",
-                "1.17.1", "1.17",
-                "1.16.5", "1.16.4", "1.16.3", "1.16.2", "1.16.1", "1.16",
-                "1.15.2", "1.15.1", "1.15",
-                "1.14.4", "1.14.3", "1.14.2", "1.14.1", "1.14",
-                "1.13.2", "1.13.1", "1.13",
-            )
-            token = System.getenv("MODRINTH_TOKEN")
-        }
-        /*polymart {
-            apiKey = System.getenv("POLYMART_TOKEN")
-            resourceId = "2179"
-        }*/
-        github {
-            token = System.getenv("GITHUB_TOKEN")
-            repository = "kyngs/LibreLogin"
-        }
-        discord {
-            webhookUrl = System.getenv("DISCORD_WEBHOOK_URL")
-            configureEmbed {
-                setColor(0x0398FC)
+        if (project.version.toString().endsWith("-SNAPSHOT") || System.getProperty("buildTarget") == "dev") {
+            discord {
+                webhookUrl = System.getenv("DISCORD_WEBHOOK_URL")
+                configureEmbed {
+                    setColor(0xFF0000)
+                    setTitle(WebhookEmbed.EmbedTitle("EXPERIMENTAL! " + build().title!!.text, null))
+                }
+            }
+        } else if (System.getProperty("buildTarget") == "release") {
+            modrinth {
+                loaders = listOf("paper", "purpur", "bungeecord", "waterfall", "velocity")
+                projectId = "tL0SCXYq"
+                gameVersions = listOf(
+                    "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
+                    "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
+                    "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
+                    "1.18.2", "1.18.1", "1.18",
+                    "1.17.1", "1.17",
+                    "1.16.5", "1.16.4", "1.16.3", "1.16.2", "1.16.1", "1.16",
+                    "1.15.2", "1.15.1", "1.15",
+                    "1.14.4", "1.14.3", "1.14.2", "1.14.1", "1.14",
+                    "1.13.2", "1.13.1", "1.13",
+                )
+                token = System.getenv("MODRINTH_TOKEN")
+            }
+            /*polymart {
+                apiKey = System.getenv("POLYMART_TOKEN")
+                resourceId = "2179"
+            }*/
+            github {
+                token = System.getenv("GITHUB_TOKEN")
+                repository = "kyngs/LibreLogin"
+            }
+            discord {
+                webhookUrl = System.getenv("DISCORD_WEBHOOK_URL")
+                configureEmbed {
+                    setColor(0x0398FC)
+                }
             }
         }
+
     }
     datasource {
         file {
