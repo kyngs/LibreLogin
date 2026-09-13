@@ -10,7 +10,7 @@ package xyz.kyngs.librelogin.api.event;
  * This interface is used to mark events that can be cancelled
  */
 public interface CancellableEvent {
-    
+
     /**
      * Abort this event
      *
@@ -24,5 +24,5 @@ public interface CancellableEvent {
      * @return Whether is the event aborted
      * */
     boolean isCancelled();
-    
+
 }

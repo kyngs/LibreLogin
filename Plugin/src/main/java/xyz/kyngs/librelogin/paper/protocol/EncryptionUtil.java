@@ -192,4 +192,3 @@ public final class EncryptionUtil {
         return hasher.hash().asBytes();
     }
 }
-

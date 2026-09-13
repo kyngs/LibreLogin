@@ -1,5 +1,7 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
+
 plugins {
-    //alias(libs.plugins.licenser)
+    alias(libs.plugins.spotless) apply false
 }
 
 defaultTasks("updateLicenses", "shadowJar")
@@ -21,13 +23,14 @@ subprojects {
         options.compilerArgs.add("-parameters")
     }
 
-    //configure<LicenseExtension> {
-    //    header(rootProject.file("HEADER.txt"))
-    //    include("**/*.java")
-    //    newLine(true)
-//
-    //    matching("**/protocollib/EncryptionUtil.java", delegateClosureOf<LicenseProperties> {
-    //        header(rootProject.file("licenses/FASTLOGIN_LICENSE"))
-    //    })
-    //}
+    pluginManager.apply("com.diffplug.spotless")
+
+    configure<SpotlessExtension> {
+        java {
+            licenseHeaderFile(rootProject.file("HEADER.txt"))
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
 }

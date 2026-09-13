@@ -22,7 +22,7 @@ jobs:
           java-version: '25'
 
       - name: Build with Gradle
-        run: ./gradlew licenseCheck shadowJar javadocJar
+        run: ./gradlew spotlessCheck build
 
       - name: Setup Velocity environment
         run: |
