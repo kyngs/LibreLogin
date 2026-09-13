@@ -27,9 +27,9 @@ subprojects {
 
     configure<SpotlessExtension> {
         java {
+            targetExclude("**/generated/**")
             licenseHeaderFile(rootProject.file("HEADER.txt"))
             removeUnusedImports()
-            trimTrailingWhitespace()
             endWithNewline()
         }
     }
