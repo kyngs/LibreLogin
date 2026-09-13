@@ -60,7 +60,6 @@ import xyz.kyngs.librelogin.common.integration.FloodgateIntegration;
 import xyz.kyngs.librelogin.common.integration.luckperms.LuckPermsIntegration;
 import xyz.kyngs.librelogin.common.listener.LoginTryListener;
 import xyz.kyngs.librelogin.common.log.Log4JFilter;
-import xyz.kyngs.librelogin.common.log.SimpleLogFilter;
 import xyz.kyngs.librelogin.common.mail.AuthenticEMailHandler;
 import xyz.kyngs.librelogin.common.migrate.*;
 import xyz.kyngs.librelogin.common.premium.AuthenticPremiumProvider;
@@ -226,13 +225,7 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
         try {
             new Log4JFilter().inject();
         } catch (Throwable ignored) {
-            logger.info("LogFilter is not supported on this platform");
-            var simpleLogger = getSimpleLogger();
-
-            if (simpleLogger != null) {
-                logger.info("Using SimpleLogFilter");
-                new SimpleLogFilter(simpleLogger).inject();
-            }
+            logger.warn("LogFilter is not supported on this platform, are you not running Log4J?");
         }
 
         var folder = getDataFolder();
@@ -839,9 +832,5 @@ public abstract class AuthenticLibreLogin<P, S> implements LibreLoginPlugin<P, S
 
     public boolean fromFloodgate(String username) {
         return floodgateApi != null && floodgateApi.getPlayer(username) != null;
-    }
-
-    protected java.util.logging.Logger getSimpleLogger() {
-        return null;
     }
 }
