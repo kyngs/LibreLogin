@@ -73,6 +73,7 @@ dependencies {
 
     // Paper
     compileOnly(libs.paper.api)
+    compileOnly(libs.adventure.api)
     compileOnly(libs.packetevents.spigot)
     compileOnly(libs.netty.transport)
     compileOnly(libs.datafixerupper)

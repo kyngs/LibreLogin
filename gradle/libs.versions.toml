@@ -15,7 +15,7 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 
 # Velocity
 velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
-velocity-proxy = "com.velocitypowered:velocity-proxy:3.2.0-SNAPSHOT-277"
+velocity-proxy = "com.velocitypowered:velocity-proxy:4.1.2-SNAPSHOT-28"
 
 # Databases
 mariadb = "org.mariadb.jdbc:mariadb-java-client:3.5.1"

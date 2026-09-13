@@ -166,7 +166,7 @@ public class AuthenticAuthorizationProvider<P, S> extends AuthenticHandler<P, S>
         audience.showTitle(Title.title(
                 plugin.getMessages().getMessage(registered ? "title-login" : "title-register"),
                 plugin.getMessages().getMessage(registered ? "sub-title-login" : "sub-title-register"),
-                Title.Times.of(
+                Title.Times.times(
                         Duration.ofMillis(0),
                         Duration.ofMillis(toRefresh > 0 ?
                                 (long) (toRefresh * 1.1) :
