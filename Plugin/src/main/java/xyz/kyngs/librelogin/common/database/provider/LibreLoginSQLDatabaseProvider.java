@@ -55,14 +55,13 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
     public User getByName(String name) {
         plugin.reportMainThread();
         return connector.runQuery(connection -> {
-            var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE LOWER(last_nickname)=LOWER(?)");
+            var ps = connection.prepareStatement("SELECT * FROM librepremium_data WHERE last_nickname_lower = ?");
 
-            ps.setString(1, name);
+            ps.setString(1, name.toLowerCase());
 
             var rs = ps.executeQuery();
 
             return getUserFromResult(rs);
-
         });
     }
 
@@ -236,7 +235,8 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
                             "hashed_password VARCHAR(255)," +
                             "salt VARCHAR(255)," +
                             "algo VARCHAR(255)," +
-                    "last_nickname VARCHAR(255) NOT NULL UNIQUE," +
+                    "last_nickname VARCHAR(255) NOT NULL," +
+                            "last_nickname_lower VARCHAR(255) AS (LOWER(last_nickname)) STORED," +
                             "joined TIMESTAMP NULL DEFAULT NULL," +
                             "last_seen TIMESTAMP NULL DEFAULT NULL," +
                             "last_server VARCHAR(255)" +
@@ -261,11 +261,11 @@ public abstract class LibreLoginSQLDatabaseProvider extends AuthenticDatabasePro
             }
             if (!columns.contains("email")) {
                 connection.prepareStatement("ALTER TABLE librepremium_data ADD COLUMN email VARCHAR(255) NULL DEFAULT NULL").executeUpdate();
-            }
 
             try {
-                connection.prepareStatement(addUnique("last_nickname")).executeUpdate();
+                connection.prepareStatement("CREATE UNIQUE INDEX idx_nickname_lower ON librepremium_data (last_nickname_lower)").executeUpdate();
             } catch (SQLException ignored) {
+            }
             }
         });
     }
