@@ -36,15 +36,24 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
     private static final Field INITIAL_MINECRAFT_CONNECTION;
     private static final Field INITIAL_CONNECTION_DELEGATE;
     private static final Field CHANNEL;
+    // Set when the Velocity internals above cannot be resolved (e.g. after a Velocity update).
+    // We must not throw from here: the listener would never be registered and every player would be treated as authorized.
+    private static final Throwable FLOODGATE_LOOKUP_FAILURE;
 
     static {
+        Field initialMinecraftConnectionField = null;
+        Field initialConnectionDelegateField = null;
+        Field channelField = null;
+        Throwable lookupFailure = null;
+
         try {
             Class<?> initialConnection = Class.forName("com.velocitypowered.proxy.connection.client.InitialInboundConnection");
             Class<?> minecraftConnection = Class.forName("com.velocitypowered.proxy.connection.MinecraftConnection");
-            INITIAL_MINECRAFT_CONNECTION = GeneralUtil.getFieldByType(initialConnection, minecraftConnection);
-            if (INITIAL_MINECRAFT_CONNECTION != null) {
-                INITIAL_MINECRAFT_CONNECTION.setAccessible(true);
-            }
+            initialMinecraftConnectionField = Objects.requireNonNull(
+                    GeneralUtil.getFieldByType(initialConnection, minecraftConnection),
+                    "InitialInboundConnection has no MinecraftConnection field"
+            );
+            initialMinecraftConnectionField.setAccessible(true);
 
             // Since Velocity 3.1.0
             Class<?> loginInboundConnection;
@@ -55,27 +64,34 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
             }
 
             if (loginInboundConnection != null) {
-                INITIAL_CONNECTION_DELEGATE = loginInboundConnection.getDeclaredField("delegate");
-                INITIAL_CONNECTION_DELEGATE.setAccessible(true);
-                Objects.requireNonNull(
-                        INITIAL_CONNECTION_DELEGATE,
-                        "initial inbound connection delegate cannot be null"
-                );
-            } else {
-                INITIAL_CONNECTION_DELEGATE = null;
+                initialConnectionDelegateField = loginInboundConnection.getDeclaredField("delegate");
+                initialConnectionDelegateField.setAccessible(true);
             }
 
-            CHANNEL = GeneralUtil.getFieldByType(minecraftConnection, Channel.class);
-            if (CHANNEL != null) {
-                CHANNEL.setAccessible(true);
-            }
-        } catch (ClassNotFoundException | NoSuchFieldException e) {
-            throw new RuntimeException(e);
+            channelField = Objects.requireNonNull(
+                    GeneralUtil.getFieldByType(minecraftConnection, Channel.class),
+                    "MinecraftConnection has no Channel field"
+            );
+            channelField.setAccessible(true);
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+            initialMinecraftConnectionField = null;
+            initialConnectionDelegateField = null;
+            channelField = null;
+            lookupFailure = e;
         }
+
+        INITIAL_MINECRAFT_CONNECTION = initialMinecraftConnectionField;
+        INITIAL_CONNECTION_DELEGATE = initialConnectionDelegateField;
+        CHANNEL = channelField;
+        FLOODGATE_LOOKUP_FAILURE = lookupFailure;
     }
 
     public VelocityListeners(VelocityLibreLogin plugin) {
         super(plugin);
+
+        if (plugin.floodgateEnabled() && FLOODGATE_LOOKUP_FAILURE != null) {
+            plugin.getLogger().error("Failed to access the Velocity internals needed to detect Floodgate players. This Velocity version is probably not supported by this version of LibreLogin. All logins will be denied until LibreLogin is updated or Floodgate is removed.", FLOODGATE_LOOKUP_FAILURE);
+        }
     }
 
     @Subscribe(order = PostOrder.LAST)
@@ -110,6 +126,12 @@ public class VelocityListeners extends AuthenticListeners<VelocityLibreLogin, Pl
         // If floodgate is present, attempt to extract the floodgate player from the connection channel.
         if (plugin.floodgateEnabled()) {
             Channel channel;
+            if (FLOODGATE_LOOKUP_FAILURE != null) {
+                // Already reported on startup, fail closed
+                event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("Internal LibreLogin error")));
+                return;
+            }
+
             InboundConnection connection = event.getConnection();
             try {
                 if (INITIAL_CONNECTION_DELEGATE != null) {
